@@ -1,2 +1,1 @@
-web: gunicorn carproject.wsgi --log-file
-web: python manage.py migrate && gunicorn carproject.wsgi
+web: python manage.py migrate && gunicorn carproject.wsgi:application
