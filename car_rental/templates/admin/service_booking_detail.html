@@ -1,0 +1,180 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Service Booking #{{ booking.id }} - {{ site_info.company_name }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h3">Service Booking #{{ booking.id }}</h1>
+        <div>
+            <a href="{% url 'car_rental:service_booking_update' booking.pk %}" class="btn btn-primary">
+                <i class="fas fa-edit me-2"></i>Edit Booking
+            </a>
+            <a href="{% url 'car_rental:service_booking_list' %}" class="btn btn-outline-secondary">
+                <i class="fas fa-arrow-left me-2"></i>Back to List
+            </a>
+        </div>
+    </div>
+    
+    <div class="row">
+        <div class="col-lg-8">
+            <!-- Booking Details -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">Booking Details</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <p><strong>Service Type:</strong> 
+                                <span class="badge bg-{% if booking.service_type == 'diagnostic' %}primary{% elif booking.service_type == 'repair' %}success{% elif booking.service_type == 'upgrade' %}warning{% else %}info{% endif %}">
+                                    {{ booking.get_service_type_display }}
+                                </span>
+                            </p>
+                            <p><strong>Status:</strong> 
+                                <span class="badge bg-{% if booking.status == 'pending' %}secondary{% elif booking.status == 'confirmed' %}info{% elif booking.status == 'in_progress' %}warning{% elif booking.status == 'completed' %}success{% else %}danger{% endif %}">
+                                    {{ booking.get_status_display }}
+                                </span>
+                            </p>
+                            <p><strong>Preferred Date:</strong> {{ booking.preferred_date|date:"F d, Y" }}</p>
+                            <p><strong>Created:</strong> {{ booking.created_at|date:"F d, Y, g:i A" }}</p>
+                            <p><strong>Updated:</strong> {{ booking.updated_at|date:"F d, Y, g:i A" }}</p>
+                        </div>
+                        <div class="col-md-6">
+                            <p><strong>WhatsApp Sent:</strong> 
+                                {% if booking.whatsapp_sent %}
+                                    <span class="badge bg-success">Yes</span>
+                                {% else %}
+                                    <span class="badge bg-danger">No</span>
+                                {% endif %}
+                            </p>
+                            <p><strong>Created By:</strong> {{ booking.created_by.username|default:"System" }}</p>
+                            <p><strong>Updated By:</strong> {{ booking.updated_by.username|default:"System" }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Customer Information -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">Customer Information</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <p><strong>Name:</strong> {{ booking.name }}</p>
+                            <p><strong>Email:</strong> {{ booking.email }}</p>
+                            <p><strong>Phone:</strong> {{ booking.phone }}</p>
+                        </div>
+                        <div class="col-md-6">
+                            <p><strong>Car Make:</strong> {{ booking.car_make }}</p>
+                            <p><strong>Car Model:</strong> {{ booking.car_model }}</p>
+                            <p><strong>Car Year:</strong> {{ booking.car_year }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Service Description -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">Service Description</h5>
+                </div>
+                <div class="card-body">
+                    <p>{{ booking.description|linebreaks }}</p>
+                </div>
+            </div>
+            
+            <!-- Notes -->
+            {% if booking.notes %}
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">Notes</h5>
+                </div>
+                <div class="card-body">
+                    <p>{{ booking.notes|linebreaks }}</p>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+        
+        <div class="col-lg-4">
+            <!-- Quick Actions -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">Quick Actions</h5>
+                </div>
+                <div class="card-body">
+                    <div class="d-grid gap-2">
+                        {% with clean_phone=booking.phone|cut:'+'|cut:' '|cut:'-' %}
+                        {% with service_type=booking.get_service_type_display %}
+                        {% with message="Hello " %}
+                        {% with message=message|add:booking.name %}
+                        {% with message=message|add:", regarding your " %}
+                        {% with message=message|add:service_type %}
+                        {% with message=message|add:" booking." %}
+                        <a href="https://wa.me/{{ clean_phone }}?text={{ message|urlencode }}" 
+                           class="btn btn-success" target="_blank">
+                            <i class="fab fa-whatsapp me-2"></i>Contact Customer
+                        </a>
+                        {% endwith %}{% endwith %}{% endwith %}{% endwith %}{% endwith %}{% endwith %}{% endwith %}
+                        
+                        <a href="mailto:{{ booking.email }}?subject=Regarding your {{ booking.get_service_type_display }} booking" 
+                           class="btn btn-primary">
+                            <i class="fas fa-envelope me-2"></i>Send Email
+                        </a>
+                        <button class="btn btn-outline-secondary" onclick="window.print()">
+                            <i class="fas fa-print me-2"></i>Print Details
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Status Update -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">Update Status</h5>
+                </div>
+                <div class="card-body">
+                    <form method="post" action="{% url 'car_rental:update_service_booking_status' booking.pk %}">
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            <label for="status" class="form-label">New Status</label>
+                            <select name="status" id="status" class="form-select" required>
+                                {% for value, label in booking.STATUS_CHOICES %}
+                                    <option value="{{ value }}" {% if booking.status == value %}selected{% endif %}>{{ label }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="notes" class="form-label">Notes</label>
+                            <textarea name="notes" id="notes" class="form-control" rows="3">{{ booking.notes }}</textarea>
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100">Update Status</button>
+                    </form>
+                </div>
+            </div>
+            
+            <!-- Send WhatsApp Notification -->
+            {% if not booking.whatsapp_sent %}
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">Send WhatsApp Notification</h5>
+                </div>
+                <div class="card-body">
+                    <p>Mark that WhatsApp notification has been sent to the customer.</p>
+                    <form method="post" action="{% url 'car_rental:mark_whatsapp_sent' booking.pk %}">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-success w-100">
+                            <i class="fab fa-whatsapp me-2"></i>Mark as Sent
+                        </button>
+                    </form>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

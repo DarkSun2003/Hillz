@@ -1,0 +1,159 @@
+{% extends 'base.html' %}
+
+{% block title %}Terms of Service - {{ site_info.company_name }}{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="row">
+        <div class="col-lg-8 mx-auto">
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <h2 class="mb-0">Terms of Service</h2>
+                </div>
+                <div class="card-body">
+                    <p><strong>Last updated:</strong> {{ site_info.updated_at|date:"F d, Y" }}</p>
+                    
+                    <h4>1. Agreement to Terms</h4>
+                    <p>By using our services, you agree to be bound by these Terms of Service and our Privacy Policy. If you do not agree to these terms, please do not use our services.</p>
+                    
+                    <h4>2. Rental Services</h4>
+                    <h5>Eligibility</h5>
+                    <p>To rent a vehicle from us, you must:</p>
+                    <ul>
+                        <li>Be at least 21 years of age</li>
+                        <li>Hold a valid driver's license</li>
+                        <li>Have a major credit card in your name</li>
+                        <li>Provide proof of insurance (if required)</li>
+                    </ul>
+                    
+                    <h5>Rental Process</h5>
+                    <p>When renting a vehicle, you agree to:</p>
+                    <ul>
+                        <li>Provide accurate and complete information</li>
+                        <li>Return the vehicle in the same condition as received</li>
+                        <li>Adhere to the agreed rental period</li>
+                        <li>Pay all applicable fees and charges</li>
+                        <li>Not use the vehicle for illegal purposes</li>
+                        <li>Not allow unauthorized drivers to operate the vehicle</li>
+                    </ul>
+                    
+                    <h5>Pricing and Payment</h5>
+                    <ul>
+                        <li>Rental rates are calculated on a daily basis</li>
+                        <li>Additional charges may apply for late returns, damage, or violations</li>
+                        <li>All rentals require a security deposit</li>
+                        <li>Payment is due at the time of rental</li>
+                    </ul>
+                    
+                    <h4>3. Purchase Services</h4>
+                    <h5>Vehicle Purchase</h5>
+                    <p>When purchasing a vehicle, you agree to:</p>
+                    <ul>
+                        <li>Provide accurate information for title and registration</li>
+                        <li>Pay the full purchase price plus applicable taxes and fees</li>
+                        <li>Arrange for insurance coverage as required by law</li>
+                        <li>Complete all necessary paperwork</li>
+                    </ul>
+                    
+                    <h5>Warranty</h5>
+                    <p>New vehicles come with manufacturer's warranty. Used vehicles may have limited warranty as specified at the time of purchase.</p>
+                    
+                    <h4>4. Service Appointments</h4>
+                    <h5>Scheduling</h5>
+                    <p>When scheduling a service appointment, you agree to:</p>
+                    <ul>
+                        <li>Provide accurate vehicle information</li>
+                        <li>Arrive on time for your appointment</li>
+                        <li>Notify us of any changes or cancellations at least 24 hours in advance</li>
+                    </ul>
+                    
+                    <h5>Service Pricing</h5>
+                    <p>Service pricing varies based on the type of service and vehicle. We will provide an estimate before beginning any work.</p>
+                    
+                    <h4>5. Payment Terms</h4>
+                    <ul>
+                        <li>All payments must be made in Nigerian Naira (₦)</li>
+                        <li>We accept cash, credit/debit cards, and bank transfers</li>
+                        <li>Returned payments may be subject to processing fees</li>
+                        <li>Late payments may incur interest charges</li>
+                    </ul>
+                    
+                    <h4>6. Cancellation and Refunds</h4>
+                    <h5>Rentals</h5>
+                    <ul>
+                        <li>Cancellations made at least 24 hours before pickup: Full refund</li>
+                        <li>Cancellations made less than 24 hours before pickup: 50% refund</li>
+                        <li>No-shows: No refund</li>
+                    </ul>
+                    
+                    <h5>Purchases</h5>
+                    <ul>
+                        <li>Cooling-off period: 3 days for used vehicles, 7 days for new vehicles</li>
+                        <li>Restocking fees may apply to cancelled purchases</li>
+                    </ul>
+                    
+                    <h5>Service Appointments</h5>
+                    <ul>
+                        <li>Cancellations made at least 24 hours before appointment: No fee</li>
+                        <li>Cancellations made less than 24 hours before appointment: ₦2,000 fee</li>
+                        <li>No-shows: Full service charge</li>
+                    </ul>
+                    
+                    <h4>7. Vehicle Use and Care</h4>
+                    <p>You agree to:</p>
+                    <ul>
+                        <li>Use the vehicle only for its intended purpose</li>
+                        <li>Not carry more passengers than the vehicle is designed for</li>
+                        <li>Not transport hazardous materials</li>
+                        <li>Not use the vehicle for racing or other competitive activities</li>
+                        <li>Not take the vehicle outside of Nigeria without prior permission</li>
+                        <li>Maintain proper fluid levels and tire pressure</li>
+                        <li>Report any accidents or mechanical issues immediately</li>
+                    </ul>
+                    
+                    <h4>8. Liability and Insurance</h4>
+                    <p>You are responsible for:</p>
+                    <ul>
+                        <li>All damage to the vehicle during the rental period</li>
+                        <li>Traffic violations and parking tickets</li>
+                        <li>Theft of the vehicle if not properly secured</li>
+                        <li>Personal injuries or property damage resulting from vehicle use</li>
+                    </ul>
+                    
+                    <p>We recommend maintaining adequate insurance coverage for your protection.</p>
+                    
+                    <h4>9. Privacy</h4>
+                    <p>Our collection and use of your personal information is governed by our Privacy Policy. By using our services, you consent to the collection and use of information as described therein.</p>
+                    
+                    <h4>10. Intellectual Property</h4>
+                    <p>All content on our website and mobile applications, including text, graphics, logos, and software, is the property of {{ site_info.company_name }} or its licensors and is protected by copyright and other intellectual property laws.</p>
+                    
+                    <h4>11. Termination</h4>
+                    <p>We reserve the right to terminate or suspend your access to our services at any time, without notice, for conduct that we believe violates these terms or is harmful to other users, us, or third parties, or for any other reason.</p>
+                    
+                    <h4>12. Limitation of Liability</h4>
+                    <p>{{ site_info.company_name }} shall not be liable for any indirect, incidental, special, consequential, or punitive damages arising from your use of our services, including but not limited to:</p>
+                    <ul>
+                        <li>Loss of profits</li>
+                        <li>Loss of data</li>
+                        <li>Cost of procurement of substitute services</li>
+                        <li>Personal injury or property damage</li>
+                    </ul>
+                    
+                    <h4>13. Governing Law</h4>
+                    <p>These terms are governed by and construed in accordance with the laws of Nigeria, without regard to its conflict of law principles.</p>
+                    
+                    <h4>14. Changes to Terms</h4>
+                    <p>We reserve the right to modify these terms at any time. We will provide notice of significant changes through our website or by email. Your continued use of our services after such changes constitutes acceptance of the new terms.</p>
+                    
+                    <h4>15. Contact Information</h4>
+                    <p>If you have any questions about these Terms of Service, please contact us at:</p>
+                    <p>Email: {{ site_info.email }}</p>
+                    <p>Phone: {{ site_info.phone }}</p>
+                    <p>Address: {{ site_info.address }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,195 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Update Customer - {{ customer.name }}{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="row">
+        <div class="col-lg-8 mx-auto">
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">Update Customer Information</h5>
+                </div>
+                <div class="card-body">
+                    <!-- Display Django Messages -->
+                    {% if messages %}
+                        {% for message in messages %}
+                            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                                {{ message }}
+                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+                    
+                    <form method="post" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        
+                        <!-- Basic Information Section -->
+                        <h6 class="mt-4 mb-3 border-bottom pb-2">Basic Information</h6>
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label for="{{ form.name.id_for_label }}" class="form-label">Full Name</label>
+                                <div class="input-group">
+                                    {{ form.name }}
+                                    {% if form.name.errors %}
+                                        <div class="invalid-feedback d-block">
+                                            {{ form.name.errors.0 }}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="{{ form.email.id_for_label }}" class="form-label">Email Address</label>
+                                <div class="input-group">
+                                    {{ form.email }}
+                                    {% if form.email.errors %}
+                                        <div class="invalid-feedback d-block">
+                                            {{ form.email.errors.0 }}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label for="{{ form.phone.id_for_label }}" class="form-label">Phone Number</label>
+                                <div class="input-group">
+                                    {{ form.phone }}
+                                    {% if form.phone.errors %}
+                                        <div class="invalid-feedback d-block">
+                                            {{ form.phone.errors.0 }}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="{{ form.address.id_for_label }}" class="form-label">Address</label>
+                                <div class="input-group">
+                                    {{ form.address }}
+                                    {% if form.address.errors %}
+                                        <div class="invalid-feedback d-block">
+                                            {{ form.address.errors.0 }}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Driver's License Section -->
+                        <h6 class="mt-4 mb-3 border-bottom pb-2">Driver's License Information</h6>
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label for="{{ form.drivers_license.id_for_label }}" class="form-label">Driver's License Number</label>
+                                <div class="input-group">
+                                    {{ form.drivers_license }}
+                                    {% if form.drivers_license.errors %}
+                                        <div class="invalid-feedback d-block">
+                                            {{ form.drivers_license.errors.0 }}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="{{ form.license_expiry.id_for_label }}" class="form-label">License Expiry Date</label>
+                                <div class="input-group">
+                                    {{ form.license_expiry }}
+                                    {% if form.license_expiry.errors %}
+                                        <div class="invalid-feedback d-block">
+                                            {{ form.license_expiry.errors.0 }}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="{{ form.license_image.id_for_label }}" class="form-label">Driver's License Image</label>
+                            <div class="input-group">
+                                {{ form.license_image }}
+                                {% if form.license_image.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {{ form.license_image.errors.0 }}
+                                    </div>
+                                {% endif %}
+                            </div>
+                            <small class="form-text text-muted">Upload a clear image of the driver's license (optional)</small>
+                            
+                            {% if customer.license_image %}
+                                <div class="mt-2">
+                                    <small class="text-muted">Current license image:</small><br>
+                                    <img src="{{ customer.license_image.url }}" alt="License Image" class="img-thumbnail" style="max-width: 200px; max-height: 150px;">
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <!-- Delivery Information Section -->
+                        <h6 class="mt-4 mb-3 border-bottom pb-2">Delivery Information</h6>
+                        <div class="mb-3">
+                            <label for="{{ form.delivery_address.id_for_label }}" class="form-label">Delivery Address</label>
+                            <div class="input-group">
+                                {{ form.delivery_address }}
+                                {% if form.delivery_address.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {{ form.delivery_address.errors.0 }}
+                                    </div>
+                                {% endif %}
+                            </div>
+                            <small class="form-text text-muted">Address where vehicles should be delivered (optional)</small>
+                        </div>
+                        
+                        <!-- Form Actions -->
+                        <div class="d-flex justify-content-between mt-4">
+                            <a href="{% url 'car_rental:customer_detail' customer.id %}" class="btn btn-outline-secondary">
+                                <i class="fas fa-arrow-left me-2"></i> Back to Customer
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save me-2"></i> Update Customer
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .invalid-feedback {
+        display: block;
+        width: 100%;
+        margin-top: 0.25rem;
+        font-size: 0.875em;
+        color: #dc3545;
+    }
+    
+    .input-group {
+        position: relative;
+    }
+    
+    .input-group .form-control.is-invalid {
+        border-color: #dc3545;
+        padding-right: calc(1.5em + 0.75rem);
+        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12' width='12' height='12' fill='none' stroke='%23dc3545'%3e%3ccircle cx='6' cy='6' r='4.5'/%3e%3cpath stroke-linejoin='round' d='M5.8 3.6h.4L6 6.5z'/%3e%3ccircle cx='6' cy='8.2' r='.6' fill='%23dc3545' stroke='none'/%3e%3c/svg%3e");
+        background-repeat: no-repeat;
+        background-position: right calc(0.375em + 0.1875rem) center;
+        background-size: calc(0.75em + 0.375rem) calc(0.75em + 0.375rem);
+    }
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Add error styling to form fields
+        document.querySelectorAll('.form-control').forEach(function(field) {
+            if (field.classList.contains('is-invalid')) {
+                field.style.borderColor = '#dc3545';
+            }
+        });
+    });
+</script>
+{% endblock %}

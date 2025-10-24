@@ -1,0 +1,525 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Add New Car - {% if site_info %}{{ site_info.company_name }}{% else %}Hillz Exquisite{% endif %}{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Page Header */
+    .page-header {
+        position: relative;
+    }
+    
+    .page-header::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: linear-gradient(rgba(26, 26, 26, 0.7), rgba(26, 26, 26, 0.9));
+        z-index: 1;
+    }
+    
+    .page-header .container {
+        position: relative;
+        z-index: 2;
+    }
+    
+    /* Form Sections */
+    .form-section {
+        background-color: #f8f9fa;
+        border-radius: 10px;
+        padding: 20px;
+        border-left: 4px solid var(--primary-color);
+        transition: all 0.3s ease;
+    }
+    
+    .form-section:hover {
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+    }
+    
+    .section-title {
+        color: var(--dark-color);
+        font-family: 'Playfair Display', serif;
+        padding-bottom: 10px;
+    }
+    
+    .section-title::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 50px;
+        height: 2px;
+        background-color: var(--primary-color);
+    }
+    
+    /* Form Controls */
+    .form-control, .form-select {
+        border-radius: 8px;
+        border: 1px solid #ced4da;
+        transition: all 0.3s ease;
+        padding: 0.75rem 1rem;
+        font-size: 1rem;
+    }
+    
+    .form-control:focus, .form-select:focus {
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 0.25rem rgba(212, 175, 55, 0.25);
+    }
+    
+    .form-control.is-invalid, .form-select.is-invalid {
+        border-color: #dc3545;
+    }
+    
+    .form-control.is-valid, .form-select.is-valid {
+        border-color: #198754;
+    }
+    
+    .input-group-text {
+        background-color: #f8f9fa;
+        border-right: none;
+        border-radius: 8px 0 0 8px;
+    }
+    
+    .input-group .form-control {
+        border-left: none;
+    }
+    
+    .form-check-input:checked {
+        background-color: var(--primary-color);
+        border-color: var(--primary-color);
+    }
+    
+    .form-check-input:focus {
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 0.25rem rgba(212, 175, 55, 0.25);
+    }
+    
+    /* Buttons */
+    .btn-primary {
+        background-color: var(--primary-color);
+        border-color: var(--primary-color);
+        border-radius: 8px;
+        padding: 0.75rem 1.5rem;
+        font-weight: 500;
+        transition: all 0.3s ease;
+    }
+    
+    .btn-primary:hover {
+        background-color: #b8941f;
+        border-color: #b8941f;
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(212, 175, 55, 0.3);
+    }
+    
+    .btn-outline-secondary {
+        border-radius: 8px;
+        padding: 0.75rem 1.5rem;
+        font-weight: 500;
+        transition: all 0.3s ease;
+    }
+    
+    .btn-outline-secondary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(108, 117, 125, 0.3);
+    }
+    
+    /* Error Messages */
+    .invalid-feedback {
+        font-size: 0.875rem;
+        margin-top: 0.25rem;
+    }
+    
+    .alert-danger {
+        background-color: rgba(220, 53, 69, 0.1);
+        border: 1px solid rgba(220, 53, 69, 0.2);
+        color: #721c24;
+        border-radius: 8px;
+    }
+    
+    /* Image Preview */
+    .image-preview {
+        max-height: 200px;
+        border-radius: 8px;
+        margin-top: 10px;
+        display: none;
+    }
+    
+    /* Progress Bar */
+    .progress {
+        height: 5px;
+        margin-top: 10px;
+        display: none;
+    }
+    
+    /* Responsive */
+    @media (max-width: 768px) {
+        .page-header {
+            padding: 40px 0;
+        }
+        
+        .display-5 {
+            font-size: 1.75rem;
+        }
+        
+        .btn-lg {
+            padding: 0.5rem 1rem;
+            font-size: 1rem;
+        }
+        
+        .form-control, .form-select {
+            padding: 0.5rem 0.75rem;
+            font-size: 1rem;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Page Header -->
+<section class="page-header py-5 mb-4" style="background: linear-gradient(rgba(26, 26, 26, 0.8), rgba(26, 26, 26, 0.8)), url('https://images.unsplash.com/photo-1554224712-d8560f709cbe?ixlib=rb-4.0.3'); background-size: cover; background-position: center;">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-md-8">
+                <h1 class="display-5 fw-bold text-white mb-2">
+                    <i class="fas fa-plus-circle me-3 text-warning"></i> Add New Vehicle to Inventory
+                </h1>
+                <p class="lead text-white-50">Fill out the form below to register a new car for rental, sale, or both.</p>
+            </div>
+            <div class="col-md-4 text-end">
+                <div class="d-flex align-items-center justify-content-end">
+                    <div class="bg-white bg-opacity-10 rounded-circle p-3 me-3">
+                        <i class="fas fa-car text-white fa-2x"></i>
+                    </div>
+                    <div class="text-white">
+                        <h5 class="mb-0">Inventory Management</h5>
+                        <small>Add new vehicles</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <div class="card shadow-lg border-0 overflow-hidden">
+                <div class="card-header bg-dark text-white py-3">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0"><i class="fas fa-car me-2 text-warning"></i> Vehicle Registration Form</h5>
+                        <span class="badge bg-warning text-dark">Step 1 of 1</span>
+                    </div>
+                </div>
+                <div class="card-body p-4">
+                    <form method="post" enctype="multipart/form-data" id="carForm">
+                        {% csrf_token %}
+
+                        {% if form.non_field_errors %}
+                            <div class="alert alert-danger d-flex align-items-center" role="alert">
+                                <i class="fas fa-exclamation-circle me-2"></i>
+                                <div>
+                                    {% for error in form.non_field_errors %}{{ error }}{% endfor %}
+                                </div>
+                            </div>
+                        {% endif %}
+
+                        <!-- Identification & Status Section -->
+                        <div class="form-section mb-5">
+                            <h4 class="section-title mb-4 position-relative">
+                                <i class="fas fa-id-card me-2 text-warning"></i> Identification & Status
+                            </h4>
+                            <div class="row">
+                                <div class="col-md-4 mb-3">
+                                    <label for="{{ form.make.id_for_label }}" class="form-label fw-medium">Make <span class="text-danger">*</span></label>
+                                    {{ form.make }}
+                                    {% if form.make.errors %}<div class="invalid-feedback d-block">{{ form.make.errors }}</div>{% endif %}
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    <label for="{{ form.model.id_for_label }}" class="form-label fw-medium">Model <span class="text-danger">*</span></label>
+                                    {{ form.model }}
+                                    {% if form.model.errors %}<div class="invalid-feedback d-block">{{ form.model.errors }}</div>{% endif %}
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    <label for="{{ form.year.id_for_label }}" class="form-label fw-medium">Year <span class="text-danger">*</span></label>
+                                    {{ form.year }}
+                                    {% if form.year.errors %}<div class="invalid-feedback d-block">{{ form.year.errors }}</div>{% endif %}
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="{{ form.vin.id_for_label }}" class="form-label fw-medium">VIN</label>
+                                    {{ form.vin }}
+                                    <div class="form-text text-muted">17-character Vehicle Identification Number</div>
+                                    {% if form.vin.errors %}<div class="invalid-feedback d-block">{{ form.vin.errors }}</div>{% endif %}
+                                </div>
+                                <div class="col-md-3 mb-3">
+                                    <label for="{{ form.status.id_for_label }}" class="form-label fw-medium">Status <span class="text-danger">*</span></label>
+                                    {{ form.status }}
+                                    {% if form.status.errors %}<div class="invalid-feedback d-block">{{ form.status.errors }}</div>{% endif %}
+                                </div>
+                                <div class="col-md-3 mb-3 d-flex align-items-center">
+                                    <div class="form-check form-switch mt-4">
+                                        {{ form.featured }}
+                                        <label class="form-check-label fw-medium" for="{{ form.featured.id_for_label }}">
+                                            Featured Vehicle
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Pricing & Availability Section -->
+                        <div class="form-section mb-5">
+                            <h4 class="section-title mb-4 position-relative">
+                                <i class="fas fa-dollar-sign me-2 text-warning"></i> Pricing & Availability
+                            </h4>
+                            <div class="row">
+                                <div class="col-md-4 mb-3">
+                                    <label for="{{ form.default_price.id_for_label }}" class="form-label fw-medium">Default Price <span class="text-danger">*</span></label>
+                                    <div class="input-group">
+                                        <span class="input-group-text">$</span>
+                                        {{ form.default_price }}
+                                    </div>
+                                    {% if form.default_price.errors %}<div class="invalid-feedback d-block">{{ form.default_price.errors }}</div>{% endif %}
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    <label for="{{ form.rent_price.id_for_label }}" class="form-label fw-medium">Rental Price (Per Day)</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text">$</span>
+                                        {{ form.rent_price }}
+                                    </div>
+                                    <div class="form-check mt-2">
+                                        {{ form.for_rent }}
+                                        <label class="form-check-label" for="{{ form.for_rent.id_for_label }}">
+                                            Available for Rent
+                                        </label>
+                                    </div>
+                                    {% if form.rent_price.errors %}<div class="invalid-feedback d-block">{{ form.rent_price.errors }}</div>{% endif %}
+                                    {% if form.for_rent.errors %}<div class="invalid-feedback d-block">{{ form.for_rent.errors }}</div>{% endif %}
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    <label for="{{ form.sale_price.id_for_label }}" class="form-label fw-medium">Sale Price</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text">$</span>
+                                        {{ form.sale_price }}
+                                    </div>
+                                    <div class="form-check mt-2">
+                                        {{ form.for_sale }}
+                                        <label class="form-check-label" for="{{ form.for_sale.id_for_label }}">
+                                            Available for Sale
+                                        </label>
+                                    </div>
+                                    {% if form.sale_price.errors %}<div class="invalid-feedback d-block">{{ form.sale_price.errors }}</div>{% endif %}
+                                    {% if form.for_sale.errors %}<div class="invalid-feedback d-block">{{ form.for_sale.errors }}</div>{% endif %}
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Specifications Section -->
+                        <div class="form-section mb-5">
+                            <h4 class="section-title mb-4 position-relative">
+                                <i class="fas fa-cogs me-2 text-warning"></i> Specifications
+                            </h4>
+                            <div class="row">
+                                <div class="col-md-3 mb-3">
+                                    <label for="{{ form.car_type.id_for_label }}" class="form-label fw-medium">Car Type</label>
+                                    {{ form.car_type }}
+                                </div>
+                                <div class="col-md-3 mb-3">
+                                    <label for="{{ form.transmission.id_for_label }}" class="form-label fw-medium">Transmission</label>
+                                    {{ form.transmission }}
+                                </div>
+                                <div class="col-md-3 mb-3">
+                                    <label for="{{ form.engine_type.id_for_label }}" class="form-label fw-medium">Engine Type</label>
+                                    {{ form.engine_type }}
+                                </div>
+                                <div class="col-md-3 mb-3">
+                                    <label for="{{ form.color.id_for_label }}" class="form-label fw-medium">Color</label>
+                                    {{ form.color }}
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-4 mb-3">
+                                    <label for="{{ form.mileage.id_for_label }}" class="form-label fw-medium">Mileage (miles)</label>
+                                    {{ form.mileage }}
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    <label for="{{ form.seats.id_for_label }}" class="form-label fw-medium">Seats</label>
+                                    {{ form.seats }}
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    <label for="{{ form.fuel_efficiency.id_for_label }}" class="form-label fw-medium">Fuel Efficiency (MPG)</label>
+                                    {{ form.fuel_efficiency }}
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Media & Description Section -->
+                        <div class="form-section mb-5">
+                            <h4 class="section-title mb-4 position-relative">
+                                <i class="fas fa-image me-2 text-warning"></i> Media & Description
+                            </h4>
+                            <div class="mb-4">
+                                <label for="{{ form.description.id_for_label }}" class="form-label fw-medium">Description</label>
+                                {{ form.description }}
+                                <div class="form-text text-muted">Provide details about the vehicle's features, condition, and history</div>
+                            </div>
+                            <div class="mb-4">
+                                <label for="{{ form.image.id_for_label }}" class="form-label fw-medium">Car Image</label>
+                                {{ form.image }}
+                                <div class="form-text text-muted">Upload a high-quality image of the vehicle (JPG, PNG)</div>
+                                <div class="progress">
+                                    <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" style="width: 0%"></div>
+                                </div>
+                                <img id="imagePreview" class="image-preview img-fluid" alt="Image preview">
+                            </div>
+                        </div>
+
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-5">
+                            <a href="{% url 'car_rental:all_cars' %}" class="btn btn-outline-secondary btn-lg me-md-2">
+                                <i class="fas fa-times me-2"></i> Cancel
+                            </a>
+                            <button type="submit" class="btn btn-primary btn-lg" id="submitBtn">
+                                <i class="fas fa-car me-2"></i> Add Vehicle
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Form validation styling
+        const form = document.getElementById('carForm');
+        const submitBtn = document.getElementById('submitBtn');
+        const progressBar = document.querySelector('.progress');
+        const progressBarInner = document.querySelector('.progress-bar');
+        
+        if (form) {
+            form.addEventListener('submit', function(event) {
+                // Check required fields
+                const requiredFields = form.querySelectorAll('[required]');
+                let isValid = true;
+                
+                requiredFields.forEach(field => {
+                    if (!field.value.trim()) {
+                        field.classList.add('is-invalid');
+                        isValid = false;
+                    } else {
+                        field.classList.remove('is-invalid');
+                        field.classList.add('is-valid');
+                    }
+                });
+                
+                if (!isValid) {
+                    event.preventDefault();
+                    
+                    // Scroll to first error
+                    const firstError = form.querySelector('.is-invalid');
+                    if (firstError) {
+                        firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        firstError.focus();
+                    }
+                } else {
+                    // Show progress bar and disable button
+                    submitBtn.disabled = true;
+                    submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span> Adding Vehicle...';
+                    progressBar.style.display = 'block';
+                    
+                    // Simulate progress
+                    let width = 0;
+                    const interval = setInterval(function() {
+                        if (width >= 100) {
+                            clearInterval(interval);
+                        } else {
+                            width += 10;
+                            progressBarInner.style.width = width + '%';
+                        }
+                    }, 100);
+                }
+            });
+            
+            // Real-time validation feedback
+            const inputs = form.querySelectorAll('input, select, textarea');
+            inputs.forEach(input => {
+                input.addEventListener('blur', function() {
+                    if (this.hasAttribute('required') && !this.value.trim()) {
+                        this.classList.add('is-invalid');
+                    } else {
+                        this.classList.remove('is-invalid');
+                        if (this.value.trim()) {
+                            this.classList.add('is-valid');
+                        }
+                    }
+                });
+            });
+        }
+        
+        // Image preview
+        const imageInput = document.getElementById('{{ form.image.id_for_label }}');
+        const imagePreview = document.getElementById('imagePreview');
+        
+        if (imageInput && imagePreview) {
+            imageInput.addEventListener('change', function() {
+                if (this.files && this.files[0]) {
+                    const reader = new FileReader();
+                    
+                    reader.onload = function(e) {
+                        imagePreview.src = e.target.result;
+                        imagePreview.style.display = 'block';
+                    }
+                    
+                    reader.readAsDataURL(this.files[0]);
+                } else {
+                    imagePreview.style.display = 'none';
+                }
+            });
+        }
+        
+        // Toggle rental/sale price fields based on checkboxes
+        const forRentCheckbox = document.getElementById('{{ form.for_rent.id_for_label }}');
+        const forSaleCheckbox = document.getElementById('{{ form.for_sale.id_for_label }}');
+        const rentPriceField = document.getElementById('{{ form.rent_price.id_for_label }}').closest('.mb-3');
+        const salePriceField = document.getElementById('{{ form.sale_price.id_for_label }}').closest('.mb-3');
+        
+        if (forRentCheckbox && rentPriceField) {
+            forRentCheckbox.addEventListener('change', function() {
+                if (this.checked) {
+                    rentPriceField.style.display = 'block';
+                    document.getElementById('{{ form.rent_price.id_for_label }}').setAttribute('required', 'required');
+                } else {
+                    rentPriceField.style.display = 'none';
+                    document.getElementById('{{ form.rent_price.id_for_label }}').removeAttribute('required');
+                }
+            });
+            
+            // Trigger change event on page load
+            forRentCheckbox.dispatchEvent(new Event('change'));
+        }
+        
+        if (forSaleCheckbox && salePriceField) {
+            forSaleCheckbox.addEventListener('change', function() {
+                if (this.checked) {
+                    salePriceField.style.display = 'block';
+                    document.getElementById('{{ form.sale_price.id_for_label }}').setAttribute('required', 'required');
+                } else {
+                    salePriceField.style.display = 'none';
+                    document.getElementById('{{ form.sale_price.id_for_label }}').removeAttribute('required');
+                }
+            });
+            
+            // Trigger change event on page load
+            forSaleCheckbox.dispatchEvent(new Event('change'));
+        }
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,158 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Consultation Service Booking Success - {% if site_info %}{{ site_info.company_name }}{% else %}Hillz Exquisite{% endif %}{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card shadow-lg border-0">
+                <div class="card-header bg-success text-white py-3">
+                    <h4 class="mb-0">
+                        <i class="fas fa-check-circle me-2"></i>Consultation Service Booking Successful!
+                    </h4>
+                </div>
+                <div class="card-body p-4">
+                    {% if messages %}
+                        {% for message in messages %}
+                            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                                {{ message }}
+                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+                    
+                    <div class="text-center mb-4">
+                        <div class="success-icon mx-auto mb-3">
+                            <i class="fas fa-comments fa-3x text-success"></i>
+                        </div>
+                        <h3 class="text-success">Your Consultation Service Booking is Confirmed!</h3>
+                        <p class="text-muted">Thank you for booking a consultation service with us. Our automotive experts will provide personalized advice for your vehicle.</p>
+                    </div>
+                    
+                    {% if booking %}
+                    <div class="booking-details mb-4">
+                        <h5 class="border-bottom pb-2">Booking Details</h5>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <p><strong>Service Type:</strong> Consultation Service</p>
+                                <p><strong>Vehicle:</strong> {{ booking.car_year }} {{ booking.car_make }} {{ booking.car_model }}</p>
+                                <p><strong>Preferred Date:</strong> {{ booking.preferred_date|date:"F d, Y" }}</p>
+                            </div>
+                            <div class="col-md-6">
+                                <p><strong>Booking ID:</strong> #{{ booking.id }}</p>
+                                <p><strong>Status:</strong> 
+                                    {% if booking.status == 'pending' %}
+                                        <span class="badge bg-warning">Pending</span>
+                                    {% elif booking.status == 'confirmed' %}
+                                        <span class="badge bg-info">Confirmed</span>
+                                    {% elif booking.status == 'in_progress' %}
+                                        <span class="badge bg-primary">In Progress</span>
+                                    {% elif booking.status == 'completed' %}
+                                        <span class="badge bg-success">Completed</span>
+                                    {% else %}
+                                        <span class="badge bg-secondary">{{ booking.get_status_display }}</span>
+                                    {% endif %}
+                                </p>
+                            </div>
+                        </div>
+                        {% if booking.description %}
+                        <div class="mt-3">
+                            <p><strong>Consultation Topics:</strong></p>
+                            <p class="text-muted">{{ booking.description }}</p>
+                        </div>
+                        {% endif %}
+                    </div>
+                    {% endif %}
+                    
+                    <div class="whatsapp-instructions mb-4">
+                        <h5 class="border-bottom pb-2">Next Steps</h5>
+                        <div class="d-flex align-items-start">
+                            <div class="whatsapp-icon me-3">
+                                <i class="fab fa-whatsapp fa-2x text-success"></i>
+                            </div>
+                            <div>
+                                <p class="mb-2">Please click the button below to connect with us on WhatsApp. Our automotive consultants will provide expert advice.</p>
+                                <p class="text-muted small">Come prepared with questions about your vehicle to make the most of your consultation.</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="consultation-benefits mb-4">
+                        <h5 class="border-bottom pb-2">What You'll Get</h5>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <ul class="list-unstyled">
+                                    <li class="mb-2"><i class="fas fa-check text-success me-2"></i>Expert vehicle assessment</li>
+                                    <li class="mb-2"><i class="fas fa-check text-success me-2"></i>Personalized recommendations</li>
+                                    <li><i class="fas fa-check text-success me-2"></i>Maintenance planning advice</li>
+                                </ul>
+                            </div>
+                            <div class="col-md-6">
+                                <ul class="list-unstyled">
+                                    <li class="mb-2"><i class="fas fa-check text-success me-2"></i>Upgrade suggestions</li>
+                                    <li class="mb-2"><i class="fas fa-check text-success me-2"></i>Budget-friendly options</li>
+                                    <li><i class="fas fa-check text-success me-2"></i>Performance optimization tips</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="d-grid gap-2">
+                        {% if whatsapp_url %}
+                            <a href="{{ whatsapp_url }}" target="_blank" class="btn btn-success btn-lg">
+                                <i class="fab fa-whatsapp me-2"></i>Continue on WhatsApp
+                            </a>
+                        {% endif %}
+                        <a href="{% url 'car_rental:my_services' %}" class="btn btn-outline-secondary btn-lg">
+                            <i class="fas fa-list me-2"></i>View My Bookings
+                        </a>
+                        <a href="{% url 'car_rental:services_overview' %}" class="btn btn-outline-primary btn-lg">
+                            <i class="fas fa-wrench me-2"></i>Book Another Service
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .success-icon {
+        width: 80px;
+        height: 80px;
+        border-radius: 50%;
+        background-color: rgba(40, 167, 69, 0.1);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    .booking-details {
+        background-color: #f8f9fa;
+        border-radius: 8px;
+        padding: 1rem;
+    }
+    
+    .whatsapp-instructions {
+        background-color: rgba(37, 211, 102, 0.1);
+        border: 1px solid rgba(37, 211, 102, 0.3);
+        border-radius: 8px;
+        padding: 1rem;
+    }
+    
+    .consultation-benefits {
+        background-color: rgba(40, 167, 69, 0.05);
+        border: 1px solid rgba(40, 167, 69, 0.2);
+        border-radius: 8px;
+        padding: 1rem;
+    }
+    
+    .whatsapp-icon {
+        margin-top: 5px;
+    }
+</style>
+{% endblock %}

@@ -1,0 +1,928 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Hillz Exquisite{% endblock %}</title>
+    
+    <!-- Favicon -->
+    {% if site_info and site_info.favicon %}
+    <link rel="icon" type="image/x-icon" href="{{ site_info.favicon.url }}">
+    {% else %}
+    <link rel="icon" type="image/x-icon" href="https://res.cloudinary.com/dd8wup4iv/image/upload/v1/site/favicon">
+    {% endif %}
+    
+    <!-- Google Fonts - Luxury Typography -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        :root {
+            --primary-color: #d4af37; /* Gold */
+            --secondary-color: #f8f9fa; /* Light gray */
+            --dark-color: #212529; /* Dark */
+            --light-color: #ffffff; /* White */
+            --text-color: #333333; /* Text */
+            --gray-color: #6c757d; /* Gray */
+            --light-bg: #f8f9fa; /* Light background */
+            --dark-bg: #1a1a1a; /* Dark background */
+            --transition: all 0.3s ease;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Poppins', sans-serif;
+            color: var(--text-color);
+            background-color: var(--light-color);
+            overflow-x: hidden;
+        }
+        
+        h1, h2, h3, h4, h5, h6 {
+            font-family: 'Playfair Display', serif;
+            font-weight: 700;
+            color: var(--dark-color);
+        }
+        
+        /* Luxury Navbar */
+        .navbar {
+            background-color: var(--dark-bg) !important;
+            padding: 15px 0;
+            box-shadow: 0 2px 15px rgba(0, 0, 0, 0.1);
+            transition: var(--transition);
+        }
+        
+        .navbar-brand {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--primary-color) !important;
+            letter-spacing: 1px;
+        }
+        
+        .navbar-brand img {
+            max-height: 40px;
+            width: auto;
+            transition: var(--transition);
+        }
+        
+        .navbar-brand:hover img {
+            transform: scale(1.05);
+        }
+        
+        .navbar-nav .nav-link {
+            font-family: 'Poppins', sans-serif;
+            font-weight: 500;
+            color: rgba(255, 255, 255, 0.8) !important;
+            margin: 0 10px;
+            position: relative;
+            transition: var(--transition);
+            letter-spacing: 0.5px;
+        }
+        
+        .navbar-nav .nav-link:hover {
+            color: var(--primary-color) !important;
+        }
+        
+        .navbar-nav .nav-link.active {
+            color: var(--primary-color) !important;
+        }
+        
+        .navbar-nav .nav-link::after {
+            content: '';
+            position: absolute;
+            width: 0;
+            height: 2px;
+            bottom: -5px;
+            left: 50%;
+            background-color: var(--primary-color);
+            transition: var(--transition);
+            transform: translateX(-50%);
+        }
+        
+        .navbar-nav .nav-link:hover::after,
+        .navbar-nav .nav-link.active::after {
+            width: 30px;
+        }
+        
+        .dropdown-menu {
+            background-color: rgba(26, 26, 26, 0.95);
+            border: none;
+            border-radius: 0;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            padding: 10px 0;
+            margin-top: 10px;
+        }
+        
+        .dropdown-item {
+            color: rgba(255, 255, 255, 0.8);
+            padding: 10px 20px;
+            transition: var(--transition);
+        }
+        
+        .dropdown-item:hover, .dropdown-item:focus {
+            background-color: rgba(212, 175, 55, 0.2);
+            color: var(--primary-color);
+        }
+        
+        /* WhatsApp button styling */
+        .whatsapp-float {
+            position: fixed;
+            width: 60px;
+            height: 60px;
+            bottom: 40px;
+            right: 40px;
+            background-color: #25d366;
+            color: #FFF;
+            border-radius: 50px;
+            text-align: center;
+            font-size: 28px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: var(--transition);
+        }
+        .whatsapp-float:hover {
+            transform: scale(1.1);
+            background-color: #128C7E;
+        }
+        
+        /* Back to Top Button */
+        #backToTop {
+            position: fixed;
+            bottom: 110px;
+            right: 40px;
+            display: none;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            cursor: pointer;
+            z-index: 999;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+            transition: var(--transition);
+        }
+        #backToTop:hover {
+            background-color: #b8941f;
+            transform: translateY(-3px);
+        }
+        
+        /* Footer */
+        .footer {
+            background-color: var(--dark-bg);
+            color: rgba(255, 255, 255, 0.8);
+            padding: 70px 0 30px;
+            position: relative;
+        }
+        
+        .footer::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 5px;
+            background: linear-gradient(90deg, var(--primary-color), transparent);
+        }
+        
+        .footer h5 {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.4rem;
+            color: var(--primary-color);
+            margin-bottom: 25px;
+            position: relative;
+            padding-bottom: 15px;
+        }
+        
+        .footer h5::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 40px;
+            height: 2px;
+            background-color: var(--primary-color);
+        }
+        
+        .footer-links {
+            list-style: none;
+            padding: 0;
+        }
+        
+        .footer-links li {
+            margin-bottom: 12px;
+        }
+        
+        .footer-links a {
+            color: rgba(255, 255, 255, 0.8);
+            text-decoration: none;
+            transition: var(--transition);
+            font-size: 0.95rem;
+        }
+        
+        .footer-links a:hover {
+            color: var(--primary-color);
+            padding-left: 5px;
+        }
+        
+        .social-links a {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+            margin-right: 10px;
+            border-radius: 50%;
+            background-color: rgba(255, 255, 255, 0.1);
+            color: white;
+            transition: var(--transition);
+        }
+        
+        .social-links a:hover {
+            background-color: var(--primary-color);
+            transform: translateY(-3px);
+        }
+        
+        .footer-bottom {
+            margin-top: 50px;
+            padding-top: 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            text-align: center;
+            font-size: 0.9rem;
+            color: rgba(255, 255, 255, 0.6);
+        }
+        
+        /* Alert styling */
+        .alert {
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            border: none;
+            margin-bottom: 20px;
+        }
+        
+        .alert-success {
+            background-color: rgba(40, 167, 69, 0.1);
+            color: #155724;
+        }
+        
+        .alert-danger {
+            background-color: rgba(220, 53, 69, 0.1);
+            color: #721c24;
+        }
+        
+        .alert-warning {
+            background-color: rgba(255, 193, 7, 0.1);
+            color: #856404;
+        }
+        
+        .alert-info {
+            background-color: rgba(23, 162, 184, 0.1);
+            color: #0c5460;
+        }
+        
+        /* Enhanced Cookie Consent Banner */
+        #cookieConsent {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background-color: rgba(26, 26, 26, 0.95);
+            color: white;
+            padding: 25px 0;
+            z-index: 1001;
+            box-shadow: 0 -5px 20px rgba(0, 0, 0, 0.2);
+            display: none;
+        }
+        
+        #cookieConsent .container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+        
+        #cookieConsent .cookie-text {
+            flex: 1;
+            min-width: 300px;
+        }
+        
+        #cookieConsent .cookie-buttons {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+        
+        #cookieConsent button {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 30px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: var(--transition);
+            font-family: 'Poppins', sans-serif;
+        }
+        
+        #acceptCookies {
+            background-color: var(--primary-color);
+            color: white;
+        }
+        
+        #acceptCookies:hover {
+            background-color: #b8941f;
+        }
+        
+        #declineCookies {
+            background-color: transparent;
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+        
+        #declineCookies:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+        
+        #customizeCookies {
+            background-color: rgba(255, 255, 255, 0.2);
+            color: white;
+        }
+        
+        #customizeCookies:hover {
+            background-color: rgba(255, 255, 255, 0.3);
+        }
+        
+        /* Cookie Settings Modal */
+        #cookieSettings {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            z-index: 1002;
+            max-width: 550px;
+            width: 90%;
+            max-height: 85vh;
+            overflow-y: auto;
+        }
+        
+        #cookieSettingsBackdrop {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1001;
+        }
+        
+        #cookieSettings h3 {
+            margin-top: 0;
+            color: var(--dark-color);
+            font-family: 'Playfair Display', serif;
+            font-size: 1.8rem;
+            margin-bottom: 20px;
+        }
+        
+        .cookie-option {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 0;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .cookie-option:last-child {
+            border-bottom: none;
+        }
+        
+        .cookie-option h4 {
+            margin: 0;
+            color: var(--dark-color);
+            font-family: 'Poppins', sans-serif;
+            font-size: 1.1rem;
+        }
+        
+        .cookie-option p {
+            margin: 8px 0 0 0;
+            font-size: 0.9rem;
+            color: #6c757d;
+        }
+        
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 60px;
+            height: 30px;
+        }
+        
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: var(--transition);
+            border-radius: 30px;
+        }
+        
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 22px;
+            width: 22px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: var(--transition);
+            border-radius: 50%;
+        }
+        
+        input:checked + .slider {
+            background-color: var(--primary-color);
+        }
+        
+        input:checked + .slider:before {
+            transform: translateX(30px);
+        }
+        
+        /* Loading Spinner */
+        .spinner-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(255, 255, 255, 0.95);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+        }
+        
+        .spinner {
+            width: 60px;
+            height: 60px;
+            border: 5px solid #f3f3f3;
+            border-top: 5px solid var(--primary-color);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        /* Image Loading Placeholder */
+        .img-placeholder {
+            background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+            background-size: 200% 100%;
+            animation: loading 1.5s infinite;
+        }
+        
+        @keyframes loading {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
+        
+        /* Responsive adjustments */
+        @media (max-width: 992px) {
+            .navbar-nav .nav-link {
+                margin: 0 5px;
+            }
+            
+            .navbar-nav .nav-link::after {
+                display: none;
+            }
+            
+            .footer {
+                padding: 50px 0 20px;
+            }
+            
+            #cookieConsent .container {
+                flex-direction: column;
+                text-align: center;
+            }
+            
+            #cookieConsent .cookie-buttons {
+                justify-content: center;
+                margin-top: 15px;
+            }
+            
+            .whatsapp-float {
+                bottom: 20px;
+                right: 20px;
+                width: 50px;
+                height: 50px;
+                font-size: 24px;
+            }
+            
+            #backToTop {
+                bottom: 80px;
+                right: 20px;
+                width: 45px;
+                height: 45px;
+            }
+        }
+        
+        @media (max-width: 576px) {
+            .navbar-brand {
+                font-size: 1.5rem;
+            }
+            
+            .navbar-brand img {
+                max-height: 30px;
+            }
+            
+            .footer h5 {
+                font-size: 1.2rem;
+            }
+            
+            #cookieSettings {
+                padding: 25px;
+            }
+            
+            #cookieSettings h3 {
+                font-size: 1.5rem;
+            }
+        }
+    </style>
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    <!-- Loading Spinner -->
+    <div id="loadingSpinner" class="spinner-overlay">
+        <div class="spinner"></div>
+    </div>
+    
+    <!-- Luxury Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark sticky-top">
+        <div class="container">
+            <a class="navbar-brand d-flex align-items-center" href="{% url 'car_rental:home' %}">
+                {% if site_info and site_info.logo %}
+                <img src="{{ site_info.logo.url }}" alt="{{ site_info.company_name }}" class="me-2">
+                {% else %}
+                <i class="fas fa-car me-2"></i>
+                {% endif %}
+                Hillz Exquisites
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.resolver_match.url_name == 'home' %}active{% endif %}" href="{% url 'car_rental:home' %}">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.resolver_match.url_name == 'all_cars' %}active{% endif %}" href="{% url 'car_rental:all_cars' %}">Our Fleet</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.resolver_match.url_name == 'rent_cars' %}active{% endif %}" href="{% url 'car_rental:rent_cars' %}">Rentals</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.resolver_match.url_name == 'sale_cars' %}active{% endif %}" href="{% url 'car_rental:sale_cars' %}">Sales</a>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle {% if 'book_' in request.resolver_match.url_name or 'services_overview' in request.resolver_match.url_name %}active{% endif %}" href="#" id="navbarDropdownServices" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            Services
+                        </a>
+                        <ul class="dropdown-menu" aria-labelledby="navbarDropdownServices">
+                            <li><a class="dropdown-item" href="{% url 'car_rental:services_overview' %}"><i class="fas fa-th-large me-2"></i>All Services</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" href="{% url 'car_rental:book_diagnostic' %}"><i class="fas fa-stethoscope me-2"></i>Diagnostic</a></li>
+                            <li><a class="dropdown-item" href="{% url 'car_rental:book_repair' %}"><i class="fas fa-tools me-2"></i>Repair</a></li>
+                            <li><a class="dropdown-item" href="{% url 'car_rental:book_upgrade' %}"><i class="fas fa-rocket me-2"></i>Upgrade</a></li>
+                            <li><a class="dropdown-item" href="{% url 'car_rental:book_consultation' %}"><i class="fas fa-comments me-2"></i>Consultation</a></li>
+                        </ul>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.resolver_match.url_name == 'about' %}active{% endif %}" href="{% url 'car_rental:about' %}">About</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.resolver_match.url_name == 'contact' %}active{% endif %}" href="{% url 'car_rental:contact' %}">Contact</a>
+                    </li>
+                </ul>
+                <ul class="navbar-nav">
+                    {% if user.is_authenticated %}
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown">
+                            <i class="fas fa-user-circle me-1"></i>{{ user.username }}
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            <li><a class="dropdown-item" href="{% url 'car_rental:profile' %}"><i class="fas fa-user me-2"></i>My Profile</a></li>
+                            <li><a class="dropdown-item" href="{% url 'car_rental:my_rentals' %}"><i class="fas fa-car me-2"></i>My Rentals</a></li>
+                            <li><a class="dropdown-item" href="{% url 'car_rental:my_purchases' %}"><i class="fas fa-shopping-cart me-2"></i>My Purchases</a></li>
+                            <li><a class="dropdown-item" href="{% url 'car_rental:my_services' %}"><i class="fas fa-wrench me-2"></i>My Services</a></li>
+                            {% if user.is_staff %}
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" href="{% url 'car_rental:service_booking_list' %}"><i class="fas fa-calendar-check me-2"></i>Service Bookings</a></li>
+                            <li><a class="dropdown-item" href="{% url 'car_rental:customers' %}"><i class="fas fa-users me-2"></i>Customers</a></li>
+                            <li><a class="dropdown-item" href="{% url 'car_rental:add_car' %}"><i class="fas fa-plus-circle me-2"></i>Add Vehicle</a></li>
+                            <li><a class="dropdown-item" href="{% url 'car_rental:site_info_edit' %}"><i class="fas fa-cog me-2"></i>Site Settings</a></li>
+                            {% endif %}
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" href="{% url 'car_rental:logout' %}"><i class="fas fa-sign-out-alt me-2"></i>Logout</a></li>
+                        </ul>
+                    </li>
+                    {% else %}
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.resolver_match.url_name == 'login' %}active{% endif %}" href="{% url 'car_rental:login' %}">Login</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.resolver_match.url_name == 'register' %}active{% endif %}" href="{% url 'car_rental:register' %}">Register</a>
+                    </li>
+                    {% endif %}
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Alert Messages -->
+    {% if messages %}
+    <div class="container mt-4">
+        {% for message in messages %}
+        <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+            <div class="d-flex align-items-center">
+                <i class="fas {% if message.tags == 'success' %}fa-check-circle{% elif message.tags == 'error' %}fa-exclamation-circle{% elif message.tags == 'warning' %}fa-exclamation-triangle{% else %}fa-info-circle{% endif %} me-3" style="font-size: 1.2rem;"></i>
+                <div>{{ message }}</div>
+            </div>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <!-- Main Content -->
+    {% block content %}{% endblock %}
+
+    <!-- WhatsApp Float Button -->
+    {% if site_info and site_info.whatsapp_phone %}
+    <a href="https://wa.me/{{ site_info.whatsapp_phone|cut:'+'|cut:' '|cut:'-' }}?text=Hello%20I'm%20interested%20in%20your%20services" class="whatsapp-float" target="_blank">
+        <i class="fab fa-whatsapp"></i>
+    </a>
+    {% endif %}
+
+    <!-- Back to Top Button -->
+    <button id="backToTop" title="Back to top">
+        <i class="fas fa-arrow-up"></i>
+    </button>
+
+    <!-- Luxury Footer -->
+    <footer class="footer mt-5">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-4 mb-4">
+                    <h5>{% if site_info %}{{ site_info.company_name }}{% else %}Hillz Exquisites{% endif %}</h5>
+                    <p class="mb-4">{% if site_info %}{{ site_info.tagline }}{% else %}Premium Car Rentals & Automotive Services{% endif %}</p>
+                    <div class="social-links">
+                        {% if site_info and site_info.instagram_url %}
+                        <a href="{{ site_info.instagram_url }}" target="_blank">
+                            <i class="fab fa-instagram"></i>
+                        </a>
+                        {% endif %}
+                        {% if site_info and site_info.whatsapp_phone %}
+                        <a href="https://wa.me/{{site_info.whatsapp_phone|cut:'+'|cut:' '|cut:'-'}}" target="_blank">
+                            <i class="fab fa-whatsapp"></i>
+                        </a>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="col-lg-4 mb-4">
+                    <h5>Quick Links</h5>
+                    <ul class="footer-links">
+                        <li><a href="{% url 'car_rental:about' %}">About Us</a></li>
+                        <li><a href="{% url 'car_rental:contact' %}">Contact</a></li>
+                        <li><a href="{% url 'car_rental:privacy_policy' %}">Privacy Policy</a></li>
+                        <li><a href="{% url 'car_rental:terms_of_service' %}">Terms of Service</a></li>
+                    </ul>
+                </div>
+                <div class="col-lg-4 mb-4">
+                    <h5>Contact Information</h5>
+                    <ul class="list-unstyled">
+                        <li class="mb-3"><i class="fas fa-map-marker-alt me-3 text-warning"></i> {% if site_info %}{{ site_info.address }}{% else %}123 Luxury Avenue, Beverly Hills, CA 90210{% endif %}</li>
+                        <li class="mb-3"><i class="fas fa-phone me-3 text-warning"></i> {% if site_info %}{{ site_info.phone }}{% else %}+1 (234) 567-890{% endif %}</li>
+                        <li class="mb-3"><i class="fas fa-envelope me-3 text-warning"></i> {% if site_info %}{{ site_info.email }}{% else %}info@hillzexquisites.com{% endif %}</li>
+                    </ul>
+                    
+                    <h5 class="mt-4">Business Hours</h5>
+                    <ul class="list-unstyled">
+                        <li class="mb-2"><i class="far fa-calendar me-3 text-warning"></i> Mon-Fri: {% if site_info %}{{ site_info.monday_hours }}{% else %}9:00 AM - 8:00 PM{% endif %}</li>
+                        <li class="mb-2"><i class="far fa-calendar me-3 text-warning"></i> Saturday: {% if site_info %}{{ site_info.saturday_hours }}{% else %}10:00 AM - 6:00 PM{% endif %}</li>
+                        <li><i class="far fa-calendar me-3 text-warning"></i> Sunday: {% if site_info %}{{ site_info.sunday_hours }}{% else %}10:00 AM - 6:00 PM{% endif %}</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="footer-bottom">
+                <p>&copy; {% now "Y" %} {% if site_info %}{{ site_info.company_name }}{% else %}Hillz Exquisites{% endif %}. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Enhanced Cookie Consent Banner -->
+    <div id="cookieConsent">
+        <div class="container">
+            <div class="cookie-text">
+                <p>We use cookies to enhance your experience on our website. By continuing to browse, you agree to our <a href="{% url 'car_rental:privacy_policy' %}" style="color: var(--primary-color);">Privacy Policy</a>.</p>
+            </div>
+            <div class="cookie-buttons">
+                <button id="acceptCookies">Accept All</button>
+                <button id="customizeCookies">Customize</button>
+                <button id="declineCookies">Decline</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Cookie Settings Modal -->
+    <div id="cookieSettingsBackdrop"></div>
+    <div id="cookieSettings">
+        <h3>Cookie Preferences</h3>
+        <p>Manage your cookie preferences below. You can change these settings at any time.</p>
+        
+        <div class="cookie-option">
+            <div>
+                <h4>Strictly Necessary Cookies</h4>
+                <p>These cookies are essential for the website to function properly.</p>
+            </div>
+            <label class="toggle-switch">
+                <input type="checkbox" id="necessaryCookies" checked disabled>
+                <span class="slider"></span>
+            </label>
+        </div>
+        
+        <div class="cookie-option">
+            <div>
+                <h4>Analytics Cookies</h4>
+                <p>Help us understand how visitors interact with our website.</p>
+            </div>
+            <label class="toggle-switch">
+                <input type="checkbox" id="analyticsCookies">
+                <span class="slider"></span>
+            </label>
+        </div>
+        
+        <div class="cookie-option">
+            <div>
+                <h4>Marketing Cookies</h4>
+                <p>Used to track advertising effectiveness and provide personalized ads.</p>
+            </div>
+            <label class="toggle-switch">
+                <input type="checkbox" id="marketingCookies">
+                <span class="slider"></span>
+            </label>
+        </div>
+        
+        <div class="mt-4 d-flex gap-3">
+            <button id="saveCookieSettings" class="btn btn-primary">Save Preferences</button>
+            <button id="closeCookieSettings" class="btn btn-secondary">Cancel</button>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <script>
+        // Hide loading spinner when page is fully loaded
+        window.addEventListener('load', function() {
+            setTimeout(function() {
+                document.getElementById('loadingSpinner').style.display = 'none';
+            }, 500);
+        });
+        
+        // Back to Top Button
+        const backToTopButton = document.getElementById('backToTop');
+        
+        window.addEventListener('scroll', function() {
+            if (window.pageYOffset > 300) {
+                backToTopButton.style.display = 'flex';
+                backToTopButton.style.justifyContent = 'center';
+                backToTopButton.style.alignItems = 'center';
+            } else {
+                backToTopButton.style.display = 'none';
+            }
+        });
+        
+        backToTopButton.addEventListener('click', function() {
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
+        });
+        
+        // Enhanced Cookie Consent
+        const cookieConsent = document.getElementById('cookieConsent');
+        const cookieSettings = document.getElementById('cookieSettings');
+        const cookieSettingsBackdrop = document.getElementById('cookieSettingsBackdrop');
+        const acceptCookies = document.getElementById('acceptCookies');
+        const customizeCookies = document.getElementById('customizeCookies');
+        const declineCookies = document.getElementById('declineCookies');
+        const saveCookieSettings = document.getElementById('saveCookieSettings');
+        const closeCookieSettings = document.getElementById('closeCookieSettings');
+        
+        // Check if user has already made a cookie choice
+        const cookieChoice = localStorage.getItem('cookieChoice');
+        if (!cookieChoice) {
+            cookieConsent.style.display = 'block';
+        } else {
+            // Apply saved preferences
+            applyCookiePreferences(JSON.parse(localStorage.getItem('cookiePreferences') || '{}'));
+        }
+        
+        // Cookie consent event listeners
+        acceptCookies.addEventListener('click', function() {
+            localStorage.setItem('cookieChoice', 'accepted');
+            localStorage.setItem('cookiePreferences', JSON.stringify({
+                necessary: true,
+                analytics: true,
+                marketing: true
+            }));
+            cookieConsent.style.display = 'none';
+            applyCookiePreferences({necessary: true, analytics: true, marketing: true});
+        });
+        
+        declineCookies.addEventListener('click', function() {
+            localStorage.setItem('cookieChoice', 'declined');
+            localStorage.setItem('cookiePreferences', JSON.stringify({
+                necessary: true,
+                analytics: false,
+                marketing: false
+            }));
+            cookieConsent.style.display = 'none';
+            applyCookiePreferences({necessary: true, analytics: false, marketing: false});
+        });
+        
+        customizeCookies.addEventListener('click', function() {
+            cookieSettings.style.display = 'block';
+            cookieSettingsBackdrop.style.display = 'block';
+            // Load current preferences
+            const preferences = JSON.parse(localStorage.getItem('cookiePreferences') || '{"necessary":true,"analytics":false,"marketing":false}');
+            document.getElementById('analyticsCookies').checked = preferences.analytics;
+            document.getElementById('marketingCookies').checked = preferences.marketing;
+        });
+        
+        saveCookieSettings.addEventListener('click', function() {
+            const preferences = {
+                necessary: true,
+                analytics: document.getElementById('analyticsCookies').checked,
+                marketing: document.getElementById('marketingCookies').checked
+            };
+            localStorage.setItem('cookieChoice', 'customized');
+            localStorage.setItem('cookiePreferences', JSON.stringify(preferences));
+            cookieSettings.style.display = 'none';
+            cookieSettingsBackdrop.style.display = 'none';
+            cookieConsent.style.display = 'none';
+            applyCookiePreferences(preferences);
+        });
+        
+        closeCookieSettings.addEventListener('click', function() {
+            cookieSettings.style.display = 'none';
+            cookieSettingsBackdrop.style.display = 'none';
+        });
+        
+        // Close modal when clicking on backdrop
+        cookieSettingsBackdrop.addEventListener('click', function() {
+            cookieSettings.style.display = 'none';
+            cookieSettingsBackdrop.style.display = 'none';
+        });
+        
+        // Function to apply cookie preferences
+        function applyCookiePreferences(preferences) {
+            // Here you would typically enable/disable cookies based on preferences
+            // For demonstration, we'll just log the preferences
+            console.log('Applying cookie preferences:', preferences);
+            
+            // In a real implementation, you would:
+            // 1. Enable/disable Google Analytics if analytics cookies are accepted
+            // 2. Enable/disable marketing cookies for ad platforms
+            // 3. Always keep necessary cookies enabled
+        }
+    </script>
+    
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

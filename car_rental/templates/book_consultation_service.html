@@ -1,0 +1,269 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load custom_filters %}
+
+{% block title %}Book Consultation Service - {% if site_info %}{{ site_info.company_name }}{% else %}Hillz Exquisite{% endif %}{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card shadow-lg border-0">
+                <div class="card-header bg-success text-white py-3">
+                    <h4 class="mb-0">
+                        <i class="fas fa-comments me-2"></i>Book Consultation Service
+                    </h4>
+                </div>
+                <div class="card-body p-4">
+                    {% if messages %}
+                        {% for message in messages %}
+                            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                                {{ message }}
+                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+                    
+                    {% if form.errors %}
+                        <div class="alert alert-danger">
+                            <h5>Please correct the following errors:</h5>
+                            <ul class="mb-0">
+                                {% for field in form %}
+                                    {% for error in field.errors %}
+                                        <li>{{ field.label }}: {{ error }}</li>
+                                    {% endfor %}
+                                {% endfor %}
+                                {% for error in form.non_field_errors %}
+                                    <li>{{ error }}</li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                    {% endif %}
+                    
+                    <div class="mb-4">
+                        <h5 class="text-success">Expert Automotive Consultation</h5>
+                        <p class="text-muted">Get professional advice from our automotive experts. Whether you're looking for maintenance tips, upgrade recommendations, or general vehicle guidance, our consultation service provides personalized solutions for your specific needs.</p>
+                    </div>
+                    
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <div class="consultation-feature">
+                                <div class="feature-icon">
+                                    <i class="fas fa-user-tie text-success"></i>
+                                </div>
+                                <h6>Expert Advice</h6>
+                                <p class="small text-muted">One-on-one consultation with certified automotive specialists</p>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="consultation-feature">
+                                <div class="feature-icon">
+                                    <i class="fas fa-clipboard-list text-success"></i>
+                                </div>
+                                <h6>Personalized Plans</h6>
+                                <p class="small text-muted">Customized service and maintenance recommendations</p>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="consultation-feature">
+                                <div class="feature-icon">
+                                    <i class="fas fa-dollar-sign text-success"></i>
+                                </div>
+                                <h6>Budget Guidance</h6>
+                                <p class="small text-muted">Cost-effective solutions tailored to your budget</p>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="consultation-feature">
+                                <div class="feature-icon">
+                                    <i class="fas fa-tools text-success"></i>
+                                </div>
+                                <h6>Maintenance Planning</h6>
+                                <p class="small text-muted">Long-term maintenance schedules and planning</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <form method="post" id="consultationForm">
+                        {% csrf_token %}
+                        
+                        {{ form.non_field_errors }}
+                        
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group mb-3">
+                                    <label for="{{ form.name.id_for_label }}" class="form-label">Full Name</label>
+                                    {{ form.name }}
+                                    {% if form.name.errors %}
+                                        <div class="text-danger">{{ form.name.errors }}</div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group mb-3">
+                                    <label for="{{ form.email.id_for_label }}" class="form-label">Email Address</label>
+                                    {{ form.email }}
+                                    {% if form.email.errors %}
+                                        <div class="text-danger">{{ form.email.errors }}</div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group mb-3">
+                                    <label for="{{ form.phone.id_for_label }}" class="form-label">Phone Number</label>
+                                    {{ form.phone }}
+                                    {% if form.phone.errors %}
+                                        <div class="text-danger">{{ form.phone.errors }}</div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group mb-3">
+                                    <label for="{{ form.preferred_date.id_for_label }}" class="form-label">Preferred Date</label>
+                                    {{ form.preferred_date }}
+                                    {% if form.preferred_date.errors %}
+                                        <div class="text-danger">{{ form.preferred_date.errors }}</div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-4">
+                                <div class="form-group mb-3">
+                                    <label for="{{ form.car_make.id_for_label }}" class="form-label">Car Make</label>
+                                    {{ form.car_make }}
+                                    {% if form.car_make.errors %}
+                                        <div class="text-danger">{{ form.car_make.errors }}</div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group mb-3">
+                                    <label for="{{ form.car_model.id_for_label }}" class="form-label">Car Model</label>
+                                    {{ form.car_model }}
+                                    {% if form.car_model.errors %}
+                                        <div class="text-danger">{{ form.car_model.errors }}</div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group mb-3">
+                                    <label for="{{ form.car_year.id_for_label }}" class="form-label">Year</label>
+                                    {{ form.car_year }}
+                                    {% if form.car_year.errors %}
+                                        <div class="text-danger">{{ form.car_year.errors }}</div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group mb-3">
+                            <label for="{{ form.description.id_for_label }}" class="form-label">Consultation Details</label>
+                            {{ form.description }}
+                            {% if form.description.errors %}
+                                <div class="text-danger">{{ form.description.errors }}</div>
+                            {% endif %}
+                            <small class="form-text text-muted">Please describe what you'd like to discuss during the consultation (e.g., maintenance advice, upgrade options, performance concerns, etc.).</small>
+                        </div>
+                        
+                        <!-- Hidden field for service type -->
+                        <input type="hidden" name="service_type" value="consultation">
+                        
+                        <div class="form-group mt-4">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="termsAgree" required>
+                                <label class="form-check-label" for="termsAgree">
+                                    I agree to the <a href="{% url 'car_rental:terms_of_service' %}" target="_blank">Terms of Service</a> and <a href="{% url 'car_rental:privacy_policy' %}" target="_blank">Privacy Policy</a>
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group mt-4">
+                            <button type="submit" class="btn btn-success w-100" id="submitBtn">
+                                <i class="fas fa-paper-plane me-2"></i>
+                                <span id="btnText">Submit Consultation Request</span>
+                                <div class="spinner-border spinner-border-sm ms-2" id="btnSpinner" role="status" style="display: none;">
+                                    <span class="visually-hidden">Loading...</span>
+                                </div>
+                            </button>
+                        </div>
+                    </form>
+                    
+                    <div class="whatsapp-notice mt-4">
+                        <div class="d-flex align-items-center">
+                            <i class="fab fa-whatsapp text-success me-3 fa-2x"></i>
+                            <div>
+                                <strong>Important:</strong> After submitting this form, you'll be redirected to WhatsApp to complete your booking.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Set minimum date to today
+        const dateInput = document.getElementById('{{ form.preferred_date.id_for_label }}');
+        if (dateInput) {
+            const today = new Date().toISOString().split('T')[0];
+            dateInput.setAttribute('min', today);
+        }
+        
+        // Form submission
+        const form = document.getElementById('consultationForm');
+        if (form) {
+            form.addEventListener('submit', function(event) {
+                const submitBtn = document.getElementById('submitBtn');
+                const btnText = document.getElementById('btnText');
+                const btnSpinner = document.getElementById('btnSpinner');
+                
+                // Show loading state
+                btnText.textContent = 'Processing...';
+                btnSpinner.style.display = 'inline-block';
+                submitBtn.disabled = true;
+            });
+        }
+    });
+</script>
+
+<style>
+    .consultation-feature {
+        text-align: center;
+        padding: 1rem;
+        transition: transform 0.3s ease;
+    }
+    
+    .consultation-feature:hover {
+        transform: translateY(-5px);
+    }
+    
+    .feature-icon {
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        background-color: rgba(40, 167, 69, 0.1);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 1rem;
+        font-size: 1.5rem;
+    }
+    
+    .whatsapp-notice {
+        background-color: rgba(37, 211, 102, 0.1);
+        border: 1px solid rgba(37, 211, 102, 0.3);
+        border-radius: 8px;
+        padding: 1rem;
+    }
+</style>
+{% endblock %}

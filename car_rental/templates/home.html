@@ -1,0 +1,539 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load cloudinary %}
+{% load currency_filters %}
+{% block title %}Home - {% if site_info %}{{ site_info.company_name }}{% else %}Hillz Exquisite{% endif %}{% endblock %}
+
+{% block content %}
+<!-- Hero Section with Carousel -->
+<section id="heroCarousel" class="carousel slide carousel-fade" data-bs-ride="carousel">
+    <div class="carousel-indicators">
+        <button type="button" data-bs-target="#heroCarousel" data-bs-slide-to="0" class="active" aria-current="true"></button>
+        <button type="button" data-bs-target="#heroCarousel" data-bs-slide-to="1"></button>
+        <button type="button" data-bs-target="#heroCarousel" data-bs-slide-to="2"></button>
+    </div>
+    
+    <div class="carousel-inner">
+        <!-- Slide 1 -->
+        <div class="carousel-item active">
+            <div class="hero-slide" style="background: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)), url('https://images.unsplash.com/photo-1554224712-d8560f709cbe?ixlib=rb-4.0.3'); background-size: cover; background-position: center; min-height: 600px;">
+                <div class="container h-100">
+                    <div class="row align-items-center h-100">
+                        <div class="col-lg-6">
+                            <h1 class="display-4 fw-bold mb-4 text-white">
+                                {% if site_info %}{{ site_info.tagline }}{% else %}Experience Luxury Redefined{% endif %}
+                            </h1>
+                            <p class="lead mb-4 text-white">
+                                {% if site_info %}{{ site_info.description }}{% else %}Discover our exclusive collection of premium vehicles and exceptional automotive services{% endif %}
+                            </p>
+                            <div class="d-flex flex-wrap gap-3">
+                                <a href="{% url 'car_rental:rent_cars' %}" class="btn btn-light btn-lg">Rent a Car</a>
+                                <a href="{% url 'car_rental:sale_cars' %}" class="btn btn-outline-light btn-lg">Buy a Car</a>
+                            </div>
+                        </div>
+                        <div class="col-lg-6 d-none d-lg-block">
+                            {% if featured_cars %}
+                                {% with first_car=featured_cars|first %}
+                                    {% if first_car.image %}
+                                        {% cloudinary first_car.image width=600 height=400 crop="fill" quality="auto:best" fetch_format="auto" class="img-fluid rounded shadow" alt="{{ first_car.make }} {{ first_car.model }}" %}
+                                    {% else %}
+                                        <img src="https://images.unsplash.com/photo-1494976388531-105e6b684794?ixlib=rb-4.0.3" alt="Luxury Car" class="img-fluid rounded shadow">
+                                    {% endif %}
+                                {% endwith %}
+                            {% else %}
+                                <img src="https://images.unsplash.com/photo-1494976388531-105e6b684794?ixlib=rb-4.0.3" alt="Luxury Car" class="img-fluid rounded shadow">
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Slide 2 -->
+        <div class="carousel-item">
+            <div class="hero-slide" style="background: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)), url('https://images.unsplash.com/photo-1549399542-7e247acb5f5a?ixlib=rb-4.0.3'); background-size: cover; background-position: center; min-height: 600px;">
+                <div class="container h-100">
+                    <div class="row align-items-center h-100">
+                        <div class="col-lg-6">
+                            <h1 class="display-4 fw-bold mb-4 text-white">Premium Car Sales</h1>
+                            <p class="lead mb-4 text-white">Discover our exclusive collection of luxury vehicles for sale. Find your dream car today.</p>
+                            <div class="d-flex flex-wrap gap-3">
+                                <a href="{% url 'car_rental:sale_cars' %}" class="btn btn-light btn-lg">Browse Inventory</a>
+                                <a href="{% url 'car_rental:contact' %}" class="btn btn-outline-light btn-lg">Contact Us</a>
+                            </div>
+                        </div>
+                        <div class="col-lg-6 d-none d-lg-block">
+                            {% if featured_cars %}
+                                {% with second_car=featured_cars|slice:"1:2"|first %}
+                                    {% if second_car.image %}
+                                        {% cloudinary second_car.image width=600 height=400 crop="fill" quality="auto:best" fetch_format="auto" class="img-fluid rounded shadow" alt="{{ second_car.make }} {{ second_car.model }}" %}
+                                    {% else %}
+                                        <img src="https://images.unsplash.com/photo-1583121274602-3e2820c69888?ixlib=rb-4.0.3" alt="Luxury Car" class="img-fluid rounded shadow">
+                                    {% endif %}
+                                {% endwith %}
+                            {% else %}
+                                <img src="https://images.unsplash.com/photo-1583121274602-3e2820c69888?ixlib=rb-4.0.3" alt="Luxury Car" class="img-fluid rounded shadow">
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Slide 3 -->
+        <div class="carousel-item">
+            <div class="hero-slide" style="background: linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.7)), url('https://images.unsplash.com/photo-1517845199365-2cc2f3c8b3f7?ixlib=rb-4.0.3'); background-size: cover; background-position: center; min-height: 600px;">
+                <div class="container h-100">
+                    <div class="row align-items-center h-100">
+                        <div class="col-lg-6">
+                            <h1 class="display-4 fw-bold mb-4 text-white">Expert Automotive Services</h1>
+                            <p class="lead mb-4 text-white">From diagnostics to upgrades, our certified technicians provide top-notch service for all your automotive needs.</p>
+                            <div class="d-flex flex-wrap gap-3">
+                                <a href="{% url 'car_rental:services_overview' %}" class="btn btn-light btn-lg">Our Services</a>
+                                <a href="{% url 'car_rental:book_diagnostic' %}" class="btn btn-outline-light btn-lg">Book Now</a>
+                            </div>
+                        </div>
+                        <div class="col-lg-6 d-none d-lg-block">
+                            {% if featured_cars %}
+                                {% with third_car=featured_cars|slice:"2:3"|first %}
+                                    {% if third_car.image %}
+                                        {% cloudinary third_car.image width=600 height=400 crop="fill" quality="auto:best" fetch_format="auto" class="img-fluid rounded shadow" alt="{{ third_car.make }} {{ third_car.model }}" %}
+                                    {% else %}
+                                        <img src="https://images.unsplash.com/photo-1617814076367-b759c7d7e738?ixlib=rb-4.0.3" alt="Service Tools" class="img-fluid rounded shadow">
+                                    {% endif %}
+                                {% endwith %}
+                            {% else %}
+                                <img src="https://images.unsplash.com/photo-1617814076367-b759c7d7e738?ixlib=rb-4.0.3" alt="Service Tools" class="img-fluid rounded shadow">
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <button class="carousel-control-prev" type="button" data-bs-target="#heroCarousel" data-bs-slide="prev">
+        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+        <span class="visually-hidden">Previous</span>
+    </button>
+    <button class="carousel-control-next" type="button" data-bs-target="#heroCarousel" data-bs-slide="next">
+        <span class="carousel-control-next-icon" aria-hidden="true"></span>
+        <span class="visually-hidden">Next</span>
+    </button>
+</section>
+
+<section class="py-5">
+    <div class="container">
+        <div class="text-center mb-5">
+            <h2 class="display-5 fw-bold">Featured Vehicles</h2>
+            <p class="lead text-muted">Explore our premium selection of luxury and performance vehicles</p>
+        </div>
+        
+        <div class="row g-4">
+            {% for car in featured_cars %}
+            <div class="col-md-6 col-lg-4">
+                <div class="card h-100 car-card">
+                    <div class="card-img-wrapper">
+                        <!-- Fixed: Try different approach to display the image -->
+                        {% if car.image %}
+                            <!-- Approach 1: Using cloudinary tag -->
+                            {% cloudinary car.image width=400 height=250 crop="fill" quality="auto:best" fetch_format="auto" class="card-img-top" alt="{{ car.make }} {{ car.model }}" %}
+                        {% else %}
+                            <!-- Fallback image -->
+                            <img src="https://images.unsplash.com/photo-1552519507-da3b142c6e3d?ixlib=rb-4.0.3" class="card-img-top" alt="{{ car.make }} {{ car.model }}" loading="lazy">
+                        {% endif %}
+                    </div>
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-start mb-2">
+                            <div>
+                                <h5 class="card-title">{{ car.year }} {{ car.make }} {{ car.model }}</h5>
+                                <p class="text-muted mb-1">{{ car.get_car_type_display }}</p>
+                            </div>
+                            {% if car.featured %}
+                            <span class="badge bg-warning text-dark">Featured</span>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="d-flex justify-content-between mb-3">
+                            {% if car.for_rent %}
+                            <div>
+                                <span class="text-muted">Rent:</span>
+                                <span class="fw-bold">{{ car.get_rent_price|currency }}/day</span>
+                            </div>
+                            {% endif %}
+                            {% if car.for_sale %}
+                            <div>
+                                <span class="text-muted">Buy:</span>
+                                <span class="fw-bold">{{ car.get_sale_price|currency }}</span>
+                            </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="d-flex gap-2">
+                            {% if car.for_rent %}
+                            <a href="{% url 'car_rental:car_detail' car.pk %}" class="btn btn-primary btn-sm flex-fill">Rent Now</a>
+                            {% endif %}
+                            {% if car.for_sale %}
+                            <a href="{% url 'car_rental:car_detail' car.pk %}" class="btn btn-outline-primary btn-sm flex-fill">Buy Now</a>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            <div class="col-12">
+                <div class="alert alert-warning">
+                    <h5>No featured cars available</h5>
+                    <p>Please check if there are any cars in the database with featured=True and status='available'</p>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        
+        <div class="text-center mt-4">
+            <a href="{% url 'car_rental:all_cars' %}" class="btn btn-outline-primary">View All Vehicles</a>
+        </div>
+    </div>
+</section>
+
+<section class="py-5 bg-light">
+    <div class="container">
+        <div class="text-center mb-5">
+            <h2 class="display-5">Our Premium Services</h2>
+            <p class="lead">Professional automotive services tailored to your needs</p>
+        </div>
+        
+        <div class="row g-4">
+            <div class="col-md-6 col-lg-3">
+                <div class="card h-100 border-0 shadow-sm service-card">
+                    <div class="card-body text-center">
+                        <div class="mb-3">
+                            <i class="fas fa-stethoscope text-primary" style="font-size: 3rem;"></i>
+                        </div>
+                        <h5 class="card-title">Diagnostic Service</h5>
+                        <p class="card-text">Advanced diagnostics to identify issues accurately</p>
+                        <a href="{% url 'car_rental:book_diagnostic' %}" class="btn btn-sm btn-outline-primary">Book Now</a>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-6 col-lg-3">
+                <div class="card h-100 border-0 shadow-sm service-card">
+                    <div class="card-body text-center">
+                        <div class="mb-3">
+                            <i class="fas fa-tools text-success" style="font-size: 3rem;"></i>
+                        </div>
+                        <h5 class="card-title">Repair Service</h5>
+                        <p class="card-text">Expert repairs for all vehicle makes and models</p>
+                        <a href="{% url 'car_rental:book_repair' %}" class="btn btn-sm btn-outline-success">Book Now</a>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-6 col-lg-3">
+                <div class="card h-100 border-0 shadow-sm service-card">
+                    <div class="card-body text-center">
+                        <div class="mb-3">
+                            <i class="fas fa-rocket text-warning" style="font-size: 3rem;"></i>
+                        </div>
+                        <h5 class="card-title">Upgrade Service</h5>
+                        <p class="card-text">Enhance performance and appearance</p>
+                        <a href="{% url 'car_rental:book_upgrade' %}" class="btn btn-sm btn-outline-warning">Book Now</a>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-6 col-lg-3">
+                <div class="card h-100 border-0 shadow-sm service-card">
+                    <div class="card-body text-center">
+                        <div class="mb-3">
+                            <i class="fas fa-comments text-info" style="font-size: 3rem;"></i>
+                        </div>
+                        <h5 class="card-title">Consultation</h5>
+                        <p class="card-text">Professional advice for your automotive needs</p>
+                        <a href="{% url 'car_rental:book_consultation' %}" class="btn btn-sm btn-outline-info">Book Now</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="text-center mt-5">
+            <a href="{% url 'car_rental:services_overview' %}" class="btn btn-primary btn-lg">View All Services</a>
+        </div>
+    </div>
+</section>
+
+<!-- Customer Reviews Section -->
+<section class="py-5">
+    <div class="container">
+        <div class="text-center mb-5">
+            <h2 class="display-5">What Our Customers Say</h2>
+            <div class="row justify-content-center">
+                <div class="col-md-3">
+                    <div class="d-flex align-items-center justify-content-center mb-3">
+                        <div class="text-warning me-2">
+                            {% for i in "12345" %}
+                                {% if forloop.counter <= overall_rating|floatformat:0 %}
+                                    <i class="fas fa-star"></i>
+                                {% else %}
+                                    <i class="far fa-star"></i>
+                                {% endif %}
+                            {% endfor %}
+                        </div>
+                        <span class="h4 mb-0">{{ overall_rating }}</span>
+                    </div>
+                    <p class="text-muted">Based on {{ total_reviews }} reviews</p>
+                </div>
+                <div class="col-md-3">
+                    <div class="h3 text-success">{{ satisfaction_rate }}%</div>
+                    <p class="text-muted">Customer Satisfaction</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="row">
+            {% for review in recent_reviews %}
+            <div class="col-md-4 mb-4">
+                <div class="card h-100 review-card">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between mb-2">
+                            <h6 class="card-subtitle mb-2 text-muted">{{ review.customer.name }}</h6>
+                            <div class="text-warning">
+                                {% for i in "12345" %}
+                                    {% if forloop.counter <= review.rating %}
+                                        <i class="fas fa-star"></i>
+                                    {% else %}
+                                        <i class="far fa-star"></i>
+                                    {% endif %}
+                                {% endfor %}
+                            </div>
+                        </div>
+                        <p class="card-text">{{ review.comment|truncatewords:30 }}</p>
+                        <small class="text-muted">{{ review.created_at|date:"M d, Y" }}</small>
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            <div class="col-12 text-center">
+                <p>No reviews available yet.</p>
+            </div>
+            {% endfor %}
+        </div>
+        
+        <div class="text-center mt-4">
+            <a href="{% url 'car_rental:about' %}" class="btn btn-outline-primary">View All Reviews</a>
+        </div>
+    </div>
+</section>
+
+<section class="py-5 bg-light">
+    <div class="container">
+        <div class="text-center mb-5">
+            <h2 class="display-5">How It Works</h2>
+            <p class="lead">Simple steps to get the automotive service you need</p>
+        </div>
+        
+        <div class="row mt-4">
+            <div class="col-md-4">
+                <div class="mb-3">
+                    <div class="d-flex align-items-center justify-content-center">
+                        <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center" style="width: 60px; height: 60px;">
+                            <span class="h3 mb-0">1</span>
+                        </div>
+                    </div>
+                </div>
+                <h4 class="text-center">Book Online</h4>
+                <p class="text-center">Fill out our simple booking form with your details.</p>
+            </div>
+            <div class="col-md-4">
+                <div class="mb-3">
+                    <div class="d-flex align-items-center justify-content-center">
+                        <div class="bg-success text-white rounded-circle d-flex align-items-center justify-content-center" style="width: 60px; height: 60px;">
+                            <span class="h3 mb-0">2</span>
+                        </div>
+                    </div>
+                </div>
+                <h4 class="text-center">WhatsApp Confirmation</h4>
+                <p class="text-center">We'll send you a WhatsApp message to confirm your booking.</p>
+            </div>
+            <div class="col-md-4">
+                <div class="mb-3">
+                    <div class="d-flex align-items-center justify-content-center">
+                        <div class="bg-warning text-white rounded-circle d-flex align-items-center justify-content-center" style="width: 60px; height: 60px;">
+                            <span class="h3 mb-0">3</span>
+                        </div>
+                    </div>
+                </div>
+                <h4 class="text-center">Service Appointment</h4>
+                <p class="text-center">Visit us at your scheduled time for your service.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="py-5 bg-primary text-white">
+    <div class="container text-center">
+        <h2 class="display-5 fw-bold mb-4">Ready to Experience Luxury?</h2>
+        <p class="lead mb-4">Join thousands of satisfied customers who trust {% if site_info %}{{ site_info.company_name }}{% else %}Hillz Exquisites{% endif %} for their automotive needs.</p>
+        <div class="d-flex justify-content-center gap-3">
+            <a href="{% url 'car_rental:rent_cars' %}" class="btn btn-light btn-lg cta-button">Rent a Car</a>
+            <a href="{% url 'car_rental:sale_cars' %}" class="btn btn-outline-light btn-lg cta-button">Buy a Car</a>
+            <a href="{% url 'car_rental:services_overview' %}" class="btn btn-outline-light btn-lg cta-button">Book Service</a>
+        </div>
+    </div>
+</section>
+
+<style>
+    .hero-slide {
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .hero-slide::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.6));
+        z-index: 1;
+    }
+    
+    .hero-slide .container {
+        position: relative;
+        z-index: 2;
+    }
+    
+    .car-card {
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        overflow: hidden;
+    }
+    
+    .car-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+    }
+    
+    .car-card .card-img-wrapper {
+        height: 250px;
+        overflow: hidden;
+    }
+    
+    .car-card img {
+        transition: transform 0.3s ease;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+    
+    .car-card:hover img {
+        transform: scale(1.05);
+    }
+    
+    .service-card {
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    
+    .service-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+    }
+    
+    .service-card i {
+        transition: transform 0.3s ease;
+    }
+    
+    .service-card:hover i {
+        transform: scale(1.1);
+    }
+    
+    .review-card {
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    
+    .review-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+    }
+    
+    /* CTA Button Animation */
+    .cta-button {
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+        z-index: 1;
+    }
+    
+    .cta-button::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: rgba(255, 255, 255, 0.2);
+        transition: left 0.5s ease;
+        z-index: -1;
+    }
+    
+    .cta-button:hover::before {
+        left: 100%;
+    }
+    
+    .cta-button:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+    }
+    
+    /* Image loading animation */
+    .card-img-top {
+        transition: opacity 0.3s ease;
+    }
+    
+    .card-img-top[loading="lazy"] {
+        opacity: 0;
+    }
+    
+    .card-img-top.loaded {
+        opacity: 1;
+    }
+    
+    @media (max-width: 768px) {
+        .hero-slide {
+            min-height: 400px !important;
+        }
+        
+        .display-4 {
+            font-size: 2rem;
+        }
+        
+        .lead {
+            font-size: 1rem;
+        }
+    }
+</style>
+
+<script>
+    // Add loaded class to images when they finish loading
+    document.addEventListener('DOMContentLoaded', function() {
+        const images = document.querySelectorAll('img[loading="lazy"]');
+        
+        const imageObserver = new IntersectionObserver((entries, observer) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    const img = entry.target;
+                    img.addEventListener('load', function() {
+                        img.classList.add('loaded');
+                    });
+                    observer.unobserve(img);
+                }
+            });
+        });
+        
+        images.forEach(img => {
+            imageObserver.observe(img);
+        });
+    });
+</script>
+{% endblock %}

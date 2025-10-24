@@ -1,0 +1,436 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}My Profile - {{ site_info.company_name }}{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="row">
+        <div class="col-lg-4">
+            <!-- Profile Card -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-dark text-white text-center">
+                    <h5 class="mb-0">My Profile</h5>
+                </div>
+                <div class="card-body text-center">
+                    {% if profile.profile_picture %}
+                        <img src="{{ profile.profile_picture.url }}" alt="Profile Picture" class="rounded-circle mb-3" style="width: 120px; height: 120px; object-fit: cover;">
+                    {% else %}
+                        <div class="rounded-circle bg-secondary d-flex align-items-center justify-content-center mx-auto mb-3" style="width: 120px; height: 120px;">
+                            <i class="fas fa-user fa-3x text-white"></i>
+                        </div>
+                    {% endif %}
+                    <h5>{{ profile.full_name }}</h5>
+                    <p class="text-muted">{{ user.email }}</p>
+                    {% if profile.phone %}
+                        <p class="mb-0"><i class="fas fa-phone me-2"></i>{{ profile.phone }}</p>
+                    {% endif %}
+                    {% if customer.has_valid_license %}
+                        <span class="badge bg-success mt-2">Valid License</span>
+                    {% else %}
+                        <span class="badge bg-warning mt-2">License Required</span>
+                    {% endif %}
+                </div>
+                <div class="card-footer">
+                    <div class="d-grid gap-2">
+                        <a href="{% url 'car_rental:my_rentals' %}" class="btn btn-outline-primary">
+                            <i class="fas fa-car me-2"></i> My Rentals
+                        </a>
+                        <a href="{% url 'car_rental:my_purchases' %}" class="btn btn-outline-primary">
+                            <i class="fas fa-shopping-cart me-2"></i> My Purchases
+                        </a>
+                        <a href="{% url 'car_rental:my_services' %}" class="btn btn-outline-primary">
+                            <i class="fas fa-tools me-2"></i> My Services
+                        </a>
+                        <a href="{% url 'car_rental:change_password' %}" class="btn btn-outline-warning">
+                            <i class="fas fa-key me-2"></i> Change Password
+                        </a>
+                        <a href="{% url 'car_rental:delete_account' %}" class="btn btn-outline-danger">
+                            <i class="fas fa-trash-alt me-2"></i> Delete Account
+                        </a>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Statistics Card -->
+            <div class="card shadow-sm">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0">My Statistics</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row text-center">
+                        <div class="col-6 mb-3">
+                            <div class="stat-number">{{ stats.total_rentals }}</div>
+                            <div class="stat-label">Rentals</div>
+                        </div>
+                        <div class="col-6 mb-3">
+                            <div class="stat-number">{{ stats.total_purchases }}</div>
+                            <div class="stat-label">Purchases</div>
+                        </div>
+                        <div class="col-12">
+                            <div class="stat-number">₦{{ stats.total_spent|floatformat:2 }}</div>
+                            <div class="stat-label">Total Spent</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-8">
+            <!-- Display Django Messages -->
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+            
+            <!-- Unified Form for All Profile Information -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">Update Profile Information</h5>
+                </div>
+                <div class="card-body">
+                    <form method="post" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        
+                        <!-- Account Information Section -->
+                        <h6 class="mt-4 mb-3 border-bottom pb-2">Account Information</h6>
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label for="{{ user_form.first_name.id_for_label }}" class="form-label">First Name</label>
+                                <input type="text" name="{{ user_form.first_name.name }}" 
+                                       value="{{ user_form.first_name.value|default:'' }}" 
+                                       class="form-control {% if user_form.first_name.errors %}is-invalid{% endif %}" 
+                                       id="{{ user_form.first_name.id_for_label }}">
+                                {% if user_form.first_name.errors %}
+                                    <div class="invalid-feedback">
+                                        {{ user_form.first_name.errors.0 }}
+                                    </div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-6">
+                                <label for="{{ user_form.last_name.id_for_label }}" class="form-label">Last Name</label>
+                                <input type="text" name="{{ user_form.last_name.name }}" 
+                                       value="{{ user_form.last_name.value|default:'' }}" 
+                                       class="form-control {% if user_form.last_name.errors %}is-invalid{% endif %}" 
+                                       id="{{ user_form.last_name.id_for_label }}">
+                                {% if user_form.last_name.errors %}
+                                    <div class="invalid-feedback">
+                                        {{ user_form.last_name.errors.0 }}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="{{ user_form.email.id_for_label }}" class="form-label">Email Address</label>
+                            <input type="email" name="{{ user_form.email.name }}" 
+                                   value="{{ user_form.email.value|default:'' }}" 
+                                   class="form-control {% if user_form.email.errors %}is-invalid{% endif %}" 
+                                   id="{{ user_form.email.id_for_label }}">
+                            {% if user_form.email.errors %}
+                                <div class="invalid-feedback">
+                                    {{ user_form.email.errors.0 }}
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <!-- Customer Information Section -->
+                        <h6 class="mt-4 mb-3 border-bottom pb-2">Customer Information</h6>
+                        <div class="mb-3">
+                            <label for="{{ customer_form.name.id_for_label }}" class="form-label">Full Name</label>
+                            <input type="text" name="{{ customer_form.name.name }}" 
+                                   value="{{ customer_form.name.value|default:'' }}" 
+                                   class="form-control {% if customer_form.name.errors %}is-invalid{% endif %}" 
+                                   id="{{ customer_form.name.id_for_label }}">
+                            {% if customer_form.name.errors %}
+                                <div class="invalid-feedback">
+                                    {{ customer_form.name.errors.0 }}
+                                </div>
+                            {% endif %}
+                            <small class="form-text text-muted">This is the name associated with your customer account</small>
+                        </div>
+                        
+                        <!-- Profile Information Section -->
+                        <h6 class="mt-4 mb-3 border-bottom pb-2">Profile Information</h6>
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label for="{{ profile_form.phone.id_for_label }}" class="form-label">Phone Number</label>
+                                <input type="text" name="{{ profile_form.phone.name }}" 
+                                       value="{{ profile_form.phone.value|default:'' }}" 
+                                       class="form-control {% if profile_form.phone.errors %}is-invalid{% endif %}" 
+                                       id="{{ profile_form.phone.id_for_label }}">
+                                {% if profile_form.phone.errors %}
+                                    <div class="invalid-feedback">
+                                        {{ profile_form.phone.errors.0 }}
+                                    </div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-6">
+                                <label for="{{ profile_form.date_of_birth.id_for_label }}" class="form-label">Date of Birth</label>
+                                <input type="date" name="{{ profile_form.date_of_birth.name }}" 
+                                       value="{{ profile_form.date_of_birth.value|date:'Y-m-d'|default:'' }}" 
+                                       class="form-control {% if profile_form.date_of_birth.errors %}is-invalid{% endif %}" 
+                                       id="{{ profile_form.date_of_birth.id_for_label }}">
+                                {% if profile_form.date_of_birth.errors %}
+                                    <div class="invalid-feedback">
+                                        {{ profile_form.date_of_birth.errors.0 }}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="{{ profile_form.address.id_for_label }}" class="form-label">Address</label>
+                            <textarea name="{{ profile_form.address.name }}" 
+                                      class="form-control {% if profile_form.address.errors %}is-invalid{% endif %}" 
+                                      id="{{ profile_form.address.id_for_label }}" rows="3">{{ profile_form.address.value|default:'' }}</textarea>
+                            {% if profile_form.address.errors %}
+                                <div class="invalid-feedback">
+                                    {{ profile_form.address.errors.0 }}
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="row mb-3">
+                            <div class="col-md-4">
+                                <label for="{{ profile_form.city.id_for_label }}" class="form-label">City</label>
+                                <input type="text" name="{{ profile_form.city.name }}" 
+                                       value="{{ profile_form.city.value|default:'' }}" 
+                                       class="form-control {% if profile_form.city.errors %}is-invalid{% endif %}" 
+                                       id="{{ profile_form.city.id_for_label }}">
+                                {% if profile_form.city.errors %}
+                                    <div class="invalid-feedback">
+                                        {{ profile_form.city.errors.0 }}
+                                    </div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-4">
+                                <label for="{{ profile_form.state.id_for_label }}" class="form-label">State</label>
+                                <input type="text" name="{{ profile_form.state.name }}" 
+                                       value="{{ profile_form.state.value|default:'' }}" 
+                                       class="form-control {% if profile_form.state.errors %}is-invalid{% endif %}" 
+                                       id="{{ profile_form.state.id_for_label }}">
+                                {% if profile_form.state.errors %}
+                                    <div class="invalid-feedback">
+                                        {{ profile_form.state.errors.0 }}
+                                    </div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-4">
+                                <label for="{{ profile_form.zip_code.id_for_label }}" class="form-label">Zip Code</label>
+                                <input type="text" name="{{ profile_form.zip_code.name }}" 
+                                       value="{{ profile_form.zip_code.value|default:'' }}" 
+                                       class="form-control {% if profile_form.zip_code.errors %}is-invalid{% endif %}" 
+                                       id="{{ profile_form.zip_code.id_for_label }}">
+                                {% if profile_form.zip_code.errors %}
+                                    <div class="invalid-feedback">
+                                        {{ profile_form.zip_code.errors.0 }}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="{{ profile_form.country.id_for_label }}" class="form-label">Country</label>
+                            <input type="text" name="{{ profile_form.country.name }}" 
+                                   value="{{ profile_form.country.value|default:'' }}" 
+                                   class="form-control {% if profile_form.country.errors %}is-invalid{% endif %}" 
+                                   id="{{ profile_form.country.id_for_label }}">
+                            {% if profile_form.country.errors %}
+                                <div class="invalid-feedback">
+                                    {{ profile_form.country.errors.0 }}
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="{{ profile_form.profile_picture.id_for_label }}" class="form-label">Profile Picture</label>
+                            <input type="file" name="{{ profile_form.profile_picture.name }}" 
+                                   class="form-control {% if profile_form.profile_picture.errors %}is-invalid{% endif %}" 
+                                   id="{{ profile_form.profile_picture.id_for_label }}">
+                            {% if profile_form.profile_picture.errors %}
+                                <div class="invalid-feedback">
+                                    {{ profile_form.profile_picture.errors.0 }}
+                                </div>
+                            {% endif %}
+                            <small class="form-text text-muted">Upload a new profile picture (optional)</small>
+                        </div>
+                        
+                        <!-- Driver's License Section -->
+                        <h6 class="mt-4 mb-3 border-bottom pb-2">Driver's License Information</h6>
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label for="{{ customer_form.drivers_license.id_for_label }}" class="form-label">Driver's License Number</label>
+                                <input type="text" name="{{ customer_form.drivers_license.name }}" 
+                                       value="{{ customer_form.drivers_license.value|default:'' }}" 
+                                       class="form-control {% if customer_form.drivers_license.errors %}is-invalid{% endif %}" 
+                                       id="{{ customer_form.drivers_license.id_for_label }}">
+                                {% if customer_form.drivers_license.errors %}
+                                    <div class="invalid-feedback">
+                                        {{ customer_form.drivers_license.errors.0 }}
+                                    </div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-6">
+                                <label for="{{ customer_form.license_expiry.id_for_label }}" class="form-label">License Expiry Date</label>
+                                <input type="date" name="{{ customer_form.license_expiry.name }}" 
+                                       value="{{ customer_form.license_expiry.value|date:'Y-m-d'|default:'' }}" 
+                                       class="form-control {% if customer_form.license_expiry.errors %}is-invalid{% endif %}" 
+                                       id="{{ customer_form.license_expiry.id_for_label }}">
+                                {% if customer_form.license_expiry.errors %}
+                                    <div class="invalid-feedback">
+                                        {{ customer_form.license_expiry.errors.0 }}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="{{ customer_form.license_image.id_for_label }}" class="form-label">Driver's License Image</label>
+                            <input type="file" name="{{ customer_form.license_image.name }}" 
+                                   class="form-control {% if customer_form.license_image.errors %}is-invalid{% endif %}" 
+                                   id="{{ customer_form.license_image.id_for_label }}">
+                            {% if customer_form.license_image.errors %}
+                                <div class="invalid-feedback">
+                                    {{ customer_form.license_image.errors.0 }}
+                                </div>
+                            {% endif %}
+                            <small class="form-text text-muted">Upload a clear image of your driver's license (optional)</small>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="{{ customer_form.delivery_address.id_for_label }}" class="form-label">Delivery Address</label>
+                            <textarea name="{{ customer_form.delivery_address.name }}" 
+                                      class="form-control {% if customer_form.delivery_address.errors %}is-invalid{% endif %}" 
+                                      id="{{ customer_form.delivery_address.id_for_label }}" rows="3">{{ customer_form.delivery_address.value|default:'' }}</textarea>
+                            {% if customer_form.delivery_address.errors %}
+                                <div class="invalid-feedback">
+                                    {{ customer_form.delivery_address.errors.0 }}
+                                </div>
+                            {% endif %}
+                            <small class="form-text text-muted">Address where you'd like vehicles delivered (optional)</small>
+                        </div>
+                        
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-4">
+                            <button type="submit" class="btn btn-primary">Update All Information</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            
+            <!-- Recent Activity -->
+            <div class="card shadow-sm">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0">Recent Activity</h5>
+                </div>
+                <div class="card-body">
+                    {% if rentals or purchases %}
+                        <ul class="nav nav-tabs" id="activityTabs" role="tablist">
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link active" id="rentals-tab" data-bs-toggle="tab" data-bs-target="#rentals" type="button" role="tab">Recent Rentals</button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link" id="purchases-tab" data-bs-toggle="tab" data-bs-target="#purchases" type="button" role="tab">Recent Purchases</button>
+                            </li>
+                        </ul>
+                        <div class="tab-content mt-3" id="activityTabsContent">
+                            <div class="tab-pane fade show active" id="rentals" role="tabpanel">
+                                {% if rentals %}
+                                    <div class="list-group">
+                                        {% for rental in rentals %}
+                                            <a href="{% url 'car_rental:rental_detail' rental.id %}" class="list-group-item list-group-item-action">
+                                                <div class="d-flex w-100 justify-content-between">
+                                                    <h6 class="mb-1">{{ rental.car.make }} {{ rental.car.model }}</h6>
+                                                    <small>{{ rental.rental_datetime|date:"M d, Y" }}</small>
+                                                </div>
+                                                <p class="mb-1">{{ rental.get_status_display }}</p>
+                                                <small>₦{{ rental.total_amount|floatformat:2 }}</small>
+                                            </a>
+                                        {% endfor %}
+                                    </div>
+                                    <div class="text-center mt-3">
+                                        <a href="{% url 'car_rental:my_rentals' %}" class="btn btn-sm btn-outline-primary">View All Rentals</a>
+                                    </div>
+                                {% else %}
+                                    <p class="text-muted">No rentals found.</p>
+                                {% endif %}
+                            </div>
+                            <div class="tab-pane fade" id="purchases" role="tabpanel">
+                                {% if purchases %}
+                                    <div class="list-group">
+                                        {% for purchase in purchases %}
+                                            <a href="{% url 'car_rental:purchase_detail' purchase.id %}" class="list-group-item list-group-item-action">
+                                                <div class="d-flex w-100 justify-content-between">
+                                                    <h6 class="mb-1">{{ purchase.car.make }} {{ purchase.car.model }}</h6>
+                                                    <small>{{ purchase.purchase_datetime|date:"M d, Y" }}</small>
+                                                </div>
+                                                <p class="mb-1">{{ purchase.get_status_display }}</p>
+                                                <small>₦{{ purchase.total_amount|floatformat:2 }}</small>
+                                            </a>
+                                        {% endfor %}
+                                    </div>
+                                    <div class="text-center mt-3">
+                                        <a href="{% url 'car_rental:my_purchases' %}" class="btn btn-sm btn-outline-primary">View All Purchases</a>
+                                    </div>
+                                {% else %}
+                                    <p class="text-muted">No purchases found.</p>
+                                {% endif %}
+                            </div>
+                        </div>
+                    {% else %}
+                        <p class="text-muted">No activity found.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .stat-number {
+        font-size: 24px;
+        font-weight: bold;
+        color: #0d6efd;
+    }
+    
+    .stat-label {
+        font-size: 14px;
+        color: #6c757d;
+    }
+    
+    .invalid-feedback {
+        display: block;
+        width: 100%;
+        margin-top: 0.25rem;
+        font-size: 0.875em;
+        color: #dc3545;
+    }
+    
+    .is-invalid {
+        border-color: #dc3545;
+        padding-right: calc(1.5em + 0.75rem);
+        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12' width='12' height='12' fill='none' stroke='%23dc3545'%3e%3ccircle cx='6' cy='6' r='4.5'/%3e%3cpath stroke-linejoin='round' d='M5.8 3.6h.4L6 6.5z'/%3e%3ccircle cx='6' cy='8.2' r='.6' fill='%23dc3545' stroke='none'/%3e%3c/svg%3e");
+        background-repeat: no-repeat;
+        background-position: right calc(0.375em + 0.1875rem) center;
+        background-size: calc(0.75em + 0.375rem) calc(0.75em + 0.375rem);
+    }
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Initialize Bootstrap tabs
+        var triggerTabList = [].slice.call(document.querySelectorAll('#activityTabs button'))
+        triggerTabList.forEach(function (triggerEl) {
+            var tabTrigger = new bootstrap.Tab(triggerEl)
+        });
+    });
+</script>
+{% endblock %}

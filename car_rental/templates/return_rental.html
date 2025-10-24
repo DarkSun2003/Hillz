@@ -1,0 +1,131 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Return Rental - {{ rental.car.make }} {{ rental.car.model }}{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="row">
+        <div class="col-lg-8 mx-auto">
+            <div class="card shadow-sm">
+                <div class="card-header bg-warning text-dark">
+                    <h5 class="mb-0">Return Rental - {{ rental.car.make }} {{ rental.car.model }}</h5>
+                </div>
+                <div class="card-body">
+                    <!-- Display Django Messages -->
+                    {% if messages %}
+                        {% for message in messages %}
+                            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                                {{ message }}
+                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+                    
+                    <!-- Rental Information -->
+                    <div class="alert alert-info">
+                        <h6>Rental Details</h6>
+                        <p><strong>Customer:</strong> {{ rental.customer.name }}</p>
+                        <p><strong>Vehicle:</strong> {{ rental.car.year }} {{ rental.car.make }} {{ rental.car.model }}</p>
+                        <p><strong>Rental Date:</strong> {{ rental.rental_datetime|date:"F d, Y" }}</p>
+                        <p><strong>Expected Return:</strong> {{ rental.return_datetime|date:"F d, Y" }}</p>
+                        <p><strong>Daily Rate:</strong> ₦{{ rental.daily_rate|floatformat:2 }}</p>
+                        <p><strong>Total Amount:</strong> ₦{{ rental.total_amount|floatformat:2 }}</p>
+                    </div>
+                    
+                    <!-- Return Form -->
+                    <form method="post" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        
+                        <div class="mb-3">
+                            <label for="{{ form.actual_return_datetime.id_for_label }}" class="form-label">Actual Return Date & Time</label>
+                            {{ form.actual_return_datetime }}
+                            {% if form.actual_return_datetime.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {{ form.actual_return_datetime.errors.0 }}
+                                </div>
+                            {% endif %}
+                            <small class="form-text text-muted">The actual date and time when the vehicle was returned</small>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="{{ form.status.id_for_label }}" class="form-label">Return Status</label>
+                            {{ form.status }}
+                            {% if form.status.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {{ form.status.errors.0 }}
+                                </div>
+                            {% endif %}
+                            <small class="form-text text-muted">Set the final status of this rental</small>
+                        </div>
+                        
+                        <!-- Late Fee Information -->
+                        {% if rental.late_fee > 0 %}
+                            <div class="alert alert-warning">
+                                <h6>Late Fee Information</h6>
+                                <p><strong>Late Fee Amount:</strong> ₦{{ rental.late_fee|floatformat:2 }}</p>
+                                <p><strong>Total Amount Due:</strong> ₦{{ rental.total_amount_due|floatformat:2 }}</p>
+                            </div>
+                        {% endif %}
+                        
+                        <div class="d-flex justify-content-between mt-4">
+                            <a href="{% url 'car_rental:rental_detail' rental.id %}" class="btn btn-outline-secondary">
+                                <i class="fas fa-arrow-left me-2"></i> Back to Rental
+                            </a>
+                            <button type="submit" class="btn btn-warning">
+                                <i class="fas fa-undo me-2"></i> Process Return
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .invalid-feedback {
+        display: block;
+        width: 100%;
+        margin-top: 0.25rem;
+        font-size: 0.875em;
+        color: #dc3545;
+    }
+    
+    .input-group {
+        position: relative;
+    }
+    
+    .input-group .form-control.is-invalid {
+        border-color: #dc3545;
+        padding-right: calc(1.5em + 0.75rem);
+        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12' width='12' height='12' fill='none' stroke='%23dc3545'%3e%3ccircle cx='6' cy='6' r='4.5'/%3e%3cpath stroke-linejoin='round' d='M5.8 3.6h.4L6 6.5z'/%3e%3ccircle cx='6' cy='8.2' r='.6' fill='%23dc3545' stroke='none'/%3e%3c/svg%3e");
+        background-repeat: no-repeat;
+        background-position: right calc(0.375em + 0.1875rem) center;
+        background-size: calc(0.75em + 0.375rem) calc(0.75em + 0.375rem);
+    }
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Set default return datetime to now
+        var returnDateTimeField = document.getElementById('{{ form.actual_return_datetime.id_for_label }}');
+        if (returnDateTimeField && !returnDateTimeField.value) {
+            var now = new Date();
+            var localDateTime = new Date(now.getTime() - now.getTimezoneOffset() * 60000).toISOString().slice(0, 16);
+            returnDateTimeField.value = localDateTime;
+        }
+        
+        // Add error styling to form fields
+        document.querySelectorAll('.form-control').forEach(function(field) {
+            if (field.classList.contains('is-invalid')) {
+                field.style.borderColor = '#dc3545';
+            }
+        });
+    });
+</script>
+{% endblock %}

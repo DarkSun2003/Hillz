@@ -1,0 +1,323 @@
+{% extends 'base.html' %}
+
+{% load custom_filters %}
+{% block title %}All Purchases - {{ site_info.company_name }}{% endblock %}
+
+{% block extra_css %}
+<style>
+    .page-header {
+        background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+        border-radius: 15px;
+        padding: 2rem;
+        margin-bottom: 2rem;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+    }
+    
+    .stats-card {
+        border-radius: 15px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+        border: none;
+        transition: transform 0.3s ease;
+        margin-bottom: 1.5rem;
+    }
+    
+    .stats-card:hover {
+        transform: translateY(-5px);
+    }
+    
+    .stats-card .card-body {
+        padding: 1.5rem;
+    }
+    
+    .stats-card .card-title {
+        font-size: 0.9rem;
+        color: #6c757d;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin-bottom: 0.5rem;
+    }
+    
+    .stats-card .stats-value {
+        font-size: 1.8rem;
+        font-weight: 700;
+        color: #2c3e50;
+    }
+    
+    .main-card {
+        border-radius: 15px;
+        box-shadow: 0 5px 25px rgba(0, 0, 0, 0.07);
+        border: none;
+        overflow: hidden;
+    }
+    
+    .main-card .card-header {
+        background-color: #fff;
+        border-bottom: 1px solid #eee;
+        padding: 1.25rem 1.5rem;
+    }
+    
+    .main-card .card-title {
+        font-weight: 600;
+        color: #2c3e50;
+        margin-bottom: 0;
+    }
+    
+    .table thead th {
+        border-bottom: 2px solid #eee;
+        color: #6c757d;
+        font-weight: 600;
+        text-transform: uppercase;
+        font-size: 0.8rem;
+        letter-spacing: 0.5px;
+        padding: 1rem;
+    }
+    
+    .table tbody td {
+        vertical-align: middle;
+        padding: 1rem;
+        color: #495057;
+    }
+    
+    .table tbody tr {
+        transition: all 0.2s ease;
+    }
+    
+    .table tbody tr:hover {
+        background-color: #f8f9fa;
+    }
+    
+    .btn-action {
+        border-radius: 50px;
+        padding: 0.4rem 0.8rem;
+        font-size: 0.8rem;
+        font-weight: 600;
+        transition: all 0.2s ease;
+    }
+    
+    .btn-action:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+    }
+    
+    .status-badge {
+        font-size: 0.75rem;
+        font-weight: 600;
+        padding: 0.4rem 0.8rem;
+        border-radius: 50px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    
+    .status-badge.delivered {
+        background-color: #d4edda;
+        color: #155724;
+    }
+    
+    .status-badge.shipped {
+        background-color: #d1ecf1;
+        color: #0c5460;
+    }
+    
+    .status-badge.processing {
+        background-color: #fff3cd;
+        color: #856404;
+    }
+    
+    .status-badge.pending {
+        background-color: #e2e3e5;
+        color: #383d41;
+    }
+    
+    .status-badge.cancelled {
+        background-color: #f8d7da;
+        color: #721c24;
+    }
+    
+    .pagination {
+        margin-top: 2rem;
+    }
+    
+    .page-link {
+        border-radius: 50px;
+        margin: 0 2px;
+        border: none;
+        color: #6c757d;
+        font-weight: 600;
+    }
+    
+    .page-item.active .page-link {
+        background: linear-gradient(45deg, #d4af37, #f5d76e);
+        border-color: #d4af37;
+        color: #212529;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <!-- Page Header -->
+    <div class="page-header">
+        <div class="d-flex align-items-center">
+            <div class="icon-badge">
+                <i class="fas fa-shopping-cart"></i>
+            </div>
+            <div>
+                <h1>All Purchases</h1>
+                <p>Manage all customer purchases</p>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Stats Cards -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card stats-card">
+                <div class="card-body text-center">
+                    <div class="card-title">Total Purchases</div>
+                    <div class="stats-value">{{ purchases|length }}</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card stats-card">
+                <div class="card-body text-center">
+                    <div class="card-title">Delivered</div>
+                    <div class="stats-value">{{ purchases|filter_status:'delivered'|length }}</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card stats-card">
+                <div class="card-body text-center">
+                    <div class="card-title">Processing</div>
+                    <div class="stats-value">{{ purchases|filter_status:'processing'|length }}</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card stats-card">
+                <div class="card-body text-center">
+                    <div class="card-title">Total Revenue</div>
+                    <div class="stats-value">₦{{ purchases|total_revenue|floatformat:2 }}</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Main Card -->
+    <div class="card main-card">
+        <div class="card-header">
+            <div class="d-flex justify-content-between align-items-center">
+                <h3 class="card-title"><i class="fas fa-list me-2"></i>Purchase History</h3>
+                <a href="{% url 'car_rental:create_purchase' %}" class="btn btn-primary">
+                    <i class="fas fa-plus me-2"></i>New Purchase
+                </a>
+            </div>
+        </div>
+        <div class="card-body p-0">
+            {% if purchases %}
+            <div class="table-responsive">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Customer</th>
+                            <th>Vehicle</th>
+                            <th>Purchase Date</th>
+                            <th>Status</th>
+                            <th>Total Amount</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for purchase in purchases %}
+                        <tr>
+                            <td>
+                                <div class="fw-bold">{{ purchase.customer.name }}</div>
+                                <div class="text-muted small">{{ purchase.customer.email }}</div>
+                            </td>
+                            <td>
+                                {% if purchase.car %}
+                                    <div class="fw-bold">{{ purchase.car.year }} {{ purchase.car.make }} {{ purchase.car.model }}</div>
+                                {% else %}
+                                    <span class="text-muted">Car no longer available</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <div><i class="far fa-calendar-alt me-2 text-muted"></i>{{ purchase.purchase_datetime|date:"M d, Y" }}</div>
+                            </td>
+                            <td>
+                                {% if purchase.status == 'delivered' %}
+                                <span class="status-badge delivered">Delivered</span>
+                                {% elif purchase.status == 'shipped' %}
+                                <span class="status-badge shipped">Shipped</span>
+                                {% elif purchase.status == 'processing' %}
+                                <span class="status-badge processing">Processing</span>
+                                {% elif purchase.status == 'pending' %}
+                                <span class="status-badge pending">Pending</span>
+                                {% else %}
+                                <span class="status-badge cancelled">Cancelled</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <div class="fw-bold">₦{{ purchase.total_amount|floatformat:2 }}</div>
+                            </td>
+                            <td>
+                                <a href="{% url 'car_rental:purchase_detail' purchase.pk %}" class="btn btn-sm btn-outline-info btn-action me-2">
+                                    <i class="fas fa-eye"></i> View
+                                </a>
+                                <a href="{% url 'car_rental:update_purchase' purchase.pk %}" class="btn btn-sm btn-primary btn-action">
+                                    <i class="fas fa-edit"></i> Edit
+                                </a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            
+            <!-- Pagination -->
+            {% if is_paginated %}
+            <nav aria-label="Page navigation" class="p-3">
+                <ul class="pagination justify-content-center">
+                    {% if page_obj.has_previous %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ page_obj.previous_page_number }}" aria-label="Previous">
+                            <i class="fas fa-chevron-left"></i>
+                        </a>
+                    </li>
+                    {% endif %}
+                    
+                    {% for num in page_obj.paginator.page_range %}
+                        {% if page_obj.number == num %}
+                            <li class="page-item active"><span class="page-link">{{ num }}</span></li>
+                        {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                            <li class="page-item"><a class="page-link" href="?page={{ num }}">{{ num }}</a></li>
+                        {% endif %}
+                    {% endfor %}
+                    
+                    {% if page_obj.has_next %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ page_obj.next_page_number }}" aria-label="Next">
+                            <i class="fas fa-chevron-right"></i>
+                        </a>
+                    </li>
+                    {% endif %}
+                </ul>
+            </nav>
+            {% endif %}
+            
+            {% else %}
+            <!-- Empty State -->
+            <div class="text-center p-5">
+                <i class="fas fa-shopping</h4>
+                <p class="text-muted">There are no purchases in the system yet.</p>
+                <a href="{% url 'car_rental:create_purchase' %}" class="btn btn-primary">
+                    <i class="fas fa-plus me-2"></i>Create First Purchase
+                </a>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,229 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Purchase Successful - {% if site_info %}{{ site_info.company_name }}{% else %}Hillz Exquisite{% endif %}{% endblock %}
+
+{% block extra_css %}
+<style>
+    .success-container {
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 2rem 0;
+    }
+    
+    .success-card {
+        border: none;
+        border-radius: 15px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        overflow: hidden;
+    }
+    
+    .success-card .card-header {
+        background: linear-gradient(45deg, #28a745, #20c997);
+        color: white;
+        border: none;
+        padding: 1.5rem;
+        text-align: center;
+    }
+    
+    .success-icon {
+        font-size: 4rem;
+        color: #28a745;
+        margin-bottom: 1.5rem;
+    }
+    
+    .purchase-summary {
+        background-color: #f8f9fa;
+        border-radius: 10px;
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+    }
+    
+    .detail-row {
+        display: flex;
+        justify-content: space-between;
+        padding: 0.75rem 0;
+        border-bottom: 1px solid #e9ecef;
+    }
+    
+    .detail-row:last-child {
+        border-bottom: none;
+        font-weight: 600;
+        font-size: 1.2rem;
+        color: #d4af37;
+    }
+    
+    .status-badge {
+        display: inline-block;
+        padding: 0.5rem 1rem;
+        font-size: 0.9rem;
+        font-weight: 600;
+        border-radius: 50px;
+        background-color: #28a745;
+        color: white;
+    }
+    
+    .next-steps {
+        background-color: rgba(40, 167, 69, 0.1);
+        border: 1px solid rgba(40, 167, 69, 0.3);
+        border-radius: 10px;
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+    }
+    
+    .next-steps h5 {
+        color: #28a745;
+        margin-bottom: 1rem;
+    }
+    
+    .next-steps ul {
+        padding-left: 1.2rem;
+        margin-bottom: 0;
+    }
+    
+    .next-steps li {
+        margin-bottom: 0.5rem;
+    }
+    
+    .btn-primary {
+        background: linear-gradient(45deg, #d4af37, #f5d76e);
+        border: none;
+        border-radius: 50px;
+        padding: 0.75rem 2rem;
+        font-weight: 600;
+        color: #212529;
+        transition: all 0.3s ease;
+        display: inline-block;
+        text-decoration: none;
+    }
+    
+    .btn-primary:hover {
+        background: linear-gradient(45deg, #b8941f, #d4af37);
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(212, 175, 55, 0.3);
+        color: #212529;
+    }
+    
+    .btn-outline-primary {
+        border: 2px solid #d4af37;
+        color: #d4af37;
+        border-radius: 50px;
+        padding: 0.75rem 2rem;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        display: inline-block;
+        text-decoration: none;
+    }
+    
+    .btn-outline-primary:hover {
+        background-color: #d4af37;
+        color: white;
+        transform: translateY(-2px);
+    }
+    
+    @media (max-width: 768px) {
+        .success-container {
+            padding: 1rem 0;
+        }
+        
+        .detail-row {
+            flex-direction: column;
+        }
+        
+        .detail-row div:last-child {
+            margin-top: 0.25rem;
+        }
+        
+        .d-flex {
+            flex-direction: column;
+            gap: 1rem;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="success-container">
+    <div class="card success-card">
+        <div class="card-header">
+            <h4>Purchase Successful!</h4>
+        </div>
+        <div class="card-body p-4">
+            <div class="text-center mb-4">
+                <i class="fas fa-check-circle success-icon"></i>
+                <h2 class="mb-3">Thank You for Your Purchase!</h2>
+                <div class="status-badge">Order Confirmed</div>
+            </div>
+            
+            {% if purchase %}
+                <div class="purchase-summary">
+                    <h5 class="mb-3">Order Summary</h5>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="detail-row">
+                                <div>Order ID:</div>
+                                <div>#{{ purchase.id }}</div>
+                            </div>
+                            <div class="detail-row">
+                                <div>Vehicle:</div>
+                                <div>{{ purchase.car.year }} {{ purchase.car.make }} {{ purchase.car.model }}</div>
+                            </div>
+                            <div class="detail-row">
+                                <div>Purchase Date:</div>
+                                <div>{{ purchase.purchase_datetime|date:"F d, Y" }}</div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="detail-row">
+                                <div>Base Price:</div>
+                                <div>₦{{ purchase.purchase_price|floatformat:2 }}</div>
+                            </div>
+                            <div class="detail-row">
+                                <div>Taxes & Fees:</div>
+                                <div>₦{{ purchase.taxes|add:purchase.fees|floatformat:2 }}</div>
+                            </div>
+                            <div class="detail-row">
+                                <div>Total Paid:</div>
+                                <div>₦{{ purchase.total_amount|floatformat:2 }}</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="next-steps">
+                    <h5><i class="fas fa-list-ol me-2"></i>What Happens Next?</h5>
+                    <ul>
+                        <li>You'll receive a confirmation email with all purchase details</li>
+                        <li>Our team will process your payment and update the order status</li>
+                        <li>Once payment is confirmed, we'll schedule the delivery of your vehicle</li>
+                        <li>You'll receive delivery updates via email and SMS</li>
+                        <li>Enjoy your new vehicle from Hillz Exquisites!</li>
+                    </ul>
+                </div>
+            {% else %}
+                <div class="alert alert-success">
+                    <i class="fas fa-check-circle me-2"></i>
+                    Your purchase has been completed successfully. Thank you for choosing Hillz Exquisites!
+                </div>
+            {% endif %}
+            
+            <div class="d-flex justify-content-center gap-3">
+                <a href="{% url 'car_rental:my_purchases' %}" class="btn btn-primary">
+                    <i class="fas fa-list me-2"></i>View My Purchases
+                </a>
+                <a href="{% url 'car_rental:sale_cars' %}" class="btn-outline-primary">
+                    <i class="fas fa-car me-2"></i>Browse More Cars
+                </a>
+            </div>
+            
+            <div class="text-center mt-4">
+                <p class="text-muted">
+                    <i class="fas fa-phone me-1"></i>
+                    Need help? Contact us at {% if site_info %}{{ site_info.phone }}{% endif %}
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,98 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Our Services - {{ site_info.company_name }}{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="text-center mb-5">
+        <h1 class="display-4">Our Services</h1>
+        <p class="lead">We offer a comprehensive range of automotive services to meet your needs.</p>
+    </div>
+    
+    <div class="row g-4">
+        <!-- Diagnostic Service -->
+        <div class="col-md-6 col-lg-3">
+            <div class="card h-100 shadow-sm">
+                <div class="card-body text-center">
+                    <div class="mb-3">
+                        <i class="fas fa-stethoscope text-primary" style="font-size: 3rem;"></i>
+                    </div>
+                    <h5 class="card-title">Diagnostic Service</h5>
+                    <p class="card-text">Comprehensive vehicle diagnostics to identify issues accurately.</p>
+                    <a href="{% url 'car_rental:book_diagnostic' %}" class="btn btn-outline-primary">Book Now</a>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Repair Service -->
+        <div class="col-md-6 col-lg-3">
+            <div class="card h-100 shadow-sm">
+                <div class="card-body text-center">
+                    <div class="mb-3">
+                        <i class="fas fa-tools text-success" style="font-size: 3rem;"></i>
+                    </div>
+                    <h5 class="card-title">Repair Service</h5>
+                    <p class="card-text">Expert repairs for all vehicle makes and models.</p>
+                    <a href="{% url 'car_rental:book_repair' %}" class="btn btn-outline-success">Book Now</a>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Upgrade Service -->
+        <div class="col-md-6 col-lg-3">
+            <div class="card h-100 shadow-sm">
+                <div class="card-body text-center">
+                    <div class="mb-3">
+                        <i class="fas fa-rocket text-warning" style="font-size: 3rem;"></i>
+                    </div>
+                    <h5 class="card-title">Upgrade Service</h5>
+                    <p class="card-text">Enhance your vehicle's performance and appearance.</p>
+                    <a href="{% url 'car_rental:book_upgrade' %}" class="btn btn-outline-warning">Book Now</a>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Consultation Service -->
+        <div class="col-md-6 col-lg-3">
+            <div class="card h-100 shadow-sm">
+                <div class="card-body text-center">
+                    <div class="mb-3">
+                        <i class="fas fa-comments text-info" style="font-size: 3rem;"></i>
+                    </div>
+                    <h5 class="card-title">Consultation Service</h5>
+                    <p class="card-text">Professional advice for your automotive needs.</p>
+                    <a href="{% url 'car_rental:book_consultation' %}" class="btn btn-outline-info">Book Now</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="text-center mt-5">
+        <h2>How It Works</h2>
+        <div class="row mt-4">
+            <div class="col-md-4">
+                <div class="mb-3">
+                    <i class="fas fa-edit text-primary" style="font-size: 2rem;"></i>
+                </div>
+                <h4>1. Book Online</h4>
+                <p>Fill out our simple booking form with your details.</p>
+            </div>
+            <div class="col-md-4">
+                <div class="mb-3">
+                    <i class="fab fa-whatsapp text-success" style="font-size: 2rem;"></i>
+                </div>
+                <h4>2. WhatsApp Confirmation</h4>
+                <p>We'll send you a WhatsApp message to confirm your booking.</p>
+            </div>
+            <div class="col-md-4">
+                <div class="mb-3">
+                    <i class="fas fa-wrench text-warning" style="font-size: 2rem;"></i>
+                </div>
+                <h4>3. Service Appointment</h4>
+                <p>Visit us at your scheduled time for your service.</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
