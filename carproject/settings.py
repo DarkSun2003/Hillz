@@ -13,6 +13,7 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 import os
 from pathlib import Path
 import cloudinary
+import dj_database_url
 
 from dotenv import load_dotenv
 
@@ -85,15 +86,13 @@ WSGI_APPLICATION = 'carproject.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 
+# Database configuration using Railway's environment variables
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'railway',
-        'USER': 'postgres',
-        'PASSWORD': os.environ['DB_PASSWORD'],
-        'HOST': 'shuttle.proxy.rlwy.net',
-        'PORT': '12338',
-    }
+    'default': dj_database_url.config(
+        default=os.environ.get('DB_URL'),
+        conn_max_age=600,
+        ssl_require=True
+    )
 }
 #postgresql://postgres:FhWXUjFcBVwwUpZxZKwdOaVDFlMuJlhw@shuttle.proxy.rlwy.net:12338/railway
 
@@ -132,10 +131,16 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/4.2/howto/static-files/
 
 STATIC_URL = '/static/'
-STATIC_ROOT = BASE_DIR / 'staticfiles'
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
+# Security settings
+SECURE_SSL_REDIRECT = True
+SESSION_COOKIE_SECURE = True
+CSRF_COOKIE_SECURE = True
+SECURE_BROWSER_XSS_FILTER = True
+SECURE_CONTENT_TYPE_NOSNIFF = True
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
 
@@ -159,7 +164,7 @@ EMAIL_HOST_USER = 'your-email@gmail.com'
 EMAIL_HOST_PASSWORD = 'your-password'
 
 # Site URL for generating absolute URLs
-SITE_URL = 'http://localhost:8000'
+#SITE_URL = 'http://localhost:8000'
 
 cloudinary.config(
     cloud_name= os.environ.get('CLOUDINARY_CLOUD_NAME'),
