@@ -88,11 +88,11 @@ WSGI_APPLICATION = 'carproject.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': os.environ.get('DB_NAME'),
-        'USER': os.environ.get('DB_USER'),
+        'NAME': 'railway',
+        'USER': 'postgres',
         'PASSWORD': os.environ['DB_PASSWORD'],
-        'HOST': os.environ.get('DB_HOST'),
-        'PORT': os.environ.get('DB_PORT'),
+        'HOST': 'shuttle.proxy.rlwy.net',
+        'PORT': '12338',
     }
 }
 #postgresql://postgres:FhWXUjFcBVwwUpZxZKwdOaVDFlMuJlhw@shuttle.proxy.rlwy.net:12338/railway
