@@ -32,7 +32,7 @@ SECRET_KEY = 'django-insecure-+bl=ll-6g@i^=k)l9a3n3eus&ru_i8llm_p)xn^=tfx1!o1^&#
 DEBUG = True
 
 ALLOWED_HOSTS = ['pretty-achievement-production.up.railway.app', 'https://pretty-achievement-production.up.railway.app']
-CSRF_TRUSTED_ORIGINS = []
+CSRF_TRUSTED_ORIGINS = ['pretty-achievement-production.up.railway.app', 'https://pretty-achievement-production.up.railway.app']
 
 # Application definition
 
