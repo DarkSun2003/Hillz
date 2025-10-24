@@ -93,6 +93,7 @@ DATABASES = {
         'PASSWORD': os.environ['DB_PASSWORD'],
         'HOST': 'shuttle.proxy.rlwy.net',
         'PORT': '12338',
+        'DATABASE_PUBLIC_URL': os.environ['DB_URL']
     }
 }
 #postgresql://postgres:FhWXUjFcBVwwUpZxZKwdOaVDFlMuJlhw@shuttle.proxy.rlwy.net:12338/railway
