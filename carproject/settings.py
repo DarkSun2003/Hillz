@@ -91,8 +91,8 @@ DATABASES = {
         'NAME': 'railway',
         'USER': 'postgres',
         'PASSWORD': os.environ['DB_PASSWORD'],
-        'HOST': 'shuttle.proxy.rlwy.net',
-        'PORT': '12338',
+        'HOST': os.environ.get('DB_HOST'),
+        'PORT': os.environ.get('DB_PORT'),
         'DATABASE_PUBLIC_URL': os.environ['DB_URL']
     }
 }
