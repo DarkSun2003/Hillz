@@ -79,11 +79,14 @@
         <div class="col-md-4 mb-4">
             <div class="card h-100 car-card border-0 shadow-sm overflow-hidden">
                 <div class="car-image-container">
-                    <!-- Improved image handling with multiple fallback options -->
+                    <!-- Try different approaches to display the image -->
                     <div class="car-image-wrapper">
                         {% if car.image %}
-                            <!-- Try Cloudinary first -->
-                            {% cloudinary car.image width=400 height=250 crop="fill" quality="auto:best" fetch_format="auto" class="car-img" alt="{{ car.make }} {{ car.model }}" %}
+                            <!-- Try direct URL approach -->
+                            <img src="{{ car.image.url }}" 
+                                 class="car-img" 
+                                 alt="{{ car.make }} {{ car.model }}"
+                                 onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1552519507-da3b142c6e3d?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=250&q=80';">
                         {% else %}
                             <!-- Use a placeholder image if no image is available -->
                             <img src="https://images.unsplash.com/photo-1552519507-da3b142c6e3d?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=250&q=80" 
@@ -277,7 +280,10 @@
         position: relative;
         overflow: hidden;
         height: 250px;
-        background-color: #f8f9fa;
+        background-color: #f0f0f0; /* Explicit background color */
+        display: flex;
+        align-items: center;
+        justify-content: center;
     }
     
     .car-image-wrapper {
@@ -293,7 +299,7 @@
         height: 100%;
         object-fit: cover;
         transition: transform 0.5s ease;
-        background-color: #f0f0f0; /* Placeholder background color */
+        display: block; /* Ensure image displays properly */
     }
     
     .car-card:hover .car-img {
@@ -418,7 +424,17 @@
                 this.src = 'https://images.unsplash.com/photo-1552519507-da3b142c6e3d?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=250&q=80';
                 this.style.opacity = '1';
             });
+            
+            // If the image is already loaded (cached), trigger the load event
+            if (img.complete) {
+                img.style.opacity = '1';
+            }
         });
+        
+        // Debug: Log image information
+        {% for car in cars %}
+        console.log('Car {{ car.make }} {{ car.model }} image:', '{{ car.image.url }}');
+        {% endfor %}
     });
 </script>
 {% endblock %}
