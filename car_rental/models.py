@@ -379,8 +379,8 @@ class Rental(TimeStampedModel, AuditableModel, SoftDeletionModel):
     
     # Pricing
     daily_rate = models.DecimalField(max_digits=30, decimal_places=2, default=0)
-    total_amount = models.DecimalField(max_digits=18, decimal_places=2, blank=True, null=True)
-    late_fee = models.DecimalField(max_digits=18, decimal_places=2, default=0)
+    total_amount = models.DecimalField(max_digits=50, decimal_places=2, blank=True, null=True)
+    late_fee = models.DecimalField(max_digits=50, decimal_places=2, default=0)
     
     # Payment
     payment_status = models.CharField(
@@ -407,7 +407,7 @@ class Rental(TimeStampedModel, AuditableModel, SoftDeletionModel):
     
     #late fee override
     override_late_fee = models.BooleanField(default=False, help_text="Check to manually set late fee instead of calculating automatically")
-    manual_late_fee = models.DecimalField(max_digits=25, decimal_places=2, default=0, help_text="Manually set late fee amount")
+    manual_late_fee = models.DecimalField(max_digits=50, decimal_places=2, default=0, help_text="Manually set late fee amount")
     
     def clean(self):
         # Validate that return_datetime is after rental_datetime
@@ -504,11 +504,11 @@ class Purchase(TimeStampedModel, AuditableModel, SoftDeletionModel):
     
     # Pricing - ensure proper decimal places
     purchase_price = models.DecimalField(max_digits=50, decimal_places=2)
-    taxes = models.DecimalField(max_digits=12, decimal_places=2, default=0)
-    fees = models.DecimalField(max_digits=25, decimal_places=2, default=0)
+    taxes = models.DecimalField(max_digits=30, decimal_places=2, default=0)
+    fees = models.DecimalField(max_digits=50, decimal_places=2, default=0)
     
     # Total amount
-    total_amount = models.DecimalField(max_digits=50, decimal_places=2, blank=True, null=True)
+    total_amount = models.DecimalField(max_digits=100, decimal_places=2, blank=True, null=True)
     
     # Payment
     payment_status = models.CharField(
