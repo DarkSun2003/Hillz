@@ -16,9 +16,7 @@
     <div class="carousel-inner">
         <!-- Slide 1 -->
         <div class="carousel-item active">
-            <div class="hero-slide">
-                <img src="https://images.unsplash.com/photo-1554224712-d8560f709cbe?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80" class="d-block w-100 hero-img" alt="Luxury Car">
-                <div class="carousel-overlay"></div>
+            <div class="hero-slide" style="background: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)), url('https://images.unsplash.com/photo-1554224712-d8560f709cbe?ixlib=rb-4.0.3'); background-size: cover; background-position: center; min-height: 600px;">
                 <div class="container h-100">
                     <div class="row align-items-center h-100">
                         <div class="col-lg-6">
@@ -39,11 +37,11 @@
                                     {% if first_car.image %}
                                         {% cloudinary first_car.image width=600 height=400 crop="fill" quality="auto:best" fetch_format="auto" class="img-fluid rounded shadow" alt="{{ first_car.make }} {{ first_car.model }}" %}
                                     {% else %}
-                                        <img src="https://images.unsplash.com/photo-1494976388531-105e6b684794?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&h=400&q=80" alt="Luxury Car" class="img-fluid rounded shadow">
+                                        <img src="https://images.unsplash.com/photo-1494976388531-105e6b684794?ixlib=rb-4.0.3" alt="Luxury Car" class="img-fluid rounded shadow">
                                     {% endif %}
                                 {% endwith %}
                             {% else %}
-                                <img src="https://images.unsplash.com/photo-1494976388531-105e6b684794?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&h=400&q=80" alt="Luxury Car" class="img-fluid rounded shadow">
+                                <img src="https://images.unsplash.com/photo-1494976388531-105e6b684794?ixlib=rb-4.0.3" alt="Luxury Car" class="img-fluid rounded shadow">
                             {% endif %}
                         </div>
                     </div>
@@ -53,9 +51,7 @@
         
         <!-- Slide 2 -->
         <div class="carousel-item">
-            <div class="hero-slide">
-                <img src="https://images.unsplash.com/photo-1549399542-7e247acb5f5a?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80" class="d-block w-100 hero-img" alt="Premium Car Sales">
-                <div class="carousel-overlay"></div>
+            <div class="hero-slide" style="background: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)), url('https://images.unsplash.com/photo-1549399542-7e247acb5f5a?ixlib=rb-4.0.3'); background-size: cover; background-position: center; min-height: 600px;">
                 <div class="container h-100">
                     <div class="row align-items-center h-100">
                         <div class="col-lg-6">
@@ -72,11 +68,11 @@
                                     {% if second_car.image %}
                                         {% cloudinary second_car.image width=600 height=400 crop="fill" quality="auto:best" fetch_format="auto" class="img-fluid rounded shadow" alt="{{ second_car.make }} {{ second_car.model }}" %}
                                     {% else %}
-                                        <img src="https://images.unsplash.com/photo-1583121274602-3e2820c69888?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&h=400&q=80" alt="Luxury Car" class="img-fluid rounded shadow">
+                                        <img src="https://images.unsplash.com/photo-1583121274602-3e2820c69888?ixlib=rb-4.0.3" alt="Luxury Car" class="img-fluid rounded shadow">
                                     {% endif %}
                                 {% endwith %}
                             {% else %}
-                                <img src="https://images.unsplash.com/photo-1583121274602-3e2820c69888?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&h=400&q=80" alt="Luxury Car" class="img-fluid rounded shadow">
+                                <img src="https://images.unsplash.com/photo-1583121274602-3e2820c69888?ixlib=rb-4.0.3" alt="Luxury Car" class="img-fluid rounded shadow">
                             {% endif %}
                         </div>
                     </div>
@@ -86,9 +82,7 @@
         
         <!-- Slide 3 -->
         <div class="carousel-item">
-            <div class="hero-slide">
-                <img src="https://images.unsplash.com/photo-1517845199365-2cc2f3c8b3f7?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80" class="d-block w-100 hero-img" alt="Automotive Services">
-                <div class="carousel-overlay"></div>
+            <div class="hero-slide" style="background: linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.7)), url('https://images.unsplash.com/photo-1517845199365-2cc2f3c8b3f7?ixlib=rb-4.0.3'); background-size: cover; background-position: center; min-height: 600px;">
                 <div class="container h-100">
                     <div class="row align-items-center h-100">
                         <div class="col-lg-6">
@@ -105,11 +99,11 @@
                                     {% if third_car.image %}
                                         {% cloudinary third_car.image width=600 height=400 crop="fill" quality="auto:best" fetch_format="auto" class="img-fluid rounded shadow" alt="{{ third_car.make }} {{ third_car.model }}" %}
                                     {% else %}
-                                        <img src="https://images.unsplash.com/photo-1617814076367-b759c7d7e738?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&h=400&q=80" alt="Service Tools" class="img-fluid rounded shadow">
+                                        <img src="https://images.unsplash.com/photo-1617814076367-b759c7d7e738?ixlib=rb-4.0.3" alt="Service Tools" class="img-fluid rounded shadow">
                                     {% endif %}
                                 {% endwith %}
                             {% else %}
-                                <img src="https://images.unsplash.com/photo-1617814076367-b759c7d7e738?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&h=400&q=80" alt="Service Tools" class="img-fluid rounded shadow">
+                                <img src="https://images.unsplash.com/photo-1617814076367-b759c7d7e738?ixlib=rb-4.0.3" alt="Service Tools" class="img-fluid rounded shadow">
                             {% endif %}
                         </div>
                     </div>
@@ -140,10 +134,13 @@
             <div class="col-md-6 col-lg-4">
                 <div class="card h-100 car-card">
                     <div class="card-img-wrapper">
+                        <!-- Fixed: Try different approach to display the image -->
                         {% if car.image %}
+                            <!-- Approach 1: Using cloudinary tag -->
                             {% cloudinary car.image width=400 height=250 crop="fill" quality="auto:best" fetch_format="auto" class="card-img-top" alt="{{ car.make }} {{ car.model }}" %}
                         {% else %}
-                            <img src="https://images.unsplash.com/photo-1552519507-da3b142c6e3d?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=250&q=80" class="card-img-top" alt="{{ car.make }} {{ car.model }}" loading="lazy">
+                            <!-- Fallback image -->
+                            <img src="https://images.unsplash.com/photo-1552519507-da3b142c6e3d?ixlib=rb-4.0.3" class="card-img-top" alt="{{ car.make }} {{ car.model }}" loading="lazy">
                         {% endif %}
                     </div>
                     <div class="card-body">
@@ -389,34 +386,23 @@
 <style>
     .hero-slide {
         position: relative;
-        height: 600px;
         overflow: hidden;
     }
     
-    .hero-img {
+    .hero-slide::before {
+        content: '';
         position: absolute;
         top: 0;
         left: 0;
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-        z-index: 1;
-    }
-    
-    .carousel-overlay {
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
+        right: 0;
+        bottom: 0;
         background: linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.6));
-        z-index: 2;
+        z-index: 1;
     }
     
     .hero-slide .container {
         position: relative;
-        z-index: 3;
-        height: 100%;
+        z-index: 2;
     }
     
     .car-card {
@@ -513,17 +499,9 @@
         opacity: 1;
     }
     
-    /* Mobile-specific styles */
     @media (max-width: 768px) {
         .hero-slide {
-            height: 400px !important;
-        }
-        
-        .hero-img {
-            /* Ensure image covers the slide on mobile */
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
+            min-height: 400px !important;
         }
         
         .display-4 {
@@ -533,65 +511,12 @@
         .lead {
             font-size: 1rem;
         }
-        
-        /* Ensure carousel controls are visible on mobile */
-        .carousel-control-prev,
-        .carousel-control-next {
-            width: 15%;
-        }
-        
-        .carousel-control-prev-icon,
-        .carousel-control-next-icon {
-            width: 1.5rem;
-            height: 1.5rem;
-        }
-    }
-    
-    /* Small mobile devices */
-    @media (max-width: 576px) {
-        .hero-slide {
-            height: 350px !important;
-        }
-        
-        .display-4 {
-            font-size: 1.5rem;
-        }
-        
-        .lead {
-            font-size: 0.9rem;
-        }
-        
-        .btn-lg {
-            padding: 0.5rem 1rem;
-            font-size: 1rem;
-        }
     }
 </style>
 
 <script>
+    // Add loaded class to images when they finish loading
     document.addEventListener('DOMContentLoaded', function() {
-        // Fix for Bootstrap carousel on mobile
-        const carousel = document.getElementById('heroCarousel');
-        if (carousel) {
-            // Ensure carousel is properly initialized on mobile
-            const bsCarousel = new bootstrap.Carousel(carousel, {
-                interval: 5000,
-                wrap: true,
-                keyboard: true
-            });
-            
-            // Force a refresh to ensure proper rendering on mobile
-            window.addEventListener('resize', function() {
-                bsCarousel.dispose();
-                const newCarousel = new bootstrap.Carousel(carousel, {
-                    interval: 5000,
-                    wrap: true,
-                    keyboard: true
-                });
-            });
-        }
-        
-        // Add loaded class to images when they finish loading
         const images = document.querySelectorAll('img[loading="lazy"]');
         
         const imageObserver = new IntersectionObserver((entries, observer) => {
