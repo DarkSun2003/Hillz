@@ -503,6 +503,8 @@
     @media (max-width: 768px) {
         .hero-slide {
             min-height: 400px !important;
+            background-position: center !important;
+            background-size: cover !important;
         }
         
         .display-4 {
@@ -510,6 +512,26 @@
         }
         
         .lead {
+            font-size: 1rem;
+        }
+    }
+    
+    /* Small mobile devices */
+    @media (max-width: 576px) {
+        .hero-slide {
+            min-height: 300px !important;
+        }
+        
+        .display-4 {
+            font-size: 1.5rem;
+        }
+        
+        .lead {
+            font-size: 0.9rem;
+        }
+        
+        .btn-lg {
+            padding: 0.5rem 1rem;
             font-size: 1rem;
         }
     }
