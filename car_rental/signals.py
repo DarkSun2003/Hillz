@@ -97,6 +97,7 @@ def update_car_status_on_rental(sender, instance, **kwargs):
         logger = logging.getLogger(__name__)
         logger.error(f"Error updating car status on rental pre_save: {e}")
 
+
 @receiver(pre_save, sender=Purchase)
 def update_car_status_on_purchase(sender, instance, **kwargs):
     """
