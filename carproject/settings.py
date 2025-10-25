@@ -14,9 +14,11 @@ import os
 from pathlib import Path
 import cloudinary
 
+# Import required libraries for production configuration
 from dotenv import load_dotenv
+import dj_database_url # Added import for simplified DB configuration
 
-load_dotenv()
+load_dotenv() # Load environment variables from .env
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -26,7 +28,9 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.getenv('SECRET_KEY')
+# Use environment variable (e.g., set on Railway) for the production SECRET_KEY.
+# The second argument is a fallback for local development if the env var isn't set.
+SECRET_KEY = os.getenv('SECRET_KEY', 'django-insecure-+bl=ll-6g@i^=k)l9a3n3eus&ru_i8llm_p)xn^=tfx1!o1^&')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
@@ -51,7 +55,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
-    'whitenoise.middleware.WhiteNoiseMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware', # Placed correctly after SecurityMiddleware
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -85,17 +89,14 @@ WSGI_APPLICATION = 'carproject.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 
+# Use dj-database-url to parse the single DATABASE_URL (or DB_URL from .env)
+# This is the recommended approach for Railway/Heroku deployments.
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': os.getenv('DB_NAME'),
-        'USER': os.getenv('DB_USER'),
-        'PASSWORD': os.getenv('DB_PASSWORD'),
-        'HOST': os.getenv('DB_HOST'),
-        'PORT': os.getenv('DB_PORT'),
-    }
+    'default': dj_database_url.config(
+        default=os.getenv('DB_URL'), # Falls back to DB_URL from .env for local development
+        conn_max_age=600 # Optional: keep connection alive for 10 minutes
+    )
 }
-#postgresql://postgres:FhWXUjFcBVwwUpZxZKwdOaVDFlMuJlhw@shuttle.proxy.rlwy.net:12338/railway
 
 # Password validation
 # https://docs.djangoproject.com/en/4.2/ref/settings/#auth-password-validators
@@ -134,7 +135,8 @@ USE_TZ = True
 STATIC_URL = '/static/'
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 
-STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+# Use WhiteNoise's storage for production static files
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestJoeStaticFilesStorage'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
@@ -161,6 +163,7 @@ EMAIL_HOST_PASSWORD = 'your-password'
 # Site URL for generating absolute URLs
 SITE_URL = 'http://localhost:8000'
 
+# Cloudinary configuration (uses environment variables, which is correct)
 cloudinary.config(
     cloud_name= os.environ.get('CLOUDINARY_CLOUD_NAME'),
     api_key= os.environ.get('CLOUDINARY_API_KEY'),
@@ -176,8 +179,8 @@ CLOUDINARY = {
 
 DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
 
-# Custom context processors
-TEMPLATES[0]['OPTIONS']['context_processors'].append('car_rental.context_processors.get_site_info_context')
+# Custom context processors (already present and correct)
+# TEMPLATES[0]['OPTIONS']['context_processors'].append('car_rental.context_processors.get_site_info_context') # This is now commented out as it was redundant/duplicate from above.
 
 # Custom error handlers
 HANDLER403 = 'car_rental.views.permission_denied'
