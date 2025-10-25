@@ -121,6 +121,26 @@
         color: #212529;
     }
     
+    .btn-whatsapp {
+        background: linear-gradient(45deg, #25D366, #128C7E);
+        border: none;
+        border-radius: 50px;
+        padding: 0.8rem 2rem;
+        font-weight: 600;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+        display: inline-flex;
+        align-items: center;
+        color: white;
+    }
+    
+    .btn-whatsapp:hover {
+        background: linear-gradient(45deg, #128C7E, #075E54);
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(37, 211, 102, 0.3);
+        color: white;
+    }
+    
     .info-item {
         display: flex;
         align-items: center;
@@ -256,7 +276,7 @@
                         {% endfor %}
                     {% endif %}
                     
-                    <form method="post">
+                    <form id="contactForm">
                         {% csrf_token %}
                         <div class="mb-3">
                             <label for="name" class="form-label">Full Name</label>
@@ -286,8 +306,8 @@
                                 <textarea class="form-control" id="message" name="message" rows="5" placeholder="Type your message here..." required></textarea>
                             </div>
                         </div>
-                        <button type="submit" class="btn btn-primary">
-                            <i class="fas fa-paper-plane me-2"></i>Send Message
+                        <button type="submit" class="btn btn-whatsapp">
+                            <i class="fab fa-whatsapp me-2"></i>Send via WhatsApp
                         </button>
                     </form>
                 </div>
@@ -480,6 +500,55 @@
     // Initialize the map when the page loads
     document.addEventListener('DOMContentLoaded', function() {
         initMap();
+        
+        // Handle WhatsApp form submission
+        const contactForm = document.getElementById('contactForm');
+        if (contactForm) {
+            contactForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                // Get form values
+                const name = document.getElementById('name').value;
+                const email = document.getElementById('email').value;
+                const subject = document.getElementById('subject').value;
+                const message = document.getElementById('message').value;
+                
+                // Get WhatsApp number from site info or use fallback
+                const whatsappPhone = "{% if site_info and site_info.whatsapp_phone %}{{ site_info.whatsapp_phone }}{% else %}+1234567890{% endif %}";
+                
+                // Format the WhatsApp message
+                const whatsappMessage = `Hello! I'd like to contact you with the following information:%0A%0A*Name:* ${name}%0A*Email:* ${email}%0A*Subject:* ${subject}%0A*Message:* ${message}%0A%0APlease get back to me as soon as possible. Thank you!`;
+                
+                // Create WhatsApp URL
+                const whatsappUrl = `https://wa.me/${whatsappPhone.replace(/\D/g, '')}?text=${whatsappMessage}`;
+                
+                // Open WhatsApp in a new tab
+                window.open(whatsappUrl, '_blank');
+                
+                // Show success message
+                const alertDiv = document.createElement('div');
+                alertDiv.className = 'alert alert-success alert-dismissible fade show';
+                alertDiv.innerHTML = `
+                    Thank you for your message! We've opened WhatsApp for you to send your inquiry.
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                `;
+                
+                // Insert the alert at the top of the form
+                const formContainer = contactForm.closest('.card-body');
+                formContainer.insertBefore(alertDiv, formContainer.firstChild);
+                
+                // Reset the form
+                contactForm.reset();
+                
+                // Auto-dismiss the alert after 5 seconds
+                setTimeout(() => {
+                    alertDiv.classList.remove('show');
+                    setTimeout(() => {
+                        alertDiv.remove();
+                    }, 150);
+                }, 5000);
+            });
+        }
     });
 </script>
 {% endblock %}
