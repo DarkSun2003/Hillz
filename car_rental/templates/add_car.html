@@ -33,6 +33,7 @@
         padding: 20px;
         border-left: 4px solid var(--primary-color);
         transition: all 0.3s ease;
+        margin-bottom: 30px;
     }
     
     .form-section:hover {
@@ -43,6 +44,7 @@
         color: var(--dark-color);
         font-family: 'Playfair Display', serif;
         padding-bottom: 10px;
+        margin-bottom: 20px;
     }
     
     .section-title::after {
@@ -87,6 +89,13 @@
         border-left: none;
     }
     
+    /* Checkboxes */
+    .form-check-input {
+        width: 1.25rem;
+        height: 1.25rem;
+        margin-top: 0.25rem;
+    }
+    
     .form-check-input:checked {
         background-color: var(--primary-color);
         border-color: var(--primary-color);
@@ -95,6 +104,12 @@
     .form-check-input:focus {
         border-color: var(--primary-color);
         box-shadow: 0 0 0 0.25rem rgba(212, 175, 55, 0.25);
+    }
+    
+    .form-check-label {
+        padding-left: 0.5rem;
+        margin-bottom: 0;
+        font-weight: 500;
     }
     
     /* Buttons */
@@ -214,21 +229,21 @@
                     </div>
                 </div>
                 <div class="card-body p-4">
+                    {% if form.non_field_errors %}
+                        <div class="alert alert-danger d-flex align-items-center" role="alert">
+                            <i class="fas fa-exclamation-circle me-2"></i>
+                            <div>
+                                {% for error in form.non_field_errors %}{{ error }}{% endfor %}
+                            </div>
+                        </div>
+                    {% endif %}
+
                     <form method="post" enctype="multipart/form-data" id="carForm">
                         {% csrf_token %}
 
-                        {% if form.non_field_errors %}
-                            <div class="alert alert-danger d-flex align-items-center" role="alert">
-                                <i class="fas fa-exclamation-circle me-2"></i>
-                                <div>
-                                    {% for error in form.non_field_errors %}{{ error }}{% endfor %}
-                                </div>
-                            </div>
-                        {% endif %}
-
                         <!-- Identification & Status Section -->
-                        <div class="form-section mb-5">
-                            <h4 class="section-title mb-4 position-relative">
+                        <div class="form-section">
+                            <h4 class="section-title position-relative">
                                 <i class="fas fa-id-card me-2 text-warning"></i> Identification & Status
                             </h4>
                             <div class="row">
@@ -261,7 +276,7 @@
                                     {% if form.status.errors %}<div class="invalid-feedback d-block">{{ form.status.errors }}</div>{% endif %}
                                 </div>
                                 <div class="col-md-3 mb-3 d-flex align-items-center">
-                                    <div class="form-check form-switch mt-4">
+                                    <div class="form-check form-switch">
                                         {{ form.featured }}
                                         <label class="form-check-label fw-medium" for="{{ form.featured.id_for_label }}">
                                             Featured Vehicle
@@ -272,8 +287,8 @@
                         </div>
 
                         <!-- Pricing & Availability Section -->
-                        <div class="form-section mb-5">
-                            <h4 class="section-title mb-4 position-relative">
+                        <div class="form-section">
+                            <h4 class="section-title position-relative">
                                 <i class="fas fa-dollar-sign me-2 text-warning"></i> Pricing & Availability
                             </h4>
                             <div class="row">
@@ -286,41 +301,43 @@
                                     {% if form.default_price.errors %}<div class="invalid-feedback d-block">{{ form.default_price.errors }}</div>{% endif %}
                                 </div>
                                 <div class="col-md-4 mb-3">
-                                    <label for="{{ form.rent_price.id_for_label }}" class="form-label fw-medium">Rental Price (Per Day)</label>
-                                    <div class="input-group">
-                                        <span class="input-group-text">$</span>
-                                        {{ form.rent_price }}
-                                    </div>
-                                    <div class="form-check mt-2">
+                                    <div class="form-check mb-3">
                                         {{ form.for_rent }}
                                         <label class="form-check-label" for="{{ form.for_rent.id_for_label }}">
                                             Available for Rent
                                         </label>
                                     </div>
-                                    {% if form.rent_price.errors %}<div class="invalid-feedback d-block">{{ form.rent_price.errors }}</div>{% endif %}
-                                    {% if form.for_rent.errors %}<div class="invalid-feedback d-block">{{ form.for_rent.errors }}</div>{% endif %}
+                                    <div class="mb-3" id="rentalPriceContainer" style="display: none;">
+                                        <label for="{{ form.rent_price.id_for_label }}" class="form-label fw-medium">Rental Price (Per Day)</label>
+                                        <div class="input-group">
+                                            <span class="input-group-text">$</span>
+                                            {{ form.rent_price }}
+                                        </div>
+                                        {% if form.rent_price.errors %}<div class="invalid-feedback d-block">{{ form.rent_price.errors }}</div>{% endif %}
+                                    </div>
                                 </div>
                                 <div class="col-md-4 mb-3">
-                                    <label for="{{ form.sale_price.id_for_label }}" class="form-label fw-medium">Sale Price</label>
-                                    <div class="input-group">
-                                        <span class="input-group-text">$</span>
-                                        {{ form.sale_price }}
-                                    </div>
-                                    <div class="form-check mt-2">
+                                    <div class="form-check mb-3">
                                         {{ form.for_sale }}
                                         <label class="form-check-label" for="{{ form.for_sale.id_for_label }}">
                                             Available for Sale
                                         </label>
                                     </div>
-                                    {% if form.sale_price.errors %}<div class="invalid-feedback d-block">{{ form.sale_price.errors }}</div>{% endif %}
-                                    {% if form.for_sale.errors %}<div class="invalid-feedback d-block">{{ form.for_sale.errors }}</div>{% endif %}
+                                    <div class="mb-3" id="salePriceContainer" style="display: none;">
+                                        <label for="{{ form.sale_price.id_for_label }}" class="form-label fw-medium">Sale Price</label>
+                                        <div class="input-group">
+                                            <span class="input-group-text">$</span>
+                                            {{ form.sale_price }}
+                                        </div>
+                                        {% if form.sale_price.errors %}<div class="invalid-feedback d-block">{{ form.sale_price.errors }}</div>{% endif %}
+                                    </div>
                                 </div>
                             </div>
                         </div>
 
                         <!-- Specifications Section -->
-                        <div class="form-section mb-5">
-                            <h4 class="section-title mb-4 position-relative">
+                        <div class="form-section">
+                            <h4 class="section-title position-relative">
                                 <i class="fas fa-cogs me-2 text-warning"></i> Specifications
                             </h4>
                             <div class="row">
@@ -358,8 +375,8 @@
                         </div>
 
                         <!-- Media & Description Section -->
-                        <div class="form-section mb-5">
-                            <h4 class="section-title mb-4 position-relative">
+                        <div class="form-section">
+                            <h4 class="section-title position-relative">
                                 <i class="fas fa-image me-2 text-warning"></i> Media & Description
                             </h4>
                             <div class="mb-4">
@@ -488,37 +505,55 @@
         // Toggle rental/sale price fields based on checkboxes
         const forRentCheckbox = document.getElementById('{{ form.for_rent.id_for_label }}');
         const forSaleCheckbox = document.getElementById('{{ form.for_sale.id_for_label }}');
-        const rentPriceField = document.getElementById('{{ form.rent_price.id_for_label }}').closest('.mb-3');
-        const salePriceField = document.getElementById('{{ form.sale_price.id_for_label }}').closest('.mb-3');
+        const rentalPriceContainer = document.getElementById('rentalPriceContainer');
+        const salePriceContainer = document.getElementById('salePriceContainer');
         
-        if (forRentCheckbox && rentPriceField) {
+        if (forRentCheckbox && rentalPriceContainer) {
             forRentCheckbox.addEventListener('change', function() {
                 if (this.checked) {
-                    rentPriceField.style.display = 'block';
-                    document.getElementById('{{ form.rent_price.id_for_label }}').setAttribute('required', 'required');
+                    rentalPriceContainer.style.display = 'block';
+                    // Make the rental price field required when checkbox is checked
+                    const rentPriceInput = document.getElementById('{{ form.rent_price.id_for_label }}');
+                    if (rentPriceInput) {
+                        rentPriceInput.setAttribute('required', 'required');
+                    }
                 } else {
-                    rentPriceField.style.display = 'none';
-                    document.getElementById('{{ form.rent_price.id_for_label }}').removeAttribute('required');
+                    rentalPriceContainer.style.display = 'none';
+                    const rentPriceInput = document.getElementById('{{ form.rent_price.id_for_label }}');
+                    if (rentPriceInput) {
+                        rentPriceInput.removeAttribute('required');
+                    }
                 }
             });
             
-            // Trigger change event on page load
-            forRentCheckbox.dispatchEvent(new Event('change'));
+            // Trigger change event on page load to set initial state
+            if (forRentCheckbox.checked) {
+                rentalPriceContainer.style.display = 'block';
+            }
         }
         
-        if (forSaleCheckbox && salePriceField) {
+        if (forSaleCheckbox && salePriceContainer) {
             forSaleCheckbox.addEventListener('change', function() {
                 if (this.checked) {
-                    salePriceField.style.display = 'block';
-                    document.getElementById('{{ form.sale_price.id_for_label }}').setAttribute('required', 'required');
+                    salePriceContainer.style.display = 'block';
+                    // Make the sale price field required when checkbox is checked
+                    const salePriceInput = document.getElementById('{{ form.sale_price.id_for_label }}');
+                    if (salePriceInput) {
+                        salePriceInput.setAttribute('required', 'required');
+                    }
                 } else {
-                    salePriceField.style.display = 'none';
-                    document.getElementById('{{ form.sale_price.id_for_label }}').removeAttribute('required');
+                    salePriceContainer.style.display = 'none';
+                    const salePriceInput = document.getElementById('{{ form.sale_price.id_for_label }}');
+                    if (salePriceInput) {
+                        salePriceInput.removeAttribute('required');
+                    }
                 }
             });
             
-            // Trigger change event on page load
-            forSaleCheckbox.dispatchEvent(new Event('change'));
+            // Trigger change event on page load to set initial state
+            if (forSaleCheckbox.checked) {
+                salePriceContainer.style.display = 'block';
+            }
         }
     });
 </script>

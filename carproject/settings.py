@@ -33,7 +33,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = os.getenv('SECRET_KEY', 'django-insecure-+bl=ll-6g@i^=k)l9a3n3eus&ru_i8llm_p)xn^=tfx1!o1^&')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 ALLOWED_HOSTS = ['hillz-production.up.railway.app']
 CSRF_TRUSTED_ORIGINS = ['https://hillz-production.up.railway.app']
