@@ -64,15 +64,20 @@
             <div class="col-md-4 mb-4">
                 <div class="card h-100 car-card">
                     <div class="car-image-container">
-                        <!-- Try multiple approaches to display the image -->
-                        {% if car.image %}
-                            <!-- Approach 1: Try direct Cloudinary URL -->
-                            <img src="{{ car.image.url }}" class="card-img-top" alt="{{ car.make }} {{ car.model }}" 
-                                 onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1552519507-da3b142c6e3d?ixlib=rb-4.0.3';">
-                        {% else %}
-                            <!-- Fallback image -->
-                            <img src="https://images.unsplash.com/photo-1552519507-da3b142c6e3d?ixlib=rb-4.0.3" class="card-img-top" alt="{{ car.make }} {{ car.model }}">
-                        {% endif %}
+                        <!-- Try a more direct approach to display the image -->
+                        <div class="car-image-wrapper">
+                            {% if car.image %}
+                                <!-- Try using the image URL directly -->
+                                <img src="{{ car.image.url }}" class="car-img" alt="{{ car.make }} {{ car.model }}">
+                            {% else %}
+                                <!-- Fallback image with explicit dimensions -->
+                                <img src="https://images.unsplash.com/photo-1552519507-da3b142c6e3d?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=250&q=80" 
+                                     class="car-img" 
+                                     alt="{{ car.make }} {{ car.model }}"
+                                     width="400" 
+                                     height="250">
+                            {% endif %}
+                        </div>
                         
                         <!-- Badges overlay on image -->
                         <div class="car-badges">
@@ -187,16 +192,26 @@
         height: 200px;
         overflow: hidden;
         background-color: #f8f9fa;
+        display: flex;
+        align-items: center;
+        justify-content: center;
     }
     
-    .car-image-container img {
+    .car-image-wrapper {
+        width: 100%;
+        height: 100%;
+        position: relative;
+    }
+    
+    .car-img {
         width: 100%;
         height: 100%;
         object-fit: cover;
         transition: transform 0.3s ease;
+        display: block;
     }
     
-    .car-card:hover .car-image-container img {
+    .car-card:hover .car-img {
         transform: scale(1.05);
     }
     
@@ -239,23 +254,39 @@
 
 <script>
     document.addEventListener('DOMContentLoaded', function() {
+        // Debug: Log car image information
+        {% for car in cars %}
+        console.log('Car {{ car.make }} {{ car.model }}:', {
+            has_image: {{ car.image|yesno:"true,false" }},
+            image_url: "{{ car.image.url|default:'N/A' }}",
+            image_public_id: "{{ car.image.public_id|default:'N/A' }}"
+        });
+        {% endfor %}
+        
         // Add loading animation to images
-        const images = document.querySelectorAll('.car-image-container img');
+        const images = document.querySelectorAll('.car-img');
         
         images.forEach(img => {
+            // Set initial opacity for smooth loading
+            img.style.opacity = '0';
+            img.style.transition = 'opacity 0.3s ease';
+            
             img.addEventListener('load', function() {
+                console.log('Image loaded successfully:', this.src);
                 this.style.opacity = '1';
             });
             
             img.addEventListener('error', function() {
+                console.error('Image failed to load:', this.src);
                 // If image fails to load, use a placeholder
-                this.src = 'https://images.unsplash.com/photo-1552519507-da3b142c6e3d?ixlib=rb-4.0.3';
+                this.src = 'https://images.unsplash.com/photo-1552519507-da3b142c6e3d?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=250&q=80';
                 this.style.opacity = '1';
             });
             
-            // Set initial opacity for smooth loading
-            img.style.opacity = '0';
-            img.style.transition = 'opacity 0.3s ease';
+            // If the image is already loaded (cached)
+            if (img.complete) {
+                img.style.opacity = '1';
+            }
         });
     });
 </script>
