@@ -1,0 +1,500 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load currency_filters %}
+
+
+{% block title %}Create Purchase Order - {% if site_info %}{{ site_info.company_name }}{% else %}Hillz Exquisite{% endif %}{% endblock %}
+
+{% block extra_css %}
+<style>
+    .purchase-container {
+        padding: 2rem 0;
+    }
+    
+    .page-header {
+        margin-bottom: 2rem;
+    }
+    
+    .page-header h1 {
+        color: #d4af37;
+        font-weight: 700;
+    }
+    
+    .page-header p {
+        font-size: 1.1rem;
+        color: #6c757d;
+    }
+    
+    .purchase-card {
+        border: none;
+        border-radius: 15px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        overflow: hidden;
+    }
+    
+    .purchase-card .card-header {
+        background: linear-gradient(45deg, #d4af37, #f5d76e);
+        color: #212529;
+        border: none;
+        padding: 1.25rem 1.5rem;
+    }
+    
+    .purchase-card .card-header h5 {
+        margin: 0;
+        font-weight: 600;
+        font-size: 1.25rem;
+    }
+    
+    .section-title {
+        color: #d4af37;
+        font-weight: 600;
+        margin-bottom: 1rem;
+        padding-bottom: 0.5rem;
+        border-bottom: 2px solid #e9ecef;
+        position: relative;
+    }
+    
+    .section-title::after {
+        content: '';
+        position: absolute;
+        bottom: -2px;
+        left: 0;
+        width: 50px;
+        height: 2px;
+        background: #d4af37;
+    }
+    
+    .form-label {
+        font-weight: 600;
+        color: #495057;
+        margin-bottom: 0.5rem;
+    }
+    
+    .form-control, .form-select {
+        border-radius: 8px;
+        border: 1px solid #ced4da;
+        padding: 0.75rem 1rem;
+        transition: all 0.3s ease;
+    }
+    
+    .form-control:focus, .form-select:focus {
+        border-color: #d4af37;
+        box-shadow: 0 0 0 0.25rem rgba(212, 175, 55, 0.25);
+    }
+    
+    .input-group-text {
+        background-color: #f8f9fa;
+        border: 1px solid #ced4da;
+        border-radius: 8px 0 0 8px;
+    }
+    
+    .form-text {
+        font-size: 0.875rem;
+        color: #6c757d;
+        margin-top: 0.25rem;
+    }
+    
+    .btn-primary {
+        background: linear-gradient(45deg, #d4af37, #f5d76e);
+        border: none;
+        border-radius: 50px;
+        padding: 0.75rem 2rem;
+        font-weight: 600;
+        color: #212529;
+        transition: all 0.3s ease;
+    }
+    
+    .btn-primary:hover {
+        background: linear-gradient(45deg, #b8941f, #d4af37);
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(212, 175, 55, 0.3);
+        color: #212529;
+    }
+    
+    .alert {
+        border-radius: 10px;
+        border: none;
+    }
+    
+    .alert-danger {
+        background-color: rgba(220, 53, 69, 0.1);
+        color: #721c24;
+    }
+    
+    .text-danger {
+        color: #dc3545 !important;
+    }
+    
+    .required-field::after {
+        content: " *";
+        color: #dc3545;
+    }
+    
+    .financial-group {
+        background-color: #f8f9fa;
+        border-radius: 10px;
+        padding: 1.25rem;
+        margin-bottom: 1.5rem;
+    }
+    
+    .trade-in-section {
+        background-color: #f8f9fa;
+        border-radius: 10px;
+        padding: 1.25rem;
+        margin-bottom: 1.5rem;
+    }
+    
+    .delivery-section {
+        background-color: #f8f9fa;
+        border-radius: 10px;
+        padding: 1.25rem;
+        margin-bottom: 1.5rem;
+    }
+    
+    .loading-spinner {
+        display: none;
+        width: 1.5rem;
+        height: 1.5rem;
+        border: 0.2em solid rgba(0, 0, 0, 0.1);
+        border-radius: 50%;
+        border-top-color: #d4af37;
+        animation: spin 1s ease-in-out infinite;
+    }
+    
+    @keyframes spin {
+        to { transform: rotate(360deg); }
+    }
+    
+    @media (max-width: 768px) {
+        .page-header h1 {
+            font-size: 1.75rem;
+        }
+        
+        .page-header p {
+            font-size: 1rem;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container purchase-container">
+    <div class="page-header">
+        <h1><i class="fas fa-file-invoice-dollar me-2"></i> Create Purchase Order</h1>
+        <p class="lead text-muted">Staff: Log a new vehicle purchase transaction here. The customer will be notified to finalize payment.</p>
+    </div>
+
+    <div class="card purchase-card">
+        <div class="card-header">
+            <h5><i class="fas fa-shopping-cart me-2"></i> Purchase Details</h5>
+        </div>
+        <div class="card-body">
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                        <div class="d-flex align-items-center">
+                            <i class="fas {% if message.tags == 'success' %}fa-check-circle{% elif message.tags == 'error' %}fa-exclamation-circle{% elif message.tags == 'warning' %}fa-exclamation-triangle{% else %}fa-info-circle{% endif %} me-2"></i>
+                            <div>{{ message }}</div>
+                        </div>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+            
+            <form method="post" id="purchaseForm">
+                {% csrf_token %}
+
+                {% if form.non_field_errors %}
+                    <div class="alert alert-danger">
+                        {% for error in form.non_field_errors %}
+                            <div class="d-flex align-items-center">
+                                <i class="fas fa-exclamation-circle me-2"></i>
+                                <div>{{ error }}</div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+
+                <h4 class="section-title">Customer & Vehicle Selection</h4>
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label for="{{ form.customer.id_for_label }}" class="form-label required-field">Customer</label>
+                        {{ form.customer.as_widget|add_class:"form-select" }}
+                        {% if form.customer.errors %}
+                            <div class="text-danger small mt-1">
+                                {% for error in form.customer.errors %}{{ error }}{% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label for="{{ form.car.id_for_label }}" class="form-label required-field">Car Being Purchased</label>
+                        {{ form.car.as_widget|add_class:"form-select" }}
+                        {% if form.car.errors %}
+                            <div class="text-danger small mt-1">
+                                {% for error in form.car.errors %}{{ error }}{% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <h4 class="section-title">Transaction Details</h4>
+                <div class="row">
+                    <div class="col-md-4 mb-3">
+                        <label for="{{ form.purchase_datetime.id_for_label }}" class="form-label">Purchase Date</label>
+                        {{ form.purchase_datetime.as_widget|add_class:"form-control" }}
+                        {% if form.purchase_datetime.errors %}
+                            <div class="text-danger small mt-1">
+                                {% for error in form.purchase_datetime.errors %}{{ error }}{% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <label for="{{ form.delivery_datetime.id_for_label }}" class="form-label">Estimated Delivery Date</label>
+                        {{ form.delivery_datetime.as_widget|add_class:"form-control" }}
+                        {% if form.delivery_datetime.errors %}
+                            <div class="text-danger small mt-1">
+                                {% for error in form.delivery_datetime.errors %}{{ error }}{% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <label for="{{ form.status.id_for_label }}" class="form-label required-field">Order Status</label>
+                        {{ form.status.as_widget|add_class:"form-select" }}
+                        {% if form.status.errors %}
+                            <div class="text-danger small mt-1">
+                                {% for error in form.status.errors %}{{ error }}{% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <h4 class="section-title">Financials (Naira ₦)</h4>
+                <div class="financial-group">
+                    <div class="row">
+                        <div class="col-md-3 mb-3">
+                            <label for="{{ form.purchase_price.id_for_label }}" class="form-label required-field">Car Price</label>
+                            <div class="input-group">
+                                <span class="input-group-text">₦</span>
+                                {{ form.purchase_price.as_widget|add_class:"form-control" }}
+                            </div>
+                            {% if form.purchase_price.errors %}
+                                <div class="text-danger small mt-1">
+                                    {% for error in form.purchase_price.errors %}{{ error }}{% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <label for="{{ form.taxes.id_for_label }}" class="form-label">Taxes</label>
+                            <div class="input-group">
+                                <span class="input-group-text">₦</span>
+                                {{ form.taxes.as_widget|add_class:"form-control" }}
+                            </div>
+                            {% if form.taxes.errors %}
+                                <div class="text-danger small mt-1">
+                                    {% for error in form.taxes.errors %}{{ error }}{% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <label for="{{ form.fees.id_for_label }}" class="form-label">Fees</label>
+                            <div class="input-group">
+                                <span class="input-group-text">₦</span>
+                                {{ form.fees.as_widget|add_class:"form-control" }}
+                            </div>
+                            {% if form.fees.errors %}
+                                <div class="text-danger small mt-1">
+                                    {% for error in form.fees.errors %}{{ error }}{% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <label for="{{ form.total_amount.id_for_label }}" class="form-label">Total Amount</label>
+                            <div class="input-group">
+                                <span class="input-group-text">₦</span>
+                                {{ form.total_amount.as_widget|add_class:"form-control" }}
+                            </div>
+                            <div class="form-text">Calculated automatically on save if left empty.</div>
+                            {% if form.total_amount.errors %}
+                                <div class="text-danger small mt-1">
+                                    {% for error in form.total_amount.errors %}{{ error }}{% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                
+                <h4 class="section-title">Trade-in & Delivery</h4>
+                <div class="trade-in-section">
+                    <div class="row">
+                        <div class="col-md-4 mb-3">
+                            <label for="{{ form.trade_in.id_for_label }}" class="form-label">Trade-in Vehicle</label>
+                            {{ form.trade_in.as_widget|add_class:"form-select" }}
+                            {% if form.trade_in.errors %}
+                                <div class="text-danger small mt-1">
+                                    {% for error in form.trade_in.errors %}{{ error }}{% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label for="{{ form.trade_in_value.id_for_label }}" class="form-label">Trade-in Value</label>
+                            <div class="input-group">
+                                <span class="input-group-text">₦</span>
+                                {{ form.trade_in_value.as_widget|add_class:"form-control" }}
+                            </div>
+                            {% if form.trade_in_value.errors %}
+                                <div class="text-danger small mt-1">
+                                    {% for error in form.trade_in_value.errors %}{{ error }}{% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label for="{{ form.warranty_expiry.id_for_label }}" class="form-label">Warranty Expiry Date</label>
+                            {{ form.warranty_expiry.as_widget|add_class:"form-control" }}
+                            {% if form.warranty_expiry.errors %}
+                                <div class="text-danger small mt-1">
+                                    {% for error in form.warranty_expiry.errors %}{{ error }}{% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="delivery-section">
+                    <div class="mb-3">
+                        <label for="{{ form.delivery_address.id_for_label }}" class="form-label">Delivery Address</label>
+                        {{ form.delivery_address.as_widget|add_class:"form-control" }}
+                        {% if form.delivery_address.errors %}
+                            <div class="text-danger small mt-1">
+                                {% for error in form.delivery_address.errors %}{{ error }}{% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="{{ form.delivery_notes.id_for_label }}" class="form-label">Delivery Notes</label>
+                        {{ form.delivery_notes.as_widget|add_class:"form-control" }}
+                        {% if form.delivery_notes.errors %}
+                            <div class="text-danger small mt-1">
+                                {% for error in form.delivery_notes.errors %}{{ error }}{% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="d-grid mt-4">
+                    <button type="submit" class="btn btn-primary btn-lg" id="submitBtn">
+                        <i class="fas fa-save me-2"></i> 
+                        <span id="btnText">Log Purchase & Notify Customer</span>
+                        <div class="loading-spinner ms-2" id="btnSpinner"></div>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const form = document.getElementById('purchaseForm');
+        const submitBtn = document.getElementById('submitBtn');
+        const btnText = document.getElementById('btnText');
+        const btnSpinner = document.getElementById('btnSpinner');
+        const carSelect = document.getElementById('{{ form.car.id_for_label }}');
+        const priceInput = document.getElementById('{{ form.purchase_price.id_for_label }}');
+        const totalAmountInput = document.getElementById('{{ form.total_amount.id_for_label }}');
+        const taxesInput = document.getElementById('{{ form.taxes.id_for_label }}');
+        const feesInput = document.getElementById('{{ form.fees.id_for_label }}');
+        
+        // Function to calculate total amount
+        function calculateTotal() {
+            const price = parseFloat(priceInput.value) || 0;
+            const taxes = parseFloat(taxesInput.value) || 0;
+            const fees = parseFloat(feesInput.value) || 0;
+            const total = price + taxes + fees;
+            
+            if (!isNaN(total)) {
+                totalAmountInput.value = total.toFixed(2);
+            }
+        }
+        
+        // Add event listeners for automatic calculation
+        priceInput.addEventListener('input', calculateTotal);
+        taxesInput.addEventListener('input', calculateTotal);
+        feesInput.addEventListener('input', calculateTotal);
+        
+        // Set minimum date for purchase and delivery dates
+        const today = new Date().toISOString().split('T')[0];
+        const purchaseDateInput = document.getElementById('{{ form.purchase_datetime.id_for_label }}');
+        const deliveryDateInput = document.getElementById('{{ form.delivery_datetime.id_for_label }}');
+        
+        if (purchaseDateInput && purchaseDateInput.type === 'date') {
+            purchaseDateInput.setAttribute('min', today);
+        }
+        
+        if (deliveryDateInput && deliveryDateInput.type === 'date') {
+            deliveryDateInput.setAttribute('min', today);
+        }
+        
+        // Ensure delivery date is after purchase date
+        purchaseDateInput.addEventListener('change', function() {
+            if (deliveryDateInput && deliveryDateInput.value) {
+                const purchaseDate = new Date(this.value);
+                const deliveryDate = new Date(deliveryDateInput.value);
+                
+                if (deliveryDate < purchaseDate) {
+                    deliveryDateInput.value = this.value;
+                }
+                
+                deliveryDateInput.setAttribute('min', this.value);
+            }
+        });
+        
+        // Form submission handling
+        form.addEventListener('submit', function(event) {
+            // Validate required fields
+            const requiredFields = form.querySelectorAll('[required]');
+            let isValid = true;
+            
+            requiredFields.forEach(field => {
+                if (!field.value.trim()) {
+                    field.classList.add('is-invalid');
+                    isValid = false;
+                } else {
+                    field.classList.remove('is-invalid');
+                }
+            });
+            
+            if (!isValid) {
+                event.preventDefault();
+                alert('Please fill in all required fields.');
+                return;
+            }
+            
+            // Show loading state
+            submitBtn.disabled = true;
+            btnText.textContent = 'Processing...';
+            btnSpinner.style.display = 'inline-block';
+            
+            // Reset button after 10 seconds in case of network issues
+            setTimeout(() => {
+                submitBtn.disabled = false;
+                btnText.textContent = 'Log Purchase & Notify Customer';
+                btnSpinner.style.display = 'none';
+            }, 10000);
+        });
+        
+        // Auto-populate car price if car is selected
+        carSelect.addEventListener('change', function() {
+            const selectedOption = this.options[this.selectedIndex];
+            const carPrice = selectedOption.getAttribute('data-price');
+            
+            if (carPrice && !priceInput.value) {
+                priceInput.value = carPrice;
+                calculateTotal();
+            }
+        });
+    });
+</script>
+{% endblock %}

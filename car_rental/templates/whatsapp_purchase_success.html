@@ -1,0 +1,294 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}WhatsApp Payment - {% if site_info %}{{ site_info.company_name }}{% else %}Hillz Exquisite{% endif %}{% endblock %}
+
+{% block extra_css %}
+<style>
+    .whatsapp-container {
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 2rem 0;
+    }
+    
+    .whatsapp-card {
+        border: none;
+        border-radius: 15px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        overflow: hidden;
+    }
+    
+    .whatsapp-card .card-header {
+        background: linear-gradient(45deg, #25d366, #128C7E);
+        color: white;
+        border: none;
+        padding: 1.5rem;
+        text-align: center;
+    }
+    
+    .whatsapp-card .card-header h4 {
+        margin: 0;
+        font-weight: 700;
+        font-size: 1.8rem;
+    }
+    
+    .whatsapp-icon {
+        font-size: 5rem;
+        color: #25d366;
+        margin-bottom: 1.5rem;
+    }
+    
+    .purchase-details {
+        background-color: #f8f9fa;
+        border-radius: 10px;
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+    }
+    
+    .detail-row {
+        display: flex;
+        justify-content: space-between;
+        padding: 0.75rem 0;
+        border-bottom: 1px solid #e9ecef;
+    }
+    
+    .detail-row:last-child {
+        border-bottom: none;
+        font-weight: 600;
+        font-size: 1.2rem;
+        color: #d4af37;
+    }
+    
+    .btn-whatsapp {
+        background-color: #25d366;
+        border: none;
+        border-radius: 50px;
+        padding: 0.75rem 2rem;
+        font-weight: 600;
+        color: white;
+        transition: all 0.3s ease;
+        display: inline-block;
+        text-decoration: none;
+    }
+    
+    .btn-whatsapp:hover {
+        background-color: #128C7E;
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(37, 211, 102, 0.3);
+        color: white;
+    }
+    
+    .btn-primary {
+        background: linear-gradient(45deg, #d4af37, #f5d76e);
+        border: none;
+        border-radius: 50px;
+        padding: 0.75rem 2rem;
+        font-weight: 600;
+        color: #212529;
+        transition: all 0.3s ease;
+        display: inline-block;
+        text-decoration: none;
+    }
+    
+    .btn-primary:hover {
+        background: linear-gradient(45deg, #b8941f, #d4af37);
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(212, 175, 55, 0.3);
+        color: #212529;
+    }
+    
+    .countdown {
+        font-size: 1.2rem;
+        font-weight: 600;
+        color: #25d366;
+        margin-bottom: 1rem;
+    }
+    
+    .status-badge {
+        display: inline-block;
+        padding: 0.35rem 0.65rem;
+        font-size: 0.75em;
+        font-weight: 700;
+        line-height: 1;
+        text-align: center;
+        white-space: nowrap;
+        vertical-align: baseline;
+        border-radius: 0.25rem;
+        background-color: #28a745;
+        color: #fff;
+    }
+    
+    .payment-instructions {
+        background-color: rgba(37, 211, 102, 0.1);
+        border: 1px solid rgba(37, 211, 102, 0.3);
+        border-radius: 10px;
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+    }
+    
+    .payment-instructions h5 {
+        color: #25d366;
+        margin-bottom: 1rem;
+    }
+    
+    .payment-instructions ol {
+        padding-left: 1.2rem;
+        margin-bottom: 0;
+    }
+    
+    .payment-instructions li {
+        margin-bottom: 0.5rem;
+    }
+    
+    @media (max-width: 768px) {
+        .whatsapp-container {
+            padding: 1rem 0;
+        }
+        
+        .detail-row {
+            flex-direction: column;
+        }
+        
+        .detail-row div:last-child {
+            margin-top: 0.25rem;
+        }
+        
+        .d-flex {
+            flex-direction: column;
+            gap: 1rem;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="whatsapp-container">
+    <div class="card whatsapp-card">
+        <div class="card-header">
+            <h4>Complete Your Purchase Payment</h4>
+        </div>
+        <div class="card-body p-4">
+            <div class="text-center mb-4">
+                <i class="fab fa-whatsapp whatsapp-icon"></i>
+                <h2 class="mb-3">Redirecting to WhatsApp</h2>
+                <div class="countdown" id="countdown">Redirecting in 5 seconds...</div>
+            </div>
+            
+            {% if purchase %}
+                <div class="purchase-details">
+                    <h5 class="mb-3">Purchase Details</h5>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="detail-row">
+                                <div>Purchase ID:</div>
+                                <div>#{{ purchase.id }}</div>
+                            </div>
+                            <div class="detail-row">
+                                <div>Car:</div>
+                                <div>{{ purchase.car.year }} {{ purchase.car.make }} {{ purchase.car.model }}</div>
+                            </div>
+                            <div class="detail-row">
+                                <div>VIN:</div>
+                                <div>{{ purchase.car.vin|default:"N/A" }}</div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="detail-row">
+                                <div>Base Price:</div>
+                                <div>₦{{ purchase.purchase_price|floatformat:2 }}</div>
+                            </div>
+                            <div class="detail-row">
+                                <div>Taxes & Fees:</div>
+                                <div>₦{{ purchase.taxes|add:purchase.fees|floatformat:2 }}</div>
+                            </div>
+                            <div class="detail-row">
+                                <div>Total Amount:</div>
+                                <div>₦{{ purchase.total_amount|floatformat:2 }}</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="payment-instructions">
+                    <h5><i class="fas fa-info-circle me-2"></i>Payment Instructions</h5>
+                    <ol>
+                        <li>You'll be redirected to WhatsApp to complete your payment</li>
+                        <li>Send the pre-filled message to confirm your purchase</li>
+                        <li>Our team will verify your payment and update your purchase status</li>
+                        <li>You'll receive a confirmation email once payment is processed</li>
+                    </ol>
+                </div>
+                
+                <div class="text-center mb-4">
+                    <span class="status-badge">Pending Payment</span>
+                </div>
+            {% else %}
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle me-2"></i>
+                    Your purchase information has been saved. Please complete your payment on WhatsApp.
+                </div>
+            {% endif %}
+            
+            <div class="d-flex justify-content-center gap-3">
+                {% if whatsapp_url %}
+                    <a href="{{ whatsapp_url }}" class="btn btn-whatsapp" target="_blank" id="whatsappBtn">
+                        <i class="fab fa-whatsapp me-2"></i>Open WhatsApp Now
+                    </a>
+                {% endif %}
+                <a href="{% url 'car_rental:purchase_success' %}" class="btn btn-primary" id="skipBtn">
+                    <i class="fas fa-check me-2"></i>Skip to Success Page
+                </a>
+            </div>
+            
+            <div class="text-center mt-4">
+                <p class="text-muted">
+                    <i class="fas fa-shield-alt me-1"></i>
+                    Your purchase is secure and will be processed once payment is confirmed.
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Countdown timer
+        let seconds = 5;
+        const countdownElement = document.getElementById('countdown');
+        
+        const countdown = setInterval(function() {
+            seconds--;
+            if (seconds <= 0) {
+                clearInterval(countdown);
+                // Redirect to WhatsApp or success page
+                {% if whatsapp_url %}
+                    window.location.href = "{{ whatsapp_url }}";
+                {% else %}
+                    window.location.href = "{% url 'car_rental:purchase_success' %}";
+                {% endif %}
+            } else {
+                countdownElement.textContent = `Redirecting in ${seconds} second${seconds !== 1 ? 's' : ''}...`;
+            }
+        }, 1000);
+        
+        // Manual redirect buttons
+        const whatsappBtn = document.getElementById('whatsappBtn');
+        const skipBtn = document.getElementById('skipBtn');
+        
+        if (whatsappBtn) {
+            whatsappBtn.addEventListener('click', function() {
+                clearInterval(countdown);
+            });
+        }
+        
+        if (skipBtn) {
+            skipBtn.addEventListener('click', function() {
+                clearInterval(countdown);
+            });
+        }
+    });
+</script>
+{% endblock %}

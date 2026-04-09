@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Purchase Confirmation</title>
+</head>
+<body>
+    <h2>Purchase Confirmation</h2>
+    <p>Hello {{ customer_name }},</p>
+    
+    <p>Thank you for your purchase! Here are the details:</p>
+    
+    <ul>
+        <li><strong>Car:</strong> {{ car.year }} {{ car.make }} {{ car.model }}</li>
+        <li><strong>Purchase Price:</strong> ₦{{ purchase_price|floatformat:2 }}</li>
+        <li><strong>Taxes:</strong> ₦{{ taxes|floatformat:2 }}</li>
+        <li><strong>Fees:</strong> ₦{{ fees|floatformat:2 }}</li>
+        <li><strong>Total Amount:</strong> ₦{{ total_amount|floatformat:2 }}</li>
+        <li><strong>Delivery Address:</strong> {{ delivery_address }}</li>
+        {% if delivery_notes %}
+        <li><strong>Delivery Notes:</strong> {{ delivery_notes }}</li>
+        {% endif %}
+    </ul>
+    
+    <p>Our team will contact you soon to finalize the payment and delivery details.</p>
+    
+    <p>Thank you for choosing {{ site_info.company_name }}!</p>
+    
+    <p>Best regards,<br>
+    {{ site_info.company_name }} Team</p>
+</body>
+</html>

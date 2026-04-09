@@ -1,0 +1,260 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Edit Site Info - {{ site_info.company_name }}{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <div class="d-flex align-items-center mb-4">
+                <i class="fas fa-tools fa-2x text-primary me-3"></i>
+                <div>
+                    <h1 class="mb-0">Edit Site Information</h1>
+                    <p class="text-muted mb-0">Update all global company details, including contact information and business hours</p>
+                </div>
+            </div>
+
+            <div class="card shadow-lg mb-5">
+                <div class="card-header bg-dark text-white">
+                    <h5 class="mb-0"><i class="fas fa-cog me-2"></i>Site Settings Form</h5>
+                </div>
+                <div class="card-body">
+                    <form method="post" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        
+                        {% if form.non_field_errors %}
+                            <div class="alert alert-danger">
+                                {% for error in form.non_field_errors %}
+                                    <div class="d-flex align-items-center">
+                                        <i class="fas fa-exclamation-circle me-2"></i>
+                                        {{ error }}
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+
+                        <ul class="nav nav-tabs mb-4" id="siteInfoTabs" role="tablist">
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link active" id="company-tab" data-bs-toggle="tab" data-bs-target="#company" type="button" role="tab">
+                                    <i class="fas fa-building me-2"></i>Company Details
+                                </button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link" id="contact-tab" data-bs-toggle="tab" data-bs-target="#contact" type="button" role="tab">
+                                    <i class="fas fa-address-book me-2"></i>Contact Information
+                                </button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link" id="hours-tab" data-bs-toggle="tab" data-bs-target="#hours" type="button" role="tab">
+                                    <i class="fas fa-clock me-2"></i>Business Hours
+                                </button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link" id="social-tab" data-bs-toggle="tab" data-bs-target="#social" type="button" role="tab">
+                                    <i class="fas fa-share-alt me-2"></i>Social Media
+                                </button>
+                            </li>
+                        </ul>
+                        
+                        <div class="tab-content" id="siteInfoTabsContent">
+                            <div class="tab-pane fade show active" id="company" role="tabpanel">
+                                <h4 class="mb-3 text-dark">Company Details</h4>
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label for="{{ form.company_name.id_for_label }}" class="form-label">Company Name</label>
+                                        {{ form.company_name.as_widget }}
+                                        {% if form.company_name.errors %}
+                                            <div class="invalid-feedback d-block">{{ form.company_name.errors }}</div>
+                                        {% endif %}
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label for="{{ form.tagline.id_for_label }}" class="form-label">Tagline</label>
+                                        {{ form.tagline.as_widget }}
+                                        {% if form.tagline.errors %}
+                                            <div class="invalid-feedback d-block">{{ form.tagline.errors }}</div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="{{ form.description.id_for_label }}" class="form-label">Company Description</label>
+                                        {{ form.description.as_widget }}
+                                        {% if form.description.errors %}
+                                            <div class="invalid-feedback d-block">{{ form.description.errors }}</div>
+                                        {% endif %}
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label for="{{ form.logo.id_for_label }}" class="form-label">Company Logo</label>
+                                        {{ form.logo.as_widget }}
+                                        {% if form.logo.errors %}
+                                            <div class="invalid-feedback d-block">{{ form.logo.errors }}</div>
+                                        {% endif %}
+                                        {% if site_info.logo %}<div class="mt-2">Current: <img src="{{ site_info.logo.url }}" alt="Logo" height="40"></div>{% endif %}
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label for="{{ form.favicon.id_for_label }}" class="form-label">Favicon</label>
+                                        {{ form.favicon.as_widget }}
+                                        {% if form.favicon.errors %}
+                                            <div class="invalid-feedback d-block">{{ form.favicon.errors }}</div>
+                                        {% endif %}
+                                        {% if site_info.favicon %}<div class="mt-2">Current: <img src="{{ site_info.favicon.url }}" alt="Favicon" height="20"></div>{% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="tab-pane fade" id="contact" role="tabpanel">
+                                <h4 class="mb-3 text-dark">Contact Information</h4>
+                                <div class="row">
+                                    <div class="col-md-4 mb-3">
+                                        <label for="{{ form.phone.id_for_label }}" class="form-label">Phone Number</label>
+                                        <div class="input-group">
+                                            <span class="input-group-text"><i class="fas fa-phone"></i></span>
+                                            {{ form.phone.as_widget }}
+                                        </div>
+                                        {% if form.phone.errors %}
+                                            <div class="invalid-feedback d-block">{{ form.phone.errors }}</div>
+                                        {% endif %}
+                                    </div>
+                                    <div class="col-md-4 mb-3">
+                                        <label for="{{ form.whatsapp_phone.id_for_label }}" class="form-label">WhatsApp Number</label>
+                                        <div class="input-group">
+                                            <span class="input-group-text"><i class="fab fa-whatsapp"></i></span>
+                                            {{ form.whatsapp_phone.as_widget }}
+                                        </div>
+                                        {% if form.whatsapp_phone.errors %}
+                                            <div class="invalid-feedback d-block">{{ form.whatsapp_phone.errors }}</div>
+                                        {% endif %}
+                                    </div>
+                                    <div class="col-md-4 mb-3">
+                                        <label for="{{ form.email.id_for_label }}" class="form-label">Email Address</label>
+                                        <div class="input-group">
+                                            <span class="input-group-text"><i class="fas fa-envelope"></i></span>
+                                            {{ form.email.as_widget }}
+                                        </div>
+                                        {% if form.email.errors %}
+                                            <div class="invalid-feedback d-block">{{ form.email.errors }}</div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="{{ form.address.id_for_label }}" class="form-label">Physical Address</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text"><i class="fas fa-map-marker-alt"></i></span>
+                                        {{ form.address.as_widget }}
+                                    </div>
+                                    {% if form.address.errors %}
+                                        <div class="invalid-feedback d-block">{{ form.address.errors }}</div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            
+                            <div class="tab-pane fade" id="hours" role="tabpanel">
+                                <h4 class="mb-3 text-dark">Business Hours</h4>
+                                <div class="row">
+                                    <div class="col-md-4 mb-3">
+                                        <label for="{{ form.monday_hours.id_for_label }}" class="form-label">Monday</label>
+                                        <div class="input-group">
+                                            <span class="input-group-text"><i class="far fa-calendar"></i></span>
+                                            {{ form.monday_hours.as_widget }}
+                                        </div>
+                                        {% if form.monday_hours.errors %}
+                                            <div class="invalid-feedback d-block">{{ form.monday_hours.errors }}</div>
+                                        {% endif %}
+                                    </div>
+                                    <div class="col-md-4 mb-3">
+                                        <label for="{{ form.tuesday_hours.id_for_label }}" class="form-label">Tuesday</label>
+                                        <div class="input-group">
+                                            <span class="input-group-text"><i class="far fa-calendar"></i></span>
+                                            {{ form.tuesday_hours.as_widget }}
+                                        </div>
+                                        {% if form.tuesday_hours.errors %}
+                                            <div class="invalid-feedback d-block">{{ form.tuesday_hours.errors }}</div>
+                                        {% endif %}
+                                    </div>
+                                    <div class="col-md-4 mb-3">
+                                        <label for="{{ form.wednesday_hours.id_for_label }}" class="form-label">Wednesday</label>
+                                        <div class="input-group">
+                                            <span class="input-group-text"><i class="far fa-calendar"></i></span>
+                                            {{ form.wednesday_hours.as_widget }}
+                                        </div>
+                                        {% if form.wednesday_hours.errors %}
+                                            <div class="invalid-feedback d-block">{{ form.wednesday_hours.errors }}</div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-4 mb-3">
+                                        <label for="{{ form.thursday_hours.id_for_label }}" class="form-label">Thursday</label>
+                                        <div class="input-group">
+                                            <span class="input-group-text"><i class="far fa-calendar"></i></span>
+                                            {{ form.thursday_hours.as_widget }}
+                                        </div>
+                                        {% if form.thursday_hours.errors %}
+                                            <div class="invalid-feedback d-block">{{ form.thursday_hours.errors }}</div>
+                                        {% endif %}
+                                    </div>
+                                    <div class="col-md-4 mb-3">
+                                        <label for="{{ form.friday_hours.id_for_label }}" class="form-label">Friday</label>
+                                        <div class="input-group">
+                                            <span class="input-group-text"><i class="far fa-calendar"></i></span>
+                                            {{ form.friday_hours.as_widget }}
+                                        </div>
+                                        {% if form.friday_hours.errors %}
+                                            <div class="invalid-feedback d-block">{{ form.friday_hours.errors }}</div>
+                                        {% endif %}
+                                    </div>
+                                    <div class="col-md-4 mb-3">
+                                        <label for="{{ form.saturday_hours.id_for_label }}" class="form-label">Saturday</label>
+                                        <div class="input-group">
+                                            <span class="input-group-text"><i class="far fa-calendar"></i></span>
+                                            {{ form.saturday_hours.as_widget }}
+                                        </div>
+                                        {% if form.saturday_hours.errors %}
+                                            <div class="invalid-feedback d-block">{{ form.saturday_hours.errors }}</div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-4 mb-3">
+                                        <label for="{{ form.sunday_hours.id_for_label }}" class="form-label">Sunday</label>
+                                        <div class="input-group">
+                                            <span class="input-group-text"><i class="far fa-calendar"></i></span>
+                                            {{ form.sunday_hours.as_widget }}
+                                        </div>
+                                        {% if form.sunday_hours.errors %}
+                                            <div class="invalid-feedback d-block">{{ form.sunday_hours.errors }}</div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="tab-pane fade" id="social" role="tabpanel">
+                                <h4 class="mb-3 text-dark">Social Media Links</h4>
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label for="{{ form.instagram_url.id_for_label }}" class="form-label">Instagram URL</label>
+                                        <div class="input-group">
+                                            <span class="input-group-text"><i class="fab fa-instagram"></i></span>
+                                            {{ form.instagram_url.as_widget }}
+                                        </div>
+                                        {% if form.instagram_url.errors %}
+                                            <div class="invalid-feedback d-block">{{ form.instagram_url.errors }}</div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="d-grid mt-4">
+                            <button type="submit" class="btn btn-primary btn-lg">
+                                <i class="fas fa-save me-2"></i> Save Site Information
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

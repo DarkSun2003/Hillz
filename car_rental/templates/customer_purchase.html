@@ -1,0 +1,444 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load custom_filters %}
+
+{% block title %}Finalize Purchase - {% if site_info %}{{ site_info.company_name }}{% else %}Hillz Exquisite{% endif %}{% endblock %}
+
+{% block extra_css %}
+<style>
+    .purchase-container {
+        max-width: 900px;
+        margin: 0 auto;
+        padding: 2rem 0;
+    }
+    
+    .purchase-card {
+        border: none;
+        border-radius: 15px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        overflow: hidden;
+    }
+    
+    .purchase-card .card-header {
+        background: linear-gradient(45deg, #d4af37, #f5d76e);
+        color: #212529;
+        border: none;
+        padding: 1.5rem;
+        text-align: center;
+    }
+    
+    .purchase-card .card-header h4 {
+        margin: 0;
+        font-weight: 700;
+        font-size: 1.8rem;
+    }
+    
+    .car-details {
+        background-color: #f8f9fa;
+        border-radius: 10px;
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+    }
+    
+    .car-details h5 {
+        color: #d4af37;
+        font-weight: 600;
+        margin-bottom: 1rem;
+        padding-bottom: 0.5rem;
+        border-bottom: 2px solid #e9ecef;
+    }
+    
+    .detail-row {
+        display: flex;
+        justify-content: space-between;
+        padding: 0.5rem 0;
+        border-bottom: 1px solid #e9ecef;
+    }
+    
+    .detail-row:last-child {
+        border-bottom: none;
+        font-weight: 600;
+        font-size: 1.1rem;
+        color: #d4af37;
+    }
+    
+    .form-group {
+        margin-bottom: 1.5rem;
+    }
+    
+    .form-group label {
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+        color: #495057;
+    }
+    
+    .form-control {
+        border-radius: 8px;
+        border: 1px solid #ced4da;
+        padding: 0.75rem 1rem;
+        transition: all 0.3s ease;
+    }
+    
+    .form-control:focus {
+        border-color: #d4af37;
+        box-shadow: 0 0 0 0.25rem rgba(212, 175, 55, 0.25);
+    }
+    
+    .btn-primary {
+        background: linear-gradient(45deg, #d4af37, #f5d76e);
+        border: none;
+        border-radius: 50px;
+        padding: 0.75rem 2rem;
+        font-weight: 600;
+        color: #212529;
+        transition: all 0.3s ease;
+        display: block;
+        width: 100%;
+    }
+    
+    .btn-primary:hover {
+        background: linear-gradient(45deg, #b8941f, #d4af37);
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(212, 175, 55, 0.3);
+        color: #212529;
+    }
+    
+    .btn-secondary {
+        background-color: #6c757d;
+        border: none;
+        border-radius: 50px;
+        padding: 0.75rem 2rem;
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+    
+    .btn-secondary:hover {
+        background-color: #5a6268;
+        transform: translateY(-2px);
+    }
+    
+    .alert {
+        border-radius: 10px;
+        border: none;
+    }
+    
+    .car-image {
+        width: 100%;
+        height: 200px;
+        object-fit: cover;
+        border-radius: 10px;
+        margin-bottom: 1rem;
+    }
+    
+    .section-title {
+        position: relative;
+        margin-bottom: 1.5rem;
+        padding-bottom: 0.75rem;
+    }
+    
+    .section-title::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 50px;
+        height: 3px;
+        background: linear-gradient(45deg, #d4af37, #f5d76e);
+    }
+    
+    .loading-spinner {
+        display: none;
+        width: 1.5rem;
+        height: 1.5rem;
+        border: 0.2em solid rgba(0, 0, 0, 0.1);
+        border-radius: 50%;
+        border-top-color: #d4af37;
+        animation: spin 1s ease-in-out infinite;
+    }
+    
+    .whatsapp-notice {
+        background-color: rgba(37, 211, 102, 0.1);
+        border: 1px solid rgba(37, 211, 102, 0.3);
+        border-radius: 10px;
+        padding: 1rem;
+        margin-bottom: 1.5rem;
+        display: flex;
+        align-items: center;
+    }
+    
+    .whatsapp-notice i {
+        font-size: 1.5rem;
+        color: #25d366;
+        margin-right: 1rem;
+    }
+    
+    .whatsapp-notice p {
+        margin-bottom: 0;
+        color: #495057;
+    }
+    
+    .error-list {
+        list-style-type: none;
+        padding-left: 0;
+    }
+    
+    .error-list li {
+        margin-bottom: 0.5rem;
+        padding: 0.5rem;
+        background-color: #f8d7da;
+        border-radius: 5px;
+        color: #721c24;
+    }
+    
+    @keyframes spin {
+        to { transform: rotate(360deg); }
+    }
+    
+    @media (max-width: 768px) {
+        .purchase-container {
+            padding: 1rem 0;
+        }
+        
+        .detail-row {
+            flex-direction: column;
+        }
+        
+        .detail-row div:last-child {
+            margin-top: 0.25rem;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="purchase-container">
+    <div class="card purchase-card">
+        <div class="card-header">
+            <h4>Finalize Your Purchase</h4>
+        </div>
+        <div class="card-body p-4">
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                        <div class="d-flex align-items-center">
+                            <i class="fas {% if message.tags == 'success' %}fa-check-circle{% elif message.tags == 'error' %}fa-exclamation-circle{% elif message.tags == 'warning' %}fa-exclamation-triangle{% else %}fa-info-circle{% endif %} me-2"></i>
+                            <div>{{ message }}</div>
+                        </div>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+            
+            {% if form.errors %}
+                <div class="alert alert-danger">
+                    <h5>Please correct the following errors:</h5>
+                    <ul class="error-list">
+                        {% for field in form %}
+                            {% for error in field.errors %}
+                                <li>{{ field.label }}: {{ error }}</li>
+                            {% endfor %}
+                        {% endfor %}
+                        {% for error in form.non_field_errors %}
+                            <li>{{ error }}</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            {% endif %}
+            
+            {% if car %}
+                <div class="car-details">
+                    <h5 class="section-title">Car Details</h5>
+                    
+                    {% if car.image %}
+                        <img src="{{ car.image.url }}" alt="{{ car.make }} {{ car.model }}" class="car-image">
+                    {% else %}
+                        <img src="https://images.unsplash.com/photo-1552519507-da3b142c6e3d?ixlib=rb-4.0.3" alt="Car Image" class="car-image">
+                    {% endif %}
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="detail-row">
+                                <div>Car:</div>
+                                <div>{{ car.year }} {{ car.make }} {{ car.model }}</div>
+                            </div>
+                            <div class="detail-row">
+                                <div>VIN:</div>
+                                <div>{{ car.vin|default:"N/A" }}</div>
+                            </div>
+                            <div class="detail-row">
+                                <div>Mileage:</div>
+                                <div>{{ car.mileage|default:"N/A" }} miles</div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="detail-row">
+                                <div>Price:</div>
+                                <div>₦{{ car.get_sale_price|floatformat:2 }}</div>
+                            </div>
+                            <div class="detail-row">
+                                <div>Taxes (5%):</div>
+                                <div>₦{{ car.get_sale_price|multiply:0.05|floatformat:2 }}</div>
+                            </div>
+                            <div class="detail-row">
+                                <div>Fees (2%):</div>
+                                <div>₦{{ car.get_sale_price|multiply:0.02|floatformat:2 }}</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row mt-3">
+                        <div class="col-md-12">
+                            <div class="detail-row">
+                                <div>Estimated Total:</div>
+                                <div>₦{{ car.get_sale_price|multiply:1.07|floatformat:2 }}</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="whatsapp-notice">
+                    <i class="fab fa-whatsapp"></i>
+                    <div>
+                        <strong>Important:</strong> After submitting this form, your purchase will be saved and you'll be redirected to WhatsApp to complete your purchase payment.
+                    </div>
+                </div>
+                
+                <form method="post" id="purchaseForm" action="{% url 'car_rental:customer_purchase' car.id %}">
+                    {% csrf_token %}
+                    
+                    {{ form.non_field_errors }}
+                    
+                    <!-- Hidden required fields -->
+                    <input type="hidden" name="customer" value="{{ request.user.customer_account.id }}">
+                    <input type="hidden" name="car" value="{{ car.id }}">
+                    <input type="hidden" name="purchase_datetime" value="{% now 'Y-m-d H:i' %}">
+                    <input type="hidden" name="status" value="pending">
+                    <input type="hidden" name="payment_status" value="pending">
+                    <input type="hidden" name="employee" value="{{ request.user.id }}">
+                    
+                    <div class="form-group">
+                        <label for="{{ form.delivery_address.id_for_label }}" class="section-title">Delivery Address</label>
+                        {{ form.delivery_address }}
+                        {% if form.delivery_address.errors %}
+                            <div class="text-danger">{{ form.delivery_address.errors }}</div>
+                        {% endif %}
+                        <small class="form-text text-muted">Please provide a complete address including postal code.</small>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="{{ form.delivery_datetime.id_for_label }}" class="section-title">Preferred Delivery Date</label>
+                        {{ form.delivery_datetime }}
+                        {% if form.delivery_datetime.errors %}
+                            <div class="text-danger">{{ form.delivery_datetime.errors }}</div>
+                        {% endif %}
+                        <small class="form-text text-muted">Select your preferred delivery date.</small>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="{{ form.delivery_notes.id_for_label }}" class="section-title">Additional Notes (Optional)</label>
+                        {{ form.delivery_notes }}
+                        {% if form.delivery_notes.errors %}
+                            <div class="text-danger">{{ form.delivery_notes.errors }}</div>
+                        {% endif %}
+                        <small class="form-text text-muted">Any special instructions or requests regarding delivery</small>
+                    </div>
+                    
+                    <!-- Hidden fields for pricing -->
+                    <input type="hidden" name="purchase_price" id="purchase_price" value="{{ car.get_sale_price|floatformat:2 }}" step="0.01">
+                    <input type="hidden" name="taxes" id="taxes" value="{{ car.get_sale_price|multiply:0.05|floatformat:2 }}" step="0.01">
+                    <input type="hidden" name="fees" id="fees" value="{{ car.get_sale_price|multiply:0.02|floatformat:2 }}" step="0.01">
+                    <input type="hidden" name="total_amount" id="total_amount" value="{{ car.get_sale_price|multiply:1.07|floatformat:2 }}" step="0.01">
+                    
+                    <div class="form-group mt-4">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="termsAgree" required>
+                            <label class="form-check-label" for="termsAgree">
+                                I agree to the <a href="{% url 'car_rental:terms_of_service' %}" target="_blank">Terms of Service</a> and <a href="{% url 'car_rental:privacy_policy' %}" target="_blank">Privacy Policy</a>
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group mt-4">
+                        <button type="submit" class="btn btn-primary" id="submitBtn">
+                            <i class="fas fa-save me-2"></i>
+                            <span id="btnText">Submit Purchase Request</span>
+                            <div class="loading-spinner ms-2" id="btnSpinner"></div>
+                        </button>
+                    </div>
+                </form>
+            {% else %}
+                <div class="alert alert-danger">
+                    <div class="d-flex align-items-center">
+                        <i class="fas fa-exclamation-triangle me-3 fa-2x"></i>
+                        <div>
+                            <h5 class="alert-heading">Car Information Not Found</h5>
+                            <p class="mb-0">We couldn't find the car information. Please go back and select a car again.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="text-center mt-4">
+                    <a href="{% url 'car_rental:sale_cars' %}" class="btn btn-secondary">
+                        <i class="fas fa-arrow-left me-2"></i>Back to Cars for Sale
+                    </a>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Set minimum date for delivery to today
+        const deliveryDateInput = document.getElementById('{{ form.delivery_datetime.id_for_label }}');
+        if (deliveryDateInput) {
+            const today = new Date();
+            const formattedDate = today.toISOString().split('T')[0];
+            deliveryDateInput.setAttribute('min', formattedDate);
+        }
+        
+        // Enforce 2 decimal places for number inputs
+        const numberInputs = document.querySelectorAll('input[type="number"]');
+        numberInputs.forEach(input => {
+            input.addEventListener('blur', function() {
+                if (this.value && this.value !== '') {
+                    // Round to 2 decimal places
+                    const value = parseFloat(this.value);
+                    if (!isNaN(value)) {
+                        this.value = value.toFixed(2);
+                    }
+                }
+            });
+            
+            // Prevent entering more than 2 decimal places
+            input.addEventListener('input', function() {
+                const value = this.value;
+                if (value.includes('.')) {
+                    const parts = value.split('.');
+                    if (parts[1] && parts[1].length > 2) {
+                        this.value = parseFloat(value).toFixed(2);
+                    }
+                }
+            });
+        });
+        
+        // Form submission
+        const form = document.querySelector('#purchaseForm');
+        if (form) {
+            form.addEventListener('submit', function(event) {
+                const submitButton = document.getElementById('submitBtn');
+                const btnText = document.getElementById('btnText');
+                const btnSpinner = document.getElementById('btnSpinner');
+                
+                // Show loading state
+                btnText.textContent = 'Processing...';
+                btnSpinner.style.display = 'inline-block';
+                submitButton.disabled = true;
+                
+                // Let the form submit normally
+                // The loading state will be reset when the page reloads
+            });
+        }
+    });
+</script>
+{% endblock %}

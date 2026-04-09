@@ -1,0 +1,202 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Update Purchase - {{ purchase.car.make }} {{ purchase.car.model }} - {{ site_info.company_name }}{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-md-10">
+            <div class="card shadow-sm">
+                <div class="card-header bg-dark text-white">
+                    <h5 class="mb-0"><i class="fas fa-edit me-2"></i> Update Purchase Information</h5>
+                </div>
+                <div class="card-body">
+                    <form method="post">
+                        {% csrf_token %}
+                        
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label for="{{ form.customer.id_for_label }}" class="form-label">Customer</label>
+                                {{ form.customer }}
+                                {% if form.customer.errors %}
+                                <div class="text-danger small">{{ form.customer.errors }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-6">
+                                <label for="{{ form.car.id_for_label }}" class="form-label">Car</label>
+                                {{ form.car }}
+                                {% if form.car.errors %}
+                                <div class="text-danger small">{{ form.car.errors }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <div class="row mb-3">
+                            <div class="col-md-4">
+                                <label for="{{ form.purchase_datetime.id_for_label }}" class="form-label">Purchase Date</label>
+                                {{ form.purchase_datetime }}
+                                {% if form.purchase_datetime.errors %}
+                                <div class="text-danger small">{{ form.purchase_datetime.errors }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-4">
+                                <label for="{{ form.delivery_datetime.id_for_label }}" class="form-label">Expected Delivery Date</label>
+                                {{ form.delivery_datetime }}
+                                {% if form.delivery_datetime.errors %}
+                                <div class="text-danger small">{{ form.delivery_datetime.errors }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-4">
+                                <label for="{{ form.actual_delivery_datetime.id_for_label }}" class="form-label">Actual Delivery Date</label>
+                                {{ form.actual_delivery_datetime }}
+                                {% if form.actual_delivery_datetime.errors %}
+                                <div class="text-danger small">{{ form.actual_delivery_datetime.errors }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <div class="card mb-3">
+                            <div class="card-header">
+                                <h6 class="mb-0">Pricing Information</h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-3">
+                                        <label for="{{ form.purchase_price.id_for_label }}" class="form-label">Purchase Price</label>
+                                        {{ form.purchase_price }}
+                                        {% if form.purchase_price.errors %}
+                                        <div class="text-danger small">{{ form.purchase_price.errors }}</div>
+                                        {% endif %}
+                                    </div>
+                                    <div class="col-md-3">
+                                        <label for="{{ form.taxes.id_for_label }}" class="form-label">Taxes</label>
+                                        {{ form.taxes }}
+                                        {% if form.taxes.errors %}
+                                        <div class="text-danger small">{{ form.taxes.errors }}</div>
+                                        {% endif %}
+                                    </div>
+                                    <div class="col-md-3">
+                                        <label for="{{ form.fees.id_for_label }}" class="form-label">Fees</label>
+                                        {{ form.fees }}
+                                        {% if form.fees.errors %}
+                                        <div class="text-danger small">{{ form.fees.errors }}</div>
+                                        {% endif %}
+                                    </div>
+                                    <div class="col-md-3">
+                                        <label for="{{ form.total_amount.id_for_label }}" class="form-label">Total Amount</label>
+                                        {{ form.total_amount }}
+                                        {% if form.total_amount.errors %}
+                                        <div class="text-danger small">{{ form.total_amount.errors }}</div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label for="{{ form.status.id_for_label }}" class="form-label">Status</label>
+                                {{ form.status }}
+                                {% if form.status.errors %}
+                                <div class="text-danger small">{{ form.status.errors }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-6">
+                                <label for="{{ form.payment_status.id_for_label }}" class="form-label">Payment Status</label>
+                                {{ form.payment_status }}
+                                {% if form.payment_status.errors %}
+                                <div class="text-danger small">{{ form.payment_status.errors }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <div class="card mb-3">
+                            <div class="card-header">
+                                <h6 class="mb-0">Warranty Information</h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <label for="{{ form.warranty_expiry.id_for_label }}" class="form-label">Warranty Expiry Date</label>
+                                        {{ form.warranty_expiry }}
+                                        {% if form.warranty_expiry.errors %}
+                                        <div class="text-danger small">{{ form.warranty_expiry.errors }}</div>
+                                        {% endif %}
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label for="{{ form.warranty_terms.id_for_label }}" class="form-label">Warranty Terms</label>
+                                        {{ form.warranty_terms }}
+                                        {% if form.warranty_terms.errors %}
+                                        <div class="text-danger small">{{ form.warranty_terms.errors }}</div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="card mb-3">
+                            <div class="card-header">
+                                <h6 class="mb-0">Trade-in Information</h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <label for="{{ form.trade_in.id_for_label }}" class="form-label">Trade-in Vehicle</label>
+                                        {{ form.trade_in }}
+                                        {% if form.trade_in.errors %}
+                                        <div class="text-danger small">{{ form.trade_in.errors }}</div>
+                                        {% endif %}
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label for="{{ form.trade_in_value.id_for_label }}" class="form-label">Trade-in Value</label>
+                                        {{ form.trade_in_value }}
+                                        {% if form.trade_in_value.errors %}
+                                        <div class="text-danger small">{{ form.trade_in_value.errors }}</div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="card mb-3">
+                            <div class="card-header">
+                                <h6 class="mb-0">Delivery Information</h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <label for="{{ form.delivery_address.id_for_label }}" class="form-label">Delivery Address</label>
+                                        {{ form.delivery_address }}
+                                        {% if form.delivery_address.errors %}
+                                        <div class="text-danger small">{{ form.delivery_address.errors }}</div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                <div class="row mt-3">
+                                    <div class="col-md-12">
+                                        <label for="{{ form.delivery_notes.id_for_label }}" class="form-label">Delivery Notes</label>
+                                        {{ form.delivery_notes }}
+                                        {% if form.delivery_notes.errors %}
+                                        <div class="text-danger small">{{ form.delivery_notes.errors }}</div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="d-flex justify-content-between">
+                            <a href="{% url 'car_rental:purchase_detail' purchase.id %}" class="btn btn-outline-secondary">
+                                <i class="fas fa-arrow-left me-2"></i> Back to Purchase
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save me-2"></i> Save Changes
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

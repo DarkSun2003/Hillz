@@ -1,0 +1,279 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Update Car - {{ car.make }} {{ car.model }}{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <div class="d-flex align-items-center mb-4">
+                <div class="me-3">
+                    {% if car.image %}
+                        <img src="{{ car.image.url }}" alt="{{ car.make }} {{ car.model }}" class="img-thumbnail" style="max-width: 100px;">
+                    {% else %}
+                        <div class="bg-secondary rounded d-flex align-items-center justify-content-center" style="width: 100px; height: 75px;">
+                            <i class="fas fa-car text-white fa-2x"></i>
+                        </div>
+                    {% endif %}
+                </div>
+                <div>
+                    <h1 class="mb-0">Update Vehicle: {{ car.make }} {{ car.model }}</h1>
+                    <p class="text-muted mb-0">Use this form to update inventory details, pricing, and availability status</p>
+                </div>
+            </div>
+
+            <div class="card shadow-lg mb-5">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0"><i class="fas fa-car me-2"></i>Vehicle Details Form</h5>
+                </div>
+                <div class="card-body">
+                    {% if form.non_field_errors %}
+                        <div class="alert alert-danger">
+                            {% for error in form.non_field_errors %}
+                                <div class="d-flex align-items-center">
+                                    <i class="fas fa-exclamation-circle me-2"></i>
+                                    {{ error }}
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+
+                    <form method="post" enctype="multipart/form-data">
+                        {% csrf_token %}
+
+                        <ul class="nav nav-tabs mb-4" id="carTabs" role="tablist">
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link active" id="basic-tab" data-bs-toggle="tab" data-bs-target="#basic" type="button" role="tab">
+                                    <i class="fas fa-info-circle me-2"></i>Basic Info
+                                </button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link" id="pricing-tab" data-bs-toggle="tab" data-bs-target="#pricing" type="button" role="tab">
+                                    <i class="fas fa-dollar-sign me-2"></i>Pricing
+                                </button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link" id="specs-tab" data-bs-toggle="tab" data-bs-target="#specs" type="button" role="tab">
+                                    <i class="fas fa-cogs me-2"></i>Specifications
+                                </button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link" id="media-tab" data-bs-toggle="tab" data-bs-target="#media" type="button" role="tab">
+                                    <i class="fas fa-image me-2"></i>Media
+                                </button>
+                            </li>
+                        </ul>
+                        
+                        <div class="tab-content" id="carTabsContent">
+                            <div class="tab-pane fade show active" id="basic" role="tabpanel">
+                                <h4 class="mb-3 text-primary">Identification & Status</h4>
+                                <div class="row">
+                                    <div class="col-md-4 mb-3">
+                                        <label for="{{ form.make.id_for_label }}" class="form-label">Make</label>
+                                        {{ form.make.as_widget }}
+                                        {% if form.make.errors %}
+                                            <div class="invalid-feedback d-block">{{ form.make.errors }}</div>
+                                        {% endif %}
+                                    </div>
+                                    <div class="col-md-4 mb-3">
+                                        <label for="{{ form.model.id_for_label }}" class="form-label">Model</label>
+                                        {{ form.model.as_widget }}
+                                        {% if form.model.errors %}
+                                            <div class="invalid-feedback d-block">{{ form.model.errors }}</div>
+                                        {% endif %}
+                                    </div>
+                                    <div class="col-md-4 mb-3">
+                                        <label for="{{ form.year.id_for_label }}" class="form-label">Year</label>
+                                        {{ form.year.as_widget }}
+                                        {% if form.year.errors %}
+                                            <div class="invalid-feedback d-block">{{ form.year.errors }}</div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label for="{{ form.vin.id_for_label }}" class="form-label">VIN</label>
+                                        <div class="input-group">
+                                            <span class="input-group-text"><i class="fas fa-barcode"></i></span>
+                                            {{ form.vin.as_widget }}
+                                        </div>
+                                        {% if form.vin.errors %}
+                                            <div class="invalid-feedback d-block">{{ form.vin.errors }}</div>
+                                        {% endif %}
+                                    </div>
+                                    <div class="col-md-3 mb-3">
+                                        <label for="{{ form.status.id_for_label }}" class="form-label">Status</label>
+                                        {{ form.status.as_widget }}
+                                        {% if form.status.errors %}
+                                            <div class="invalid-feedback d-block">{{ form.status.errors }}</div>
+                                        {% endif %}
+                                    </div>
+                                    <div class="col-md-3 mb-3">
+                                        <div class="form-check mt-4">
+                                            {{ form.featured.as_widget }}
+                                            <label class="form-check-label" for="{{ form.featured.id_for_label }}">
+                                                <i class="fas fa-star me-1"></i> Featured Vehicle
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="tab-pane fade" id="pricing" role="tabpanel">
+                                <h4 class="mb-3 text-primary">Pricing & Availability</h4>
+                                <div class="row">
+                                    <div class="col-md-4 mb-3">
+                                        <label for="{{ form.default_price.id_for_label }}" class="form-label">Default Price</label>
+                                        <div class="input-group">
+                                            <span class="input-group-text">₦</span>
+                                            {{ form.default_price.as_widget }}
+                                        </div>
+                                        {% if form.default_price.errors %}
+                                            <div class="invalid-feedback d-block">{{ form.default_price.errors }}</div>
+                                        {% endif %}
+                                    </div>
+                                    <div class="col-md-4 mb-3">
+                                        <label for="{{ form.rent_price.id_for_label }}" class="form-label">Rental Price (Per Day)</label>
+                                        <div class="input-group">
+                                            <span class="input-group-text">₦</span>
+                                            {{ form.rent_price.as_widget }}
+                                        </div>
+                                        <div class="form-check mt-2">
+                                            {{ form.for_rent.as_widget }}
+                                            <label class="form-check-label" for="{{ form.for_rent.id_for_label }}">
+                                                Available for Rent
+                                            </label>
+                                        </div>
+                                        {% if form.rent_price.errors %}
+                                            <div class="invalid-feedback d-block">{{ form.rent_price.errors }}</div>
+                                        {% endif %}
+                                    </div>
+                                    <div class="col-md-4 mb-3">
+                                        <label for="{{ form.sale_price.id_for_label }}" class="form-label">Sale Price</label>
+                                        <div class="input-group">
+                                            <span class="input-group-text">₦</span>
+                                            {{ form.sale_price.as_widget }}
+                                        </div>
+                                        <div class="form-check mt-2">
+                                            {{ form.for_sale.as_widget }}
+                                            <label class="form-check-label" for="{{ form.for_sale.id_for_label }}">
+                                                Available for Sale
+                                            </label>
+                                        </div>
+                                        {% if form.sale_price.errors %}
+                                            <div class="invalid-feedback d-block">{{ form.sale_price.errors }}</div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="tab-pane fade" id="specs" role="tabpanel">
+                                <h4 class="mb-3 text-primary">Specifications</h4>
+                                <div class="row">
+                                    <div class="col-md-4 mb-3">
+                                        <label for="{{ form.car_type.id_for_label }}" class="form-label">Car Type</label>
+                                        {{ form.car_type.as_widget }}
+                                        {% if form.car_type.errors %}
+                                            <div class="invalid-feedback d-block">{{ form.car_type.errors }}</div>
+                                        {% endif %}
+                                    </div>
+                                    <div class="col-md-4 mb-3">
+                                        <label for="{{ form.transmission.id_for_label }}" class="form-label">Transmission</label>
+                                        {{ form.transmission.as_widget }}
+                                        {% if form.transmission.errors %}
+                                            <div class="invalid-feedback d-block">{{ form.transmission.errors }}</div>
+                                        {% endif %}
+                                    </div>
+                                    <div class="col-md-4 mb-3">
+                                        <label for="{{ form.engine_type.id_for_label }}" class="form-label">Engine Type</label>
+                                        {{ form.engine_type.as_widget }}
+                                        {% if form.engine_type.errors %}
+                                            <div class="invalid-feedback d-block">{{ form.engine_type.errors }}</div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-3 mb-3">
+                                        <label for="{{ form.mileage.id_for_label }}" class="form-label">Mileage (miles)</label>
+                                        <div class="input-group">
+                                            <span class="input-group-text"><i class="fas fa-tachometer-alt"></i></span>
+                                            {{ form.mileage.as_widget }}
+                                        </div>
+                                        {% if form.mileage.errors %}
+                                            <div class="invalid-feedback d-block">{{ form.mileage.errors }}</div>
+                                        {% endif %}
+                                    </div>
+                                    <div class="col-md-3 mb-3">
+                                        <label for="{{ form.color.id_for_label }}" class="form-label">Color</label>
+                                        <div class="input-group">
+                                            <span class="input-group-text"><i class="fas fa-palette"></i></span>
+                                            {{ form.color.as_widget }}
+                                        </div>
+                                        {% if form.color.errors %}
+                                            <div class="invalid-feedback d-block">{{ form.color.errors }}</div>
+                                        {% endif %}
+                                    </div>
+                                    <div class="col-md-3 mb-3">
+                                        <label for="{{ form.seats.id_for_label }}" class="form-label">Seats</label>
+                                        <div class="input-group">
+                                            <span class="input-group-text"><i class="fas fa-chair"></i></span>
+                                            {{ form.seats.as_widget }}
+                                        </div>
+                                        {% if form.seats.errors %}
+                                            <div class="invalid-feedback d-block">{{ form.seats.errors }}</div>
+                                        {% endif %}
+                                    </div>
+                                    <div class="col-md-3 mb-3">
+                                        <label for="{{ form.fuel_efficiency.id_for_label }}" class="form-label">Fuel Efficiency (MPG)</label>
+                                        <div class="input-group">
+                                            <span class="input-group-text"><i class="fas fa-gas-pump"></i></span>
+                                            {{ form.fuel_efficiency.as_widget }}
+                                        </div>
+                                        {% if form.fuel_efficiency.errors %}
+                                            <div class="invalid-feedback d-block">{{ form.fuel_efficiency.errors }}</div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="tab-pane fade" id="media" role="tabpanel">
+                                <h4 class="mb-3 text-primary">Media & Description</h4>
+                                <div class="mb-3">
+                                    <label for="{{ form.description.id_for_label }}" class="form-label">Description</label>
+                                    {{ form.description.as_widget }}
+                                    {% if form.description.errors %}
+                                        <div class="invalid-feedback d-block">{{ form.description.errors }}</div>
+                                    {% endif %}
+                                </div>
+                                <div class="mb-3">
+                                    <label for="{{ form.image.id_for_label }}" class="form-label">Car Image</label>
+                                    {{ form.image.as_widget }}
+                                    {% if form.image.errors %}
+                                        <div class="invalid-feedback d-block">{{ form.image.errors }}</div>
+                                    {% endif %}
+                                    {% if car.image %}
+                                        <div class="mt-2">
+                                            <p class="mb-1">Current Image:</p>
+                                            <img src="{{ car.image.url }}" alt="{{ car.make }} {{ car.model }}" class="img-thumbnail" style="max-width: 200px;">
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="d-grid gap-2 d-md-flex mt-4">
+                            <button type="submit" class="btn btn-primary btn-lg me-md-2">
+                                <i class="fas fa-save me-2"></i> Save Changes
+                            </button>
+                            <a href="{% url 'car_rental:car_detail' car.pk %}" class="btn btn-outline-secondary btn-lg">
+                                <i class="fas fa-times me-2"></i> Cancel
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

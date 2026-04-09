@@ -1,0 +1,151 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load custom_filters %}
+{% block title %}My Rentals - {{ site_info.company_name }}{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <h1 class="mb-4">My Rentals</h1>
+    
+    <div class="card shadow">
+        <div class="card-body">
+            {% if rentals %}
+            <div class="table-responsive">
+                <table class="table table-hover align-middle">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Vehicle</th>
+                            <th>Rental Dates</th>
+                            <th>Status</th>
+                            <th>Total Amount</th>
+                            <th>Actions & Review</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for rental in rentals %}
+                        <tr>
+                            <td>
+                                <a href="{% url 'car_rental:car_detail' rental.car.pk %}" class="text-primary fw-bold">
+                                    {{ rental.car.year }} {{ rental.car.make }} {{ rental.car.model }}
+                                </a>
+                                <div class="text-muted small">{{ rental.pickup_location }} to {{ rental.return_location }}</div>
+                            </td>
+                            <td>
+                                <div><i class="fas fa-calendar-alt me-2"></i>{{ rental.rental_datetime|date:"M d, Y" }}</div>
+                                <div class="text-muted small">to {{ rental.return_datetime|date:"M d, Y" }}</div>
+                            </td>
+                            <td>
+                                {% if rental.status == 'active' %}
+                                <span class="badge bg-success">Active</span>
+                                {% elif rental.status == 'completed' %}
+                                <span class="badge bg-primary">Completed</span>
+                                {% elif rental.status == 'overdue' %}
+                                <span class="badge bg-danger">Overdue</span>
+                                {% else %}
+                                <span class="badge bg-secondary">{{ rental.get_status_display }}</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <strong>{{ rental.total_amount_due|format_naira_price|default:"N/A" }}</strong>
+                                {% if rental.late_fee > 0 %}
+                                <div class="text-danger small">(Late Fee: {{ rental.late_fee|format_naira_price }})</div>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <a href="{% url 'car_rental:rental_detail' rental.pk %}" class="btn btn-sm btn-outline-info me-2">
+                                    <i class="fas fa-info-circle"></i> Details
+                                </a>
+                                
+                                {% if rental.status == 'completed' and rental.id not in rated_rentals %}
+                                <button type="button" class="btn btn-sm btn-warning" data-bs-toggle="modal" data-bs-target="#ratingModal-{{ rental.pk }}">
+                                    <i class="fas fa-star"></i> Rate
+                                </button>
+                                {% elif rental.status == 'completed' and rental.id in rated_rentals %}
+                                <span class="badge bg-warning text-dark">Rated</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        
+                        <div class="modal fade" id="ratingModal-{{ rental.pk }}" tabindex="-1" aria-hidden="true">
+                            <div class="modal-dialog">
+                                <div class="modal-content">
+                                    <form method="post" action="{% url 'car_rental:submit_rental_rating' rental.pk %}">
+                                        {% csrf_token %}
+                                        <div class="modal-header">
+                                            <h5 class="modal-title">Rate Your Rental Experience</h5>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                        </div>
+                                        <div class="modal-body">
+                                            <p class="text-muted">How was your experience with the {{ rental.car.year }} {{ rental.car.make }} {{ rental.car.model }}?</p>
+                                            
+                                            <div class="mb-3">
+                                                <label class="form-label">Rating</label>
+                                                <div class="d-flex justify-content-center">
+                                                    {% for i in "12345"|make_list %}
+                                                    <input type="radio" class="btn-check" name="rating" id="star-{{ rental.pk }}-{{ i }}" value="{{ i }}" required>
+                                                    <label class="btn btn-outline-warning btn-lg" for="star-{{ rental.pk }}-{{ i }}" style="margin: 0 5px;">
+                                                        <i class="fas fa-star"></i>
+                                                    </label>
+                                                    {% endfor %}
+                                                </div>
+                                            </div>
+                                            
+                                            <div class="mb-3">
+                                                <label for="comment-{{ rental.pk }}" class="form-label">Comment (Optional)</label>
+                                                <textarea class="form-control" id="comment-{{ rental.pk }}" name="comment" rows="3"></textarea>
+                                            </div>
+                                            
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" name="would_recommend" id="recommend-{{ rental.pk }}" checked>
+                                                <label class="form-check-label" for="recommend-{{ rental.pk }}">
+                                                    I would recommend Hillz Exquisites.
+                                                </label>
+                                            </div>
+                                            
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                            <button type="submit" class="btn btn-primary">Submit Review</button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            
+            {% if is_paginated %}
+            <nav aria-label="Page navigation" class="mt-4">
+                <ul class="pagination justify-content-center">
+                    {% if page_obj.has_previous %}
+                    <li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}">Previous</a></li>
+                    {% endif %}
+                    
+                    {% for num in page_obj.paginator.page_range %}
+                        {% if page_obj.number == num %}
+                            <li class="page-item active"><span class="page-link">{{ num }}</span></li>
+                        {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                            <li class="page-item"><a class="page-link" href="?page={{ num }}">{{ num }}</a></li>
+                        {% endif %}
+                    {% endfor %}
+                    
+                    {% if page_obj.has_next %}
+                    <li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}">Next</a></li>
+                    {% endif %}
+                </ul>
+            </nav>
+            {% endif %}
+            
+            {% else %}
+            <div class="alert alert-info text-center">
+                <h4>No rentals found</h4>
+                <p>Start your luxury experience by checking out our <a href="{% url 'car_rental:rent_cars' %}">rental fleet</a>.</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,61 @@
+<!-- whatsapp_success.html -->
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Booking Successful - {{ site_info.company_name }}{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-6">
+            <div class="card shadow-lg border-0">
+                <div class="card-body text-center p-5">
+                    <div class="mb-4">
+                        <i class="fas fa-check-circle text-success" style="font-size: 4rem;"></i>
+                    </div>
+                    <h2 class="mb-3">Booking Successful!</h2>
+                    <p class="lead mb-4">
+                        Your {{ service_type|title }} service booking has been submitted successfully.
+                    </p>
+                    
+                    {% if booking %}
+                    <div class="alert alert-info mb-4">
+                        <h5>Booking Details</h5>
+                        <p><strong>Booking ID:</strong> #{{ booking.id }}</p>
+                        <p><strong>Name:</strong> {{ booking.name }}</p>
+                        <p><strong>Service:</strong> {{ booking.get_service_type_display }}</p>
+                        <p><strong>Preferred Date:</strong> {{ booking.preferred_date }}</p>
+                    </div>
+                    {% endif %}
+                    
+                    {% if redirect_url %}
+                    <div class="d-grid mb-3">
+                        <a href="{{ redirect_url }}" class="btn btn-success btn-lg" target="_blank">
+                            <i class="fab fa-whatsapp me-2"></i>Continue on WhatsApp
+                        </a>
+                    </div>
+                    <p class="text-muted small">Click the button above to continue your conversation on WhatsApp</p>
+                    {% endif %}
+                    
+                    <div class="mt-4">
+                        <a href="{% url 'car_rental:services_overview' %}" class="btn btn-outline-primary">
+                            <i class="fas fa-arrow-left me-2"></i>Back to Services
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Auto-redirect to WhatsApp after 3 seconds
+    document.addEventListener('DOMContentLoaded', function() {
+        {% if redirect_url %}
+        setTimeout(function() {
+            window.open('{{ redirect_url }}', '_blank');
+        }, 3000);
+        {% endif %}
+    });
+</script>
+{% endblock %}

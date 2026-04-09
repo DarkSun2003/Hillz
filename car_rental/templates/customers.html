@@ -1,0 +1,269 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Customers - {{ site_info.company_name }}{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1>Customers</h1>
+        <div class="d-flex gap-2">
+            <!-- Search Form -->
+            <form class="d-flex" method="get" action="{% url 'car_rental:customers' %}">
+                <input class="form-control me-2" type="search" name="q" placeholder="Search customers..." value="{{ request.GET.q }}">
+                <button class="btn btn-outline-success" type="submit">Search</button>
+            </form>
+        </div>
+    </div>
+    
+    <!-- Filter Pills -->
+    <div class="mb-3">
+        <div class="btn-group" role="group">
+            <a href="{% url 'car_rental:customers' %}" class="btn btn-outline-primary {% if request.GET.status != 'banned' %}active{% endif %}">
+                All Customers
+            </a>
+            <a href="{% url 'car_rental:customers' %}?status=banned" class="btn btn-outline-danger {% if request.GET.status == 'banned' %}active{% endif %}">
+                Banned Only
+            </a>
+        </div>
+    </div>
+    
+    <!-- Success/Error Messages -->
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        {% endfor %}
+    {% endif %}
+    
+    <div class="card shadow-sm">
+        <div class="card-body">
+            {% if customers %}
+                <div class="table-responsive">
+                    <table class="table table-striped table-hover">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Email</th>
+                                <th>Phone</th>
+                                <th>Status</th>
+                                <th>License</th>
+                                <th>Rentals</th>
+                                <th>Purchases</th>
+                                <th>Total Spent</th>
+                                <th>Joined</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for customer in customers %}
+                                <tr>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            {% if customer.user.profile.profile_picture %}
+                                                <img src="{{ customer.user.profile.profile_picture.url }}" alt="Profile" class="rounded-circle me-2" style="width: 30px; height: 30px; object-fit: cover;">
+                                            {% else %}
+                                                <div class="rounded-circle bg-secondary d-flex align-items-center justify-content-center me-2" style="width: 30px; height: 30px;">
+                                                    <i class="fas fa-user text-white small"></i>
+                                                </div>
+                                            {% endif %}
+                                            <a href="{% url 'car_rental:customer_detail' customer.id %}" class="text-decoration-none">
+                                                <strong>{{ customer.name }}</strong>
+                                            </a>
+                                        </div>
+                                    </td>
+                                    <td>{{ customer.email }}</td>
+                                    <td>{{ customer.phone|default:"-" }}</td>
+                                    <td>
+                                        {% if customer.is_banned %}
+                                            <span class="badge bg-danger">Banned</span>
+                                        {% else %}
+                                            <span class="badge bg-success">Active</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if customer.has_valid_license %}
+                                            <span class="badge bg-success">Valid</span>
+                                        {% else %}
+                                            <span class="badge bg-warning">Invalid</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>{{ customer.rentals.count }}</td>
+                                    <td>{{ customer.purchases.count }}</td>
+                                    <td>₦{{ customer.get_total_spent|floatformat:2 }}</td>
+                                    <td>{{ customer.created_at|date:"M d, Y" }}</td>
+                                    <td>
+                                        <div class="btn-group" role="group">
+                                            <!-- View Button -->
+                                            <a href="{% url 'car_rental:customer_detail' customer.id %}" class="btn btn-sm btn-outline-primary" title="View Details">
+                                                <i class="fas fa-eye"></i>
+                                            </a>
+                                            
+                                            <!-- Ban/Unban Button -->
+                                            {% if customer.is_banned %}
+                                                <form method="post" action="{% url 'car_rental:customer_ban_delete' customer.id %}" style="display: inline;">
+                                                    {% csrf_token %}
+                                                    <input type="hidden" name="action" value="unban">
+                                                    <button type="submit" class="btn btn-sm btn-success" title="Unban Customer">
+                                                        <i class="fas fa-user-check"></i>
+                                                    </button>
+                                                </form>
+                                            {% else %}
+                                                <form method="post" action="{% url 'car_rental:customer_ban_delete' customer.id %}" style="display: inline;">
+                                                    {% csrf_token %}
+                                                    <input type="hidden" name="action" value="ban">
+                                                    <button type="submit" class="btn btn-sm btn-warning" title="Ban Customer">
+                                                        <i class="fas fa-user-slash"></i>
+                                                    </button>
+                                                </form>
+                                            {% endif %}
+                                            
+                                            <!-- Delete Button -->
+                                            <form method="post" action="{% url 'car_rental:customer_ban_delete' customer.id %}" style="display: inline;">
+                                                {% csrf_token %}
+                                                <input type="hidden" name="action" value="delete">
+                                                <button type="submit" class="btn btn-sm btn-danger" title="Delete Customer" 
+                                                        onclick="return confirm('Are you sure you want to delete this customer? This action cannot be undone.')">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
+                                            </form>
+                                            
+                                            <!-- Ban and Delete Button -->
+                                            <form method="post" action="{% url 'car_rental:customer_ban_delete' customer.id %}" style="display: inline;">
+                                                {% csrf_token %}
+                                                <input type="hidden" name="action" value="ban_and_delete">
+                                                <button type="submit" class="btn btn-sm btn-danger" title="Ban and Delete Customer" 
+                                                        onclick="return confirm('Are you sure you want to ban and delete this customer? This action cannot be undone.')">
+                                                    <i class="fas fa-user-slash"></i>
+                                                    <i class="fas fa-trash ms-1"></i>
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                
+                <!-- Pagination -->
+                {% if is_paginated %}
+                    <nav aria-label="Page navigation">
+                        <ul class="pagination justify-content-center">
+                            {% if page_obj.has_previous %}
+                                <li class="page-item">
+                                    <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}{% if request.GET.status %}&status={{ request.GET.status }}{% endif %}">Previous</a>
+                                </li>
+                            {% endif %}
+                            
+                            {% for num in page_obj.paginator.page_range %}
+                                {% if page_obj.number == num %}
+                                    <li class="page-item active">
+                                        <span class="page-link">{{ num }}</span>
+                                    </li>
+                                {% else %}
+                                    <li class="page-item">
+                                        <a class="page-link" href="?page={{ num }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}{% if request.GET.status %}&status={{ request.GET.status }}{% endif %}">{{ num }}</a>
+                                    </li>
+                                {% endif %}
+                            {% endfor %}
+                            
+                            {% if page_obj.has_next %}
+                                <li class="page-item">
+                                    <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}{% if request.GET.status %}&status={{ request.GET.status }}{% endif %}">Next</a>
+                                </li>
+                            {% endif %}
+                        </ul>
+                    </nav>
+                {% endif %}
+            {% else %}
+                <div class="text-center py-5">
+                    <i class="fas fa-users fa-3x text-muted mb-3"></i>
+                    <h4 class="text-muted">No customers found</h4>
+                    <p class="text-muted">Try adjusting your search or filter criteria.</p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+    
+    <!-- Statistics Cards -->
+    <div class="row mt-4">
+        <div class="col-md-3">
+            <div class="card text-white bg-primary">
+                <div class="card-body">
+                    <h5 class="card-title">Total Customers</h5>
+                    <h3 class="card-text">{{ customers.paginator.count }}</h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-white bg-success">
+                <div class="card-body">
+                    <h5 class="card-title">Active Customers</h5>
+                    <h3 class="card-text">{{ active_customers_count }}</h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-white bg-danger">
+                <div class="card-body">
+                    <h5 class="card-title">Banned Customers</h5>
+                    <h3 class="card-text">{{ banned_customers_count }}</h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-white bg-info">
+                <div class="card-body">
+                    <h5 class="card-title">Total Revenue</h5>
+                    <h3 class="card-text">₦{{ total_revenue|floatformat:2 }}</h3>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .btn-group .form-check-input {
+        margin-top: 0;
+    }
+    
+    .table-hover tbody tr:hover {
+        background-color: rgba(0, 0, 0, 0.075);
+    }
+    
+    .pagination .page-link {
+        color: #0d6efd;
+    }
+    
+    .pagination .page-item.active .page-link {
+        background-color: #0d6efd;
+        border-color: #0d6efd;
+    }
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Add tooltips to buttons
+        var tooltipTriggerList = [].slice.call(document.querySelectorAll('[title]'))
+        var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+            return new bootstrap.Tooltip(tooltipTriggerEl)
+        });
+        
+        // Auto-hide alerts after 5 seconds
+        setTimeout(function() {
+            var alerts = document.querySelectorAll('.alert');
+            alerts.forEach(function(alert) {
+                var bsAlert = new bootstrap.Alert(alert);
+                bsAlert.close();
+            });
+        }, 5000);
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,414 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load cloudinary %}
+
+{% block title %}All Cars - {% if site_info %}{{ site_info.company_name }}{% else %}Hillz Exquisite{% endif %}{% endblock %}
+
+{% block content %}
+<!-- Page Header -->
+<section class="page-header py-5 mb-4" style="background: linear-gradient(rgba(26, 26, 26, 0.8), rgba(26, 26, 26, 0.8)), url('https://images.unsplash.com/photo-1554224712-d8560f709cbe?ixlib=rb-4.0.3'); background-size: cover; background-position: center;">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-md-8">
+                <h1 class="display-5 fw-bold text-white mb-2">
+                    <i class="fas fa-car me-3 text-warning"></i> Our Vehicle Fleet
+                </h1>
+                <p class="lead text-white-50">Explore our premium selection of luxury and performance vehicles</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<div class="container my-5">
+    <!-- Search and Filter Form -->
+    <div class="card shadow-sm border-0 mb-5">
+        <div class="card-body p-4">
+            <form method="get" id="searchForm">
+                <div class="row g-3">
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="fas fa-search"></i></span>
+                                <input type="text" class="form-control form-control-lg" name="q" placeholder="Search by make, model, or VIN..." value="{{ request.GET.q }}">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-2">
+                        <div class="form-group">
+                            <select name="type" class="form-select form-select-lg">
+                                <option value="">All Types</option>
+                                {% for type, label in car_types %}
+                                <option value="{{ type }}" {% if request.GET.type == type %}selected{% endif %}>{{ label }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-md-2">
+                        <div class="form-group">
+                            <select name="availability" class="form-select form-select-lg">
+                                <option value="">All Availability</option>
+                                <option value="rent" {% if request.GET.availability == 'rent' %}selected{% endif %}>For Rent</option>
+                                <option value="sale" {% if request.GET.availability == 'sale' %}selected{% endif %}>For Sale</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-2">
+                        <div class="form-group">
+                            <select name="sort" class="form-select form-select-lg">
+                                <option value="">Sort By</option>
+                                <option value="make" {% if request.GET.sort == 'make' %}selected{% endif %}>Make</option>
+                                <option value="year" {% if request.GET.sort == 'year' %}selected{% endif %}>Year (Newest)</option>
+                                <option value="price" {% if request.GET.sort == 'price' %}selected{% endif %}>Price (Low-High)</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-md-2">
+                        <button type="submit" class="btn btn-primary btn-lg w-100">
+                            <i class="fas fa-search me-2"></i> Search
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <!-- Car Listings -->
+    <div class="row">
+        {% for car in cars %}
+        <div class="col-md-4 mb-4">
+            <div class="card h-100 car-card border-0 shadow-sm overflow-hidden">
+                <div class="car-image-container">
+                    <!-- Try multiple approaches to display the image -->
+                    {% if car.image and car.image.public_id %}
+                        <!-- Approach 1: Use Cloudinary tag with explicit public_id -->
+                        {% cloudinary car.image.public_id width=400 height=250 crop="fill" quality="auto:best" fetch_format="auto" class="card-img-top" alt="{{ car.make }} {{ car.model }}" %}
+                    {% elif car.image and car.image.url %}
+                        <!-- Approach 2: Direct URL if available -->
+                        <img src="{{ car.image.url }}" class="card-img-top" alt="{{ car.make }} {{ car.model }}" 
+                             onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1552519507-da3b142c6e3d?ixlib=rb-4.0.3';">
+                    {% else %}
+                        <!-- Fallback image -->
+                        <img src="https://images.unsplash.com/photo-1552519507-da3b142c6e3d?ixlib=rb-4.0.3" class="card-img-top" alt="{{ car.make }} {{ car.model }}">
+                    {% endif %}
+                    
+                    <!-- Badges overlay on image -->
+                    <div class="car-badges">
+                        {% if car.featured %}
+                        <span class="badge bg-warning text-dark">Featured</span>
+                        {% endif %}
+                        {% if car.status == 'available' %}
+                        <span class="badge bg-success">Available</span>
+                        {% elif car.status == 'rented' %}
+                        <span class="badge bg-danger">Rented</span>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <div class="card-body d-flex flex-column">
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between align-items-start mb-2">
+                            <div>
+                                <h5 class="card-title fw-bold">{{ car.year }} {{ car.make }} {{ car.model }}</h5>
+                                <span class="badge bg-secondary">{{ car.get_car_type_display }}</span>
+                            </div>
+                        </div>
+                        
+                        <p class="card-text text-muted">{{ car.description|truncatewords:15 }}</p>
+                    </div>
+                    
+                    <div class="mb-3 car-specs">
+                        <div class="row g-2">
+                            <div class="col-6">
+                                <small class="text-muted d-block">
+                                    <i class="fas fa-tachometer-alt me-1"></i> {{ car.mileage }} miles
+                                </small>
+                            </div>
+                            <div class="col-6">
+                                <small class="text-muted d-block">
+                                    <i class="fas fa-cogs me-1"></i> {{ car.get_transmission_display }}
+                                </small>
+                            </div>
+                            {% if car.fuel_efficiency %}
+                            <div class="col-6">
+                                <small class="text-muted d-block">
+                                    <i class="fas fa-gas-pump me-1"></i> {{ car.fuel_efficiency }} MPG
+                                </small>
+                            </div>
+                            {% endif %}
+                            <div class="col-6">
+                                <small class="text-muted d-block">
+                                    <i class="fas fa-users me-1"></i> {{ car.seats }} seats
+                                </small>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-auto">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <div class="price-tags">
+                                {% if car.for_rent %}
+                                <span class="badge bg-success me-2">₦{{ car.get_rent_price }}/day</span>
+                                {% endif %}
+                                {% if car.for_sale %}
+                                <span class="badge bg-primary">₦{{ car.get_sale_price }}</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="d-grid gap-2">
+                            {% if car.for_rent %}
+                            <a href="{% url 'car_rental:car_detail' car.pk %}" class="btn btn-primary">
+                                <i class="fas fa-eye me-2"></i> View Details
+                            </a>
+                            {% endif %}
+                            {% if car.for_sale %}
+                            <a href="{% url 'car_rental:car_detail' car.pk %}" class="btn btn-outline-primary">
+                                <i class="fas fa-shopping-cart me-2"></i> Purchase Info
+                            </a>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-12">
+            <div class="alert alert-light text-center py-5">
+                <i class="fas fa-car-crash fa-3x text-muted mb-3"></i>
+                <h4>No cars found</h4>
+                <p class="text-muted">Try adjusting your search criteria or check back later for new arrivals.</p>
+                <a href="{% url 'car_rental:all_cars' %}" class="btn btn-primary mt-2">Reset Search</a>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    
+    <!-- Pagination -->
+    {% if is_paginated %}
+    <nav aria-label="Page navigation" class="mt-5">
+        <ul class="pagination justify-content-center">
+            {% if page_obj.has_previous %}
+            <li class="page-item">
+                <a class="page-link" href="?page=1&{{ current_query }}" aria-label="First">
+                    <i class="fas fa-angle-double-left"></i>
+                </a>
+            </li>
+            <li class="page-item">
+                <a class="page-link" href="?page={{ page_obj.previous_page_number }}&{{ current_query }}" aria-label="Previous">
+                    <i class="fas fa-angle-left"></i>
+                </a>
+            </li>
+            {% endif %}
+            
+            <li class="page-item active">
+                <span class="page-link">{{ page_obj.number }}</span>
+            </li>
+            
+            {% if page_obj.has_next %}
+            <li class="page-item">
+                <a class="page-link" href="?page={{ page_obj.next_page_number }}&{{ current_query }}" aria-label="Next">
+                    <i class="fas fa-angle-right"></i>
+                </a>
+            </li>
+            <li class="page-item">
+                <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}&{{ current_query }}" aria-label="Last">
+                    <i class="fas fa-angle-double-right"></i>
+                </a>
+            </li>
+            {% endif %}
+        </ul>
+    </nav>
+    {% endif %}
+</div>
+
+<style>
+    /* Page Header */
+    .page-header {
+        position: relative;
+    }
+    
+    .page-header::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: linear-gradient(rgba(26, 26, 26, 0.7), rgba(26, 26, 26, 0.9));
+        z-index: 1;
+    }
+    
+    .page-header .container {
+        position: relative;
+        z-index: 2;
+    }
+    
+    /* Search Form */
+    .form-group {
+        margin-bottom: 0;
+    }
+    
+    .input-group-text {
+        background-color: #f8f9fa;
+        border-right: none;
+    }
+    
+    .input-group .form-control {
+        border-left: none;
+    }
+    
+    .form-control:focus, .form-select:focus {
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 0.25rem rgba(212, 175, 55, 0.25);
+    }
+    
+    /* Car Cards */
+    .car-card {
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        border-radius: 10px;
+    }
+    
+    .car-card:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1) !important;
+    }
+    
+    .car-image-container {
+        position: relative;
+        overflow: hidden;
+        height: 250px;
+        background-color: #f8f9fa;
+    }
+    
+    .car-image-container img {
+        transition: transform 0.5s ease;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+    
+    .car-card:hover .car-image-container img {
+        transform: scale(1.05);
+    }
+    
+    .car-badges {
+        position: absolute;
+        top: 15px;
+        right: 15px;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        z-index: 2;
+    }
+    
+    .car-badges .badge {
+        padding: 8px 12px;
+        font-weight: 500;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    }
+    
+    .car-specs small {
+        display: flex;
+        align-items: center;
+        margin-bottom: 8px;
+        font-size: 0.85rem;
+    }
+    
+    .price-tags .badge {
+        font-weight: 500;
+        padding: 6px 10px;
+        font-size: 0.9rem;
+    }
+    
+    .btn-primary {
+        background-color: var(--primary-color);
+        border-color: var(--primary-color);
+    }
+    
+    .btn-primary:hover {
+        background-color: #b8941f;
+        border-color: #b8941f;
+    }
+    
+    .btn-outline-primary {
+        border-color: var(--primary-color);
+        color: var(--primary-color);
+    }
+    
+    .btn-outline-primary:hover {
+        background-color: var(--primary-color);
+        border-color: var(--primary-color);
+    }
+    
+    /* Pagination */
+    .pagination .page-link {
+        color: var(--primary-color);
+        border-radius: 8px;
+        margin: 0 2px;
+    }
+    
+    .pagination .page-item.active .page-link {
+        background-color: var(--primary-color);
+        border-color: var(--primary-color);
+    }
+    
+    .pagination .page-link:hover {
+        color: #b8941f;
+    }
+    
+    /* No Results Alert */
+    .alert-light {
+        border-radius: 10px;
+        border: none;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+    }
+    
+    /* Responsive */
+    @media (max-width: 768px) {
+        .page-header {
+            padding: 40px 0;
+        }
+        
+        .display-5 {
+            font-size: 1.75rem;
+        }
+        
+        .car-image-container {
+            height: 200px;
+        }
+        
+        .car-badges {
+            top: 10px;
+            right: 10px;
+        }
+        
+        .car-badges .badge {
+            padding: 6px 8px;
+            font-size: 0.75rem;
+        }
+    }
+</style>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Add loading animation to images
+        const images = document.querySelectorAll('.car-image-container img');
+        
+        images.forEach(img => {
+            img.addEventListener('load', function() {
+                this.style.opacity = '1';
+            });
+            
+            img.addEventListener('error', function() {
+                // If image fails to load, use a placeholder
+                this.src = 'https://images.unsplash.com/photo-1552519507-da3b142c6e3d?ixlib=rb-4.0.3';
+                this.style.opacity = '1';
+            });
+            
+            // Set initial opacity for smooth loading
+            img.style.opacity = '0';
+            img.style.transition = 'opacity 0.3s ease';
+        });
+    });
+</script>
+{% endblock %}

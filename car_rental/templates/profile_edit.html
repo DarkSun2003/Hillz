@@ -1,0 +1,152 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Edit Profile - {{ site_info.company_name }}{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <h1 class="mb-4 fw-bold text-primary"><i class="fas fa-user-edit me-2"></i> Edit My Profile</h1>
+            <p class="lead text-muted">Update your personal and contact information below.</p>
+
+            <div class="card shadow-lg mb-5">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">Update Details</h5>
+                </div>
+                <div class="card-body">
+                    <form method="post" enctype="multipart/form-data">
+                        {% csrf_token %}
+
+                        {% if user_form.non_field_errors %}
+                            <div class="alert alert-danger">
+                                {% for error in user_form.non_field_errors %}{{ error }}{% endfor %}
+                            </div>
+                        {% endif %}
+                        {% if form.non_field_errors %}
+                            <div class="alert alert-danger">
+                                {% for error in form.non_field_errors %}{{ error }}{% endfor %}
+                            </div>
+                        {% endif %}
+
+                        <h4 class="mb-3 text-primary">Account Details</h4>
+                        <div class="row">
+                            <div class="col-md-4 mb-3">
+                                <label for="{{ user_form.first_name.id_for_label }}" class="form-label">First Name</label>
+                                {{ user_form.first_name.as_widget }}
+                                {{ user_form.first_name.errors }}
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label for="{{ user_form.last_name.id_for_label }}" class="form-label">Last Name</label>
+                                {{ user_form.last_name.as_widget }}
+                                {{ user_form.last_name.errors }}
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label for="{{ user_form.email.id_for_label }}" class="form-label">Email (Username)</label>
+                                {{ user_form.email.as_widget }}
+                                {{ user_form.email.errors }}
+                            </div>
+                        </div>
+
+                        <h4 class="mb-3 mt-4 text-primary">Contact & Location</h4>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ form.phone.id_for_label }}" class="form-label">Phone</label>
+                                {{ form.phone.as_widget }}
+                                {{ form.phone.errors }}
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ form.whatsapp_number.id_for_label }}" class="form-label">WhatsApp Number</label>
+                                {{ form.whatsapp_number.as_widget }}
+                                {{ form.whatsapp_number.errors }}
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ form.date_of_birth.id_for_label }}" class="form-label">Date of Birth</label>
+                                {{ form.date_of_birth.as_widget }}
+                                {{ form.date_of_birth.errors }}
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="{{ form.address.id_for_label }}" class="form-label">Address (General)</label>
+                            {{ form.address.as_widget }}
+                            {{ form.address.errors }}
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="{{ form.delivery_address.id_for_label }}" class="form-label">Primary Delivery Address</label>
+                            {{ form.delivery_address.as_widget }}
+                            <div class="form-text text-muted">This address will be used as the default for purchases.</div>
+                            {{ form.delivery_address.errors }}
+                        </div>
+                        <div class="row">
+                            <div class="col-md-4 mb-3">
+                                <label for="{{ form.city.id_for_label }}" class="form-label">City</label>
+                                {{ form.city.as_widget }}
+                                {{ form.city.errors }}
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label for="{{ form.state.id_for_label }}" class="form-label">State</label>
+                                {{ form.state.as_widget }}
+                                {{ form.state.errors }}
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label for="{{ form.zip_code.id_for_label }}" class="form-label">Zip Code</label>
+                                {{ form.zip_code.as_widget }}
+                                {{ form.zip_code.errors }}
+                            </div>
+                        </div>
+
+                        <h4 class="mb-3 mt-4 text-primary">Profile & Preferences</h4>
+                        <div class="mb-3">
+                            <label for="{{ form.bio.id_for_label }}" class="form-label">Bio/About Me</label>
+                            {{ form.bio.as_widget }}
+                            {{ form.bio.errors }}
+                        </div>
+                        <div class="mb-3">
+                            <label for="{{ form.profile_picture.id_for_label }}" class="form-label">Profile Picture</label>
+                            {{ form.profile_picture.as_widget }}
+                            {% if object.profile_picture %}
+                                <p class="mt-2">Current: <img src="{{ object.profile_picture.url }}" alt="Current Profile" width="50" height="50" class="rounded-circle"></p>
+                            {% endif %}
+                            {{ form.profile_picture.errors }}
+                        </div>
+                        
+                        <h4 class="mb-3 mt-4 text-primary">Driver's License (for Rentals)</h4>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ form.drivers_license.id_for_label }}" class="form-label">License Number</label>
+                                {{ form.drivers_license.as_widget }}
+                                {{ form.drivers_license.errors }}
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ form.license_expiry.id_for_label }}" class="form-label">Expiry Date</label>
+                                {{ form.license_expiry.as_widget }}
+                                {{ form.license_expiry.errors }}
+                            </div>
+                            <div class="col-12 mb-3">
+                                <label for="{{ form.license_image.id_for_label }}" class="form-label">License Image/Scan</label>
+                                {{ form.license_image.as_widget }}
+                                {{ form.license_image.errors }}
+                            </div>
+                        </div>
+
+                        <div class="d-grid mt-4">
+                            <button type="submit" class="btn btn-primary btn-lg">
+                                <i class="fas fa-save me-2"></i> Save All Changes
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <div class="text-center mt-3">
+                <a href="{% url 'car_rental:change_password' %}" class="btn btn-outline-secondary me-3">Change Password</a>
+                <a href="{% url 'car_rental:profile' %}" class="btn btn-outline-dark">Back to Profile</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

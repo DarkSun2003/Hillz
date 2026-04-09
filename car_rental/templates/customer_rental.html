@@ -1,0 +1,411 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Book Rental - {% if site_info %}{{ site_info.company_name }}{% else %}Hillz Exquisite{% endif %}{% endblock %}
+
+{% block extra_css %}
+<style>
+    .rental-container {
+        max-width: 1000px;
+        margin: 30px auto;
+    }
+    
+    .page-header {
+        margin-bottom: 30px;
+    }
+    
+    .rental-card {
+        background: white;
+        border-radius: 10px;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        overflow: hidden;
+    }
+    
+    .card-header {
+        background: #f8f9fa;
+        padding: 15px 20px;
+        border-bottom: 1px solid #dee2e6;
+    }
+    
+    .car-selected {
+        background: #f8f9fa;
+        border-radius: 8px;
+        padding: 15px;
+        margin-bottom: 20px;
+    }
+    
+    .car-info {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+    }
+    
+    .car-image {
+        width: 100px;
+        height: 70px;
+        object-fit: cover;
+        border-radius: 5px;
+    }
+    
+    .car-details h5 {
+        margin-bottom: 5px;
+    }
+    
+    .price-display {
+        background: #e9f7fe;
+        border-left: 4px solid #2196F3;
+        padding: 15px;
+        margin-bottom: 20px;
+        border-radius: 0 5px 5px 0;
+    }
+    
+    .whatsapp-notice {
+        display: flex;
+        align-items: center;
+        background: #e8f5e9;
+        border-left: 4px solid #4CAF50;
+        padding: 15px;
+        margin-bottom: 20px;
+        border-radius: 0 5px 5px 0;
+    }
+    
+    .whatsapp-notice i {
+        font-size: 24px;
+        color: #4CAF50;
+        margin-right: 15px;
+    }
+    
+    .form-actions {
+        display: flex;
+        justify-content: space-between;
+        margin-top: 30px;
+    }
+    
+    .loading-spinner {
+        display: none;
+        width: 16px;
+        height: 16px;
+        border: 2px solid rgba(255,255,255,0.3);
+        border-radius: 50%;
+        border-top-color: white;
+        animation: spin 1s ease-in-out infinite;
+    }
+    
+    @keyframes spin {
+        to { transform: rotate(360deg); }
+    }
+    
+    .error-list {
+        padding-left: 20px;
+    }
+    
+    .error-list li {
+        margin-bottom: 5px;
+    }
+    
+    .form-label {
+        font-weight: 500;
+        margin-bottom: 5px;
+    }
+    
+    .text-danger {
+        color: #dc3545;
+    }
+    
+    .form-text {
+        font-size: 0.875rem;
+        color: #6c757d;
+    }
+    
+    .is-invalid {
+        border-color: #dc3545;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container rental-container">
+    <div class="page-header">
+        <h1><i class="fas fa-car me-2"></i> Book a Rental</h1>
+        <p>Fill out the form below to reserve your vehicle</p>
+    </div>
+    
+    <div class="rental-card">
+        <div class="card-header">
+            <h5><i class="fas fa-calendar-check me-2"></i> Rental Information</h5>
+        </div>
+        <div class="card-body p-4">
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                        <div class="d-flex align-items-center">
+                            <i class="fas {% if message.tags == 'success' %}fa-check-circle{% elif message.tags == 'error' %}fa-exclamation-circle{% elif message.tags == 'warning' %}fa-exclamation-triangle{% else %}fa-info-circle{% endif %} me-2"></i>
+                            <div>{{ message }}</div>
+                        </div>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+            
+            {% if car %}
+                <div class="car-selected">
+                    <h6><i class="fas fa-car me-2"></i> Selected Vehicle</h6>
+                    <div class="car-info">
+                        {% if car.image %}
+                            <img src="{{ car.image.url }}" alt="{{ car.make }} {{ car.model }}" class="car-image">
+                        {% else %}
+                            <img src="{% static 'images/default-car.jpg' %}" alt="{{ car.make }} {{ car.model }}" class="car-image">
+                        {% endif %}
+                        <div class="car-details">
+                            <h5>{{ car.make }} {{ car.model }} ({{ car.year }})</h5>
+                            <p>{{ car.get_car_type_display }} • {{ car.get_transmission_display }} • {{ car.get_engine_type_display }}</p>
+                            <p class="mb-0"><strong>Daily Rate:</strong> ₦{{ car.get_rent_price|floatformat:2 }}</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="price-display">
+                    <h5><i class="fas fa-calculator me-2"></i> Price Calculation</h5>
+                    <p id="price-display">Select dates to calculate price</p>
+                </div>
+                
+                <div class="whatsapp-notice">
+                    <i class="fab fa-whatsapp"></i>
+                    <div>
+                        <strong>Important:</strong> After submitting this form, you'll be redirected to WhatsApp to discuss pricing and finalize your rental.
+                    </div>
+                </div>
+                
+                {% if form.errors %}
+                    <div class="alert alert-danger">
+                        <h5 class="alert-heading"><i class="fas fa-exclamation-circle me-2"></i> Please correct the following errors:</h5>
+                        <ul class="error-list">
+                            {% for field in form %}
+                                {% for error in field.errors %}
+                                    <li><strong>{{ field.label }}:</strong> {{ error }}</li>
+                                {% endfor %}
+                            {% endfor %}
+                            {% for error in form.non_field_errors %}
+                                <li>{{ error }}</li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                {% endif %}
+                
+                <form method="post" id="rental-form">
+                    {% csrf_token %}
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label for="{{ form.rental_datetime.id_for_label }}" class="form-label">
+                                Rental Date & Time <span class="text-danger">*</span>
+                            </label>
+                            {{ form.rental_datetime }}
+                            {% if form.rental_datetime.errors %}
+                                <div class="text-danger small mt-1">
+                                    {% for error in form.rental_datetime.errors %}{{ error }}{% endfor %}
+                                </div>
+                            {% endif %}
+                            <small class="form-text">Select when you'd like to pick up the vehicle</small>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="{{ form.return_datetime.id_for_label }}" class="form-label">
+                                Return Date & Time <span class="text-danger">*</span>
+                            </label>
+                            {{ form.return_datetime }}
+                            {% if form.return_datetime.errors %}
+                                <div class="text-danger small mt-1">
+                                    {% for error in form.return_datetime.errors %}{{ error }}{% endfor %}
+                                </div>
+                            {% endif %}
+                            <small class="form-text">Select when you'll return the vehicle</small>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="{{ form.pickup_location.id_for_label }}" class="form-label">
+                            Pickup Location <span class="text-danger">*</span>
+                        </label>
+                        {{ form.pickup_location }}
+                        {% if form.pickup_location.errors %}
+                            <div class="text-danger small mt-1">
+                                {% for error in form.pickup_location.errors %}{{ error }}{% endfor %}
+                            </div>
+                        {% endif %}
+                        <small class="form-text">Where would you like to pick up the vehicle?</small>
+                    </div>
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label for="{{ form.insurance_provider.id_for_label }}" class="form-label">
+                                Insurance Provider
+                            </label>
+                            {{ form.insurance_provider }}
+                            {% if form.insurance_provider.errors %}
+                                <div class="text-danger small mt-1">
+                                    {% for error in form.insurance_provider.errors %}{{ error }}{% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-6">
+                            <label for="{{ form.insurance_policy.id_for_label }}" class="form-label">
+                                Insurance Policy Number
+                            </label>
+                            {{ form.insurance_policy }}
+                            {% if form.insurance_policy.errors %}
+                                <div class="text-danger small mt-1">
+                                    {% for error in form.insurance_policy.errors %}{{ error }}{% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <div class="form-actions">
+                        <a href="{% url 'car_rental:rent_cars' %}" class="btn btn-outline-secondary">
+                            <i class="fas fa-arrow-left me-2"></i> Back to Cars
+                        </a>
+                        <button type="submit" class="btn btn-primary" id="submit-btn">
+                            <i class="fab fa-whatsapp me-2"></i> 
+                            <span id="btn-text">Submit & Continue on WhatsApp</span>
+                            <div class="loading-spinner ms-2" id="btn-spinner"></div>
+                        </button>
+                    </div>
+                </form>
+            {% else %}
+                <div class="alert alert-danger">
+                    <div class="d-flex align-items-center">
+                        <i class="fas fa-exclamation-triangle me-3 fa-2x"></i>
+                        <div>
+                            <h5 class="alert-heading">No Car Selected</h5>
+                            <p class="mb-0">Please go back and select a car to rent.</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="text-center py-4">
+                    <a href="{% url 'car_rental:rent_cars' %}" class="btn btn-primary">
+                        <i class="fas fa-arrow-left me-2"></i> Back to Cars
+                    </a>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const form = document.getElementById('rental-form');
+        const submitBtn = document.getElementById('submit-btn');
+        const btnText = document.getElementById('btn-text');
+        const btnSpinner = document.getElementById('btn-spinner');
+        const rentalDateTime = document.getElementById('id_rental_datetime');
+        const returnDateTime = document.getElementById('id_return_datetime');
+        const priceDisplay = document.getElementById('price-display');
+        const dailyRate = {{ car.get_rent_price }};
+        
+        // Set minimum date to today
+        const today = new Date();
+        const formattedToday = today.toISOString().slice(0, 16);
+        
+        if (rentalDateTime) {
+            rentalDateTime.setAttribute('min', formattedToday);
+        }
+        
+        // Ensure return date is after rental date
+        if (rentalDateTime && returnDateTime) {
+            rentalDateTime.addEventListener('change', function() {
+                returnDateTime.setAttribute('min', this.value);
+                
+                // If return date is before rental date, update it
+                if (returnDateTime.value && new Date(returnDateTime.value) < new Date(this.value)) {
+                    returnDateTime.value = this.value;
+                }
+                
+                // Update price
+                calculatePrice();
+            });
+            
+            returnDateTime.addEventListener('change', function() {
+                // Update price
+                calculatePrice();
+            });
+        }
+        
+        // Calculate price function
+        function calculatePrice() {
+            if (rentalDateTime.value && returnDateTime.value) {
+                const rentalDate = new Date(rentalDateTime.value);
+                const returnDate = new Date(returnDateTime.value);
+                
+                // Calculate days
+                const diffTime = Math.abs(returnDate - rentalDate);
+                const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+                
+                // Calculate total price
+                const totalPrice = diffDays * dailyRate;
+                
+                // Update price display
+                priceDisplay.innerHTML = `
+                    <strong>Total Price:</strong> ₦${totalPrice.toFixed(2)} 
+                    <span class="text-muted">(${diffDays} day${diffDays > 1 ? 's' : ''} × ₦${dailyRate.toFixed(2)})</span>
+                `;
+            } else {
+                priceDisplay.textContent = "Select dates to calculate price";
+            }
+        }
+        
+        // Form submission handling
+        if (form) {
+            form.addEventListener('submit', function(e) {
+                // Validate required fields
+                const requiredFields = form.querySelectorAll('[required]');
+                let isValid = true;
+                
+                requiredFields.forEach(field => {
+                    if (!field.value.trim()) {
+                        field.classList.add('is-invalid');
+                        isValid = false;
+                    } else {
+                        field.classList.remove('is-invalid');
+                    }
+                });
+                
+                // Validate date logic
+                if (rentalDateTime.value && returnDateTime.value) {
+                    const rentalDate = new Date(rentalDateTime.value);
+                    const returnDate = new Date(returnDateTime.value);
+                    
+                    if (returnDate <= rentalDate) {
+                        returnDateTime.classList.add('is-invalid');
+                        isValid = false;
+                    } else {
+                        returnDateTime.classList.remove('is-invalid');
+                    }
+                }
+                
+                if (!isValid) {
+                    e.preventDefault();
+                    return;
+                }
+                
+                // Show loading state
+                submitBtn.disabled = true;
+                btnText.textContent = 'Submitting...';
+                btnSpinner.style.display = 'inline-block';
+                
+                // Reset button after 10 seconds in case of network issues
+                setTimeout(() => {
+                    submitBtn.disabled = false;
+                    btnText.textContent = 'Submit & Continue on WhatsApp';
+                    btnSpinner.style.display = 'none';
+                }, 10000);
+            });
+        }
+        
+        // Initialize price calculation if dates are already set
+        calculatePrice();
+    });
+</script>
+{% endblock %}

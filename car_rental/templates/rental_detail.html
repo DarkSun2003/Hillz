@@ -1,0 +1,307 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load custom_filters %}  
+
+{% block title %}Rental Details - {% if rental.car %}{{ rental.car.make }} {{ rental.car.model }}{% else %}Car No Longer Available{% endif %} - {{ site_info.company_name }}{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="fw-bold text-dark"><i class="fas fa-car me-2"></i> Rental Details</h1>
+        <a href="{% url 'car_rental:rent_cars' %}" class="btn btn-outline-secondary">
+            <i class="fas fa-arrow-left me-2"></i> Back to Rentals
+        </a>
+    </div>
+    
+    {% if rental.status == 'pending' %}
+    <div class="alert alert-warning mb-4">
+        <i class="fas fa-exclamation-triangle me-2"></i>
+        <strong>Pending Rental:</strong> This rental is awaiting confirmation and pricing discussion via WhatsApp.
+        {% if whatsapp_url %}
+        <a href="{{ whatsapp_url }}" target="_blank" class="btn btn-sm btn-success ms-2">
+            <i class="fab fa-whatsapp me-1"></i> Contact Customer
+        </a>
+        {% endif %}
+    </div>
+    {% endif %}
+    
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-dark text-white">
+                    <h5 class="mb-0">Rental Information</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <p><strong>Customer:</strong> {{ rental.customer.name }}</p>
+                            <p><strong>Email:</strong> {{ rental.customer.email }}</p>
+                            <p><strong>Phone:</strong> {{ rental.customer.phone|default:"N/A" }}</p>
+                        </div>
+                        <div class="col-md-6">
+                            <p><strong>Rental Date:</strong> {{ rental.rental_datetime|date:"F d, Y g:i A" }}</p>
+                            <p><strong>Return Date:</strong> {{ rental.return_datetime|date:"F d, Y g:i A" }}</p>
+                            <p><strong>Actual Return:</strong> {{ rental.actual_return_datetime|date:"F d, Y g:i A"|default:"N/A" }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            {% if rental.car %}
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">Vehicle Information</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <p><strong>Make:</strong> {{ rental.car.make }}</p>
+                            <p><strong>Model:</strong> {{ rental.car.model }}</p>
+                            <p><strong>Year:</strong> {{ rental.car.year }}</p>
+                        </div>
+                        <div class="col-md-6">
+                            <p><strong>VIN:</strong> {{ rental.car.vin|default:"N/A" }}</p>
+                            <p><strong>Mileage:</strong> {{ rental.car.mileage }} miles</p>
+                            <p><strong>Color:</strong> {{ rental.car.color|default:"N/A" }}</p>
+                        </div>
+                    </div>
+                    {% if rental.car.image %}
+                    <div class="mt-3">
+                        <img src="{{ rental.car.image.url }}" alt="{{ rental.car.make }} {{ rental.car.model }}" class="img-thumbnail" style="max-height: 200px;">
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+            {% else %}
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">Vehicle Information</h5>
+                </div>
+                <div class="card-body">
+                    <p class="text-muted">Vehicle information is no longer available as the car has been removed from our system.</p>
+                </div>
+            </div>
+            {% endif %}
+            
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-success text-white">
+                    <h5 class="mb-0">Pricing Information</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <p><strong>Daily Rate:</strong> 
+                                {% if rental.daily_rate and rental.daily_rate > 0 %}
+                                    ₦{{ rental.daily_rate|floatformat:2 }}
+                                {% else %}
+                                    {% if rental.car.rent_price %}
+                                        ₦{{ rental.car.rent_price|floatformat:2 }}
+                                    {% else %}
+                                        ₦{{ rental.car.default_price|floatformat:2 }}
+                                    {% endif %}
+                                {% endif %}
+                            </p>
+                        </div>
+                        <div class="col-md-4">
+                            <p><strong>Total Amount:</strong> 
+                                {% if rental.total_amount and rental.total_amount > 0 %}
+                                    ₦{{ rental.total_amount|floatformat:2 }}
+                                {% else %}
+                                    {% if rental.car.rent_price %}
+                                        ₦{{ rental.car.rent_price|floatformat:2 }} × {{ rental.rental_days }} days
+                                    {% else %}
+                                        ₦{{ rental.car.default_price|floatformat:2 }} × {{ rental.rental_days }} days
+                                    {% endif %}
+                                {% endif %}
+                            </p>
+                        </div>
+                        <div class="col-md-4">
+                            <p><strong>Late Fee:</strong> 
+                                {% if rental.override_late_fee %}
+                                    <span class="badge bg-warning text-dark">Manual</span> ₦{{ rental.late_fee|floatformat:2 }}
+                                {% else %}
+                                    {% if rental.late_fee and rental.late_fee > 0 %}
+                                        <span class="badge bg-info">Auto</span> ₦{{ rental.late_fee|floatformat:2 }}
+                                    {% else %}
+                                        ₦0.00
+                                    {% endif %}
+                                {% endif %}
+                            </p>
+                        </div>
+                    </div>
+                    <div class="row mt-2">
+                        <div class="col-md-12">
+                            <p><strong>Total Amount Due:</strong> ₦{{ rental.total_amount_due|floatformat:2 }}</p>
+                        </div>
+                    </div>
+                    
+                    {% if rental.override_late_fee %}
+                    <div class="alert alert-info mt-3">
+                        <i class="fas fa-info-circle me-2"></i>
+                        <strong>Note:</strong> This rental has a manually set late fee of ₦{{ rental.manual_late_fee|floatformat:2 }}.
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+            
+            {% if rental.pickup_location %}
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0">Location Information</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <p><strong>Pickup Location:</strong> {{ rental.pickup_location }}</p>
+                        </div>
+                        <div class="col-md-6">
+                            <p><strong>Return Location:</strong> {{ rental.return_location|default:"N/A" }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+            
+            {% if rental.insurance_provider or rental.insurance_policy %}
+            <div class="card shadow-sm">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0">Insurance Information</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <p><strong>Provider:</strong> {{ rental.insurance_provider|default:"N/A" }}</p>
+                        </div>
+                        <div class="col-md-6">
+                            <p><strong>Policy Number:</strong> {{ rental.insurance_policy|default:"N/A" }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+        
+        <div class="col-md-4">
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-dark text-white">
+                    <h5 class="mb-0">Status Information</h5>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <label class="form-label">Rental Status</label>
+                        <div class="badge {% if rental.status == 'pending' %}bg-warning{% elif rental.status == 'active' %}bg-primary{% elif rental.status == 'completed' %}bg-success{% elif rental.status == 'overdue' %}bg-danger{% else %}bg-secondary{% endif %} w-100 p-2">
+                            {{ rental.get_status_display }}
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Payment Status</label>
+                        <div class="badge {% if rental.payment_status == 'paid' %}bg-success{% elif rental.payment_status == 'pending' %}bg-warning{% else %}bg-danger{% endif %} w-100 p-2">
+                            {{ rental.get_payment_status_display }}
+                        </div>
+                    </div>
+                    
+                    {% if rental.status == 'overdue' %}
+                    <div class="mb-3">
+                        <label class="form-label">Late Fee Status</label>
+                        <div class="badge {% if rental.override_late_fee %}bg-warning text-dark{% else %}bg-info{% endif %} w-100 p-2">
+                            {% if rental.override_late_fee %}
+                                Manual Override
+                            {% else %}
+                                Automatically Calculated
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% endif %}
+                    
+                    <div class="d-grid gap-2">
+                        {% if rental.status == 'active' %}
+                        <a href="{% url 'car_rental:return_rental' rental.id %}" class="btn btn-success">
+                            <i class="fas fa-undo me-2"></i> Return Car
+                        </a>
+                        {% endif %}
+                        
+                        {% if rental.status == 'pending' and whatsapp_url %}
+                        <a href="{{ whatsapp_url }}" target="_blank" class="btn btn-success">
+                            <i class="fab fa-whatsapp me-2"></i> Contact Customer
+                        </a>
+                        {% endif %}
+                        
+                        {% if rental.status == 'pending' %}
+                        <!-- Approve Rental Form -->
+                        <form method="post" action="{% url 'car_rental:update_rental_status' rental.id %}">
+                            {% csrf_token %}
+                            <input type="hidden" name="status" value="active">
+                            <button type="submit" class="btn btn-success w-100">
+                                <i class="fas fa-check me-2"></i> Approve Rental
+                            </button>
+                        </form>
+                        {% endif %}
+                        
+                        <!-- Update Rental Status Form -->
+                        <form method="post" action="{% url 'car_rental:update_rental_status' rental.id %}">
+                            {% csrf_token %}
+                            <div class="mb-2">
+                                <select name="status" class="form-select" required>
+                                    <option value="">Select a status...</option>
+                                    {% for value, label in rental.STATUS_CHOICES %}
+                                    <option value="{{ value }}" {% if rental.status == value %}selected{% endif %}>{{ label }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <button type="submit" class="btn btn-warning w-100">
+                                <i class="fas fa-edit me-2"></i> Update Rental Status
+                            </button>
+                        </form>
+                        
+                        <!-- Update Payment Status Form -->
+                        <form method="post" action="{% url 'car_rental:update_rental_status' rental.id %}">
+                            {% csrf_token %}
+                            <div class="mb-2">
+                                <select name="payment_status" class="form-select" required>
+                                    <option value="">Select payment status...</option>
+                                    {% for value, label in rental.PAYMENT_STATUS_CHOICES %}
+                                    <option value="{{ value }}" {% if rental.payment_status == value %}selected{% endif %}>{{ label }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <button type="submit" class="btn btn-info w-100">
+                                <i class="fas fa-money-bill-wave me-2"></i> Update Payment Status
+                            </button>
+                        </form>
+                        
+                        {% if rental.status == 'overdue' %}
+                        <a href="{% url 'admin:car_rental_rental_change' rental.id %}" class="btn btn-outline-warning w-100">
+                            <i class="fas fa-edit me-2"></i> Edit Late Fee (Admin)
+                        </a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card shadow-sm">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0">Actions</h5>
+                </div>
+                <div class="card-body">
+                    <div class="d-grid gap-2">
+                        <a href="{% url 'car_rental:customers' %}" class="btn btn-outline-secondary">
+                            <i class="fas fa-users me-2"></i> View All Customers
+                        </a>
+                        
+                        {% if rental.customer.phone %}
+                        <a href="https://wa.me/{{ rental.customer.phone|remove_non_numeric }}" target="_blank" class="btn btn-outline-success">
+                            <i class="fab fa-whatsapp me-2"></i> WhatsApp Customer
+                        </a>
+                        {% endif %}
+                        
+                        <a href="{% url 'car_rental:rent_cars' %}" class="btn btn-outline-primary">
+                            <i class="fas fa-car me-2"></i> View Available Cars
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
