@@ -107,7 +107,7 @@ def send_service_confirmation_email(booking):
         'scheduled_date': booking.preferred_date,
     }
     
-    html_message = render_to_string('emails/service_confirmation.html', context)
+    html_message = render_to_string('emails/service_booking_confirmation.html', context)
     plain_message = strip_tags(html_message)
     
     from_email = site_info.email

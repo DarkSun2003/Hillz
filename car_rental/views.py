@@ -951,106 +951,106 @@ def cancel_service_booking(request, pk):
 
 # --- AUTHENTICATION VIEWS ---
 
-class LoginView(View):
-    def get(self, request):
-        form = AuthenticationForm()
-        site_info = SiteInfo.objects.first()
-        context = {
-            'form': form,
-            'site_info': site_info
-        }
-        return render(request, 'login.html', context)
-    
-    def post(self, request):
-        form = AuthenticationForm(request, data=request.POST)
-        
-        if form.is_valid():
-            user = form.get_user() 
-            
-            if user is not None:
-                login(request, user) 
-                
-                messages.success(request, f"Welcome back, {user.username}!")
-                
-                next_url = request.GET.get('next', reverse('car_rental:profile'))
-                
-                return redirect(next_url) 
-                
-            messages.error(request, 'Invalid username or password.')
-        
-        else:
-            messages.error(request, 'Invalid username or password. Please check your credentials.')
-        
-        site_info = SiteInfo.objects.first()
-        context = {
-            'form': form,
-            'site_info': site_info
-        }
-        return render(request, 'login.html', context)
+# class LoginView(View):
+#     def get(self, request):
+#         form = AuthenticationForm()
+#         site_info = SiteInfo.objects.first()
+#         context = {
+#             'form': form,
+#             'site_info': site_info
+#         }
+#         return render(request, 'login.html', context)
+#     
+#     def post(self, request):
+#         form = AuthenticationForm(request, data=request.POST)
+#         
+#         if form.is_valid():
+#             user = form.get_user() 
+#             
+#             if user is not None:
+#                 login(request, user) 
+#                 
+#                 messages.success(request, f"Welcome back, {user.username}!")
+#                 
+#                 next_url = request.GET.get('next', reverse('car_rental:profile'))
+#                 
+#                 return redirect(next_url) 
+#                 
+#             messages.error(request, 'Invalid username or password.')
+#         
+#         else:
+#             messages.error(request, 'Invalid username or password. Please check your credentials.')
+#         
+#         site_info = SiteInfo.objects.first()
+#         context = {
+#             'form': form,
+#             'site_info': site_info
+#         }
+#         return render(request, 'login.html', context)
 
-class RegisterView(View):
-    """Handle user registration"""
-    template_name = 'register.html'
+# class RegisterView(View):
+#     """Handle user registration"""
+#     template_name = 'register.html'
+#     
+#     def get(self, request):
+#         """Display registration form"""
+#         form = UserCreationForm()
+#         site_info = SiteInfo.objects.first()
+#         context = {
+#             'form': form,
+#             'site_info': site_info
+#         }
+#         return render(request, self.template_name, context)
     
-    def get(self, request):
-        """Display registration form"""
-        form = UserCreationForm()
-        site_info = SiteInfo.objects.first()
-        context = {
-            'form': form,
-            'site_info': site_info
-        }
-        return render(request, self.template_name, context)
-    
-    def post(self, request):
-        """Process registration form submission"""
-        form = UserCreationForm(request.POST)
-        if form.is_valid():
-            user = form.save()
-            
-            # Create a Customer record if email is provided
-            if user.email:
-                customer, created = Customer.objects.get_or_create(
-                    email=user.email,
-                    defaults={
-                        'name': f"{user.first_name} {user.last_name}".strip() or user.username,
-                        'user': user
-                    }
-                )
-                
-                # Link the customer to the user
-                user.customer_profile = customer
-                user.save()
-            
-            # Create UserProfile if it doesn't exist
-            UserProfile.objects.get_or_create(user=user)
-            
-            # --- EMAIL INTEGRATION START ---
-            # Send welcome email to the new user
-            send_welcome_email(user)
-            # --- EMAIL INTEGRATION END ---
-            
-            # Authenticate and login the user
-            user = authenticate(
-                username=form.cleaned_data.get('username'), 
-                password=form.cleaned_data.get('password1')
-            )
-            if user:
-                login(request, user)
-                messages.success(request, 'Registration successful. Welcome to Hillz Exquisite!')
-            else:
-                messages.warning(request, 'Registration successful, but automatic login failed. Please log in.')
-            
-            return redirect('car_rental:profile') 
-        else:
-            messages.error(request, 'Registration failed. Please correct the errors below.')
-        
-        site_info = SiteInfo.objects.first()
-        context = {
-            'form': form,
-            'site_info': site_info
-        }
-        return render(request, self.template_name, context)
+#     def post(self, request):
+#         """Process registration form submission"""
+#         form = UserCreationForm(request.POST)
+#         if form.is_valid():
+#             user = form.save()
+#             
+#             # Create a Customer record if email is provided
+#             if user.email:
+#                 customer, created = Customer.objects.get_or_create(
+#                     email=user.email,
+#                     defaults={
+#                         'name': f"{user.first_name} {user.last_name}".strip() or user.username,
+#                         'user': user
+#                     }
+#                 )
+#                 
+#                 # Link the customer to the user
+#                 user.customer_profile = customer
+#                 user.save()
+#             
+#             # Create UserProfile if it doesn't exist
+#             UserProfile.objects.get_or_create(user=user)
+#             
+#             # --- EMAIL INTEGRATION START ---
+#             # Send welcome email to the new user
+#             send_welcome_email(user)
+#             # --- EMAIL INTEGRATION END ---
+#             
+#             # Authenticate and login the user
+#             user = authenticate(
+#                 username=form.cleaned_data.get('username'), 
+#                 password=form.cleaned_data.get('password1')
+#             )
+#             if user:
+#                 login(request, user)
+#                 messages.success(request, 'Registration successful. Welcome to Hillz Exquisite!')
+#             else:
+#                 messages.warning(request, 'Registration successful, but automatic login failed. Please log in.')
+#             
+#             return redirect('car_rental:profile') 
+#         else:
+#             messages.error(request, 'Registration failed. Please correct the errors below.')
+#         
+#         site_info = SiteInfo.objects.first()
+#         context = {
+#             'form': form,
+#             'site_info': site_info
+#         }
+#         return render(request, self.template_name, context)
 
 # --- USER PROFILE VIEWS ---
 

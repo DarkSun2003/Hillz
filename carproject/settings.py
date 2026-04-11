@@ -43,9 +43,20 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django.contrib.sites',
+    'allauth',
+    'allauth.account',
+    'allauth.socialaccount',
     'car_rental',
     'cloudinary_storage',
     'cloudinary',
+]
+
+AUTHENTICATION_BACKENDS = [
+    # Needed to login by username in Django admin, regardless of `allauth`
+    'django.contrib.auth.backends.ModelBackend',
+    # `allauth` specific authentication methods, such as login by e-mail
+    'allauth.account.auth_backends.AuthenticationBackend',
 ]
 
 MIDDLEWARE = [
@@ -53,6 +64,7 @@ MIDDLEWARE = [
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
+    'allauth.account.middleware.AccountMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
@@ -63,7 +75,7 @@ ROOT_URLCONF = 'carproject.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [os.path.join(BASE_DIR, 'car_rental', 'templates')],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -140,10 +152,45 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
-# Authentication settings
-LOGIN_URL = 'login'
-LOGIN_REDIRECT_URL = 'profile'
-LOGOUT_REDIRECT_URL = 'home'
+
+
+# --- DJANGO-ALLAUTH SETTINGS ---
+# Site ID for Google OAuth2 (get from Google API Console)
+SOCIALACCOUNT_GOOGLE_CLIENT_ID = 'your-google-client-id'
+SOCIALACCOUNT_GOOGLE_CLIENT_SECRET = 'your-google-client-secret'
+
+# Login and Redirect URLs
+LOGIN_REDIRECT_URL = '/profile'
+LOGOUT_REDIRECT_URL = '/'
+
+
+# Required for email confirmation
+ACCOUNT_EMAIL_VERIFICATION = 'mandatory'
+ACCOUNT_EMAIL_REQUIRED = True
+ACCOUNT_AUTHENTICATION_METHOD = 'email'
+ACCOUNT_USERNAME_REQUIRED = False
+
+# Adapter to handle the email sending logic
+EMAIL_ADAPTER = 'allauth.account.adapters.DefaultAccountAdapter'
+
+# This is the list of social applications users can connect to.
+# For now, we'll just include Google.
+SOCIALACCOUNT_PROVIDERS = {
+    'google': {
+        'SCOPE': [
+            'profile',
+            'email',
+            'openid',
+            'https://www.googleapis.com/auth/userinfo.profile',
+            'https://www.googleapis.com/auth/userinfo.email',
+        ],
+        'APP': {
+            'client_id': os.environ.get('SOCIALACCOUNT_GOOGLE_CLIENT_ID'),
+            'secret': os.environ.get('SOCIALACCOUNT_GOOGLE_CLIENT_SECRET'),
+            'key': os.environ.get('SOCIALACCOUNT_GOOGLE_CLIENT_SECRET')
+        }
+    }
+}
 
 # Email settings
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
@@ -158,6 +205,8 @@ DEFAULT_FROM_EMAIL = os.environ.get('MY_EMAIL_ADDRESS')
 
 # A dedicated email for management notifications
 MANAGEMENT_EMAIL = os.environ.get('MY_EMAIL_ADDRESS')  # Or your own email for testing
+
+SITE_ID = 1  # Required for django-allauth
 
 # Site URL for generating absolute URLs
 SITE_URL = 'http://localhost:8000'

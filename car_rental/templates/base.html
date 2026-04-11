@@ -1,9 +1,11 @@
+{% load static %}
+{% load custom_filters %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}Hillz Exquisite{% endblock %}</title>
+    <title>{% block title %}Hillz Exquisites{% endblock %}</title>
     
     <!-- Favicon -->
     {% if site_info and site_info.favicon %}
@@ -17,10 +19,14 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     
+    <!-- js-cookie library -->
+    <script src="https://cdn.jsdelivr.net/npm/js-cookie@3.0.5/dist/js.cookie.min.js"></script>
+    
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <style>
+        /* --- CSS Variables for Maintainability --- */
         :root {
             --primary-color: #d4af37; /* Gold */
             --secondary-color: #f8f9fa; /* Light gray */
@@ -31,6 +37,17 @@
             --light-bg: #f8f9fa; /* Light background */
             --dark-bg: #1a1a1a; /* Dark background */
             --transition: all 0.3s ease;
+            
+            /* Font Variables */
+            --font-family-playfair: 'Playfair Display', serif;
+            --font-family-poppins: 'Poppins', sans-serif;
+
+            /* Spacing Variables */
+            --spacing-xs: 0.5rem;
+            --spacing-sm: 1rem;
+            --spacing-md: 1.5rem;
+            --spacing-lg: 2rem;
+            --spacing-xl: 3rem;
         }
         
         * {
@@ -40,14 +57,14 @@
         }
         
         body {
-            font-family: 'Poppins', sans-serif;
+            font-family: var(--font-family-poppins);
             color: var(--text-color);
             background-color: var(--light-color);
             overflow-x: hidden;
         }
         
         h1, h2, h3, h4, h5, h6 {
-            font-family: 'Playfair Display', serif;
+            font-family: var(--font-family-playfair);
             font-weight: 700;
             color: var(--dark-color);
         }
@@ -55,13 +72,13 @@
         /* Luxury Navbar */
         .navbar {
             background-color: var(--dark-bg) !important;
-            padding: 15px 0;
+            padding: var(--spacing-sm) 0;
             box-shadow: 0 2px 15px rgba(0, 0, 0, 0.1);
             transition: var(--transition);
         }
         
         .navbar-brand {
-            font-family: 'Playfair Display', serif;
+            font-family: var(--font-family-playfair);
             font-size: 1.8rem;
             font-weight: 700;
             color: var(--primary-color) !important;
@@ -79,10 +96,10 @@
         }
         
         .navbar-nav .nav-link {
-            font-family: 'Poppins', sans-serif;
+            font-family: var(--font-family-poppins);
             font-weight: 500;
             color: rgba(255, 255, 255, 0.8) !important;
-            margin: 0 10px;
+            margin: 0 var(--spacing-sm);
             position: relative;
             transition: var(--transition);
             letter-spacing: 0.5px;
@@ -118,13 +135,13 @@
             border: none;
             border-radius: 0;
             box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
-            padding: 10px 0;
-            margin-top: 10px;
+            padding: var(--spacing-sm) 0;
+            margin-top: var(--spacing-sm);
         }
         
         .dropdown-item {
             color: rgba(255, 255, 255, 0.8);
-            padding: 10px 20px;
+            padding: var(--spacing-sm) var(--spacing-md);
             transition: var(--transition);
         }
         
@@ -142,7 +159,7 @@
             right: 40px;
             background-color: #25d366;
             color: #FFF;
-            border-radius: 50px;
+            border-radius: 50%;
             text-align: center;
             font-size: 28px;
             box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
@@ -198,12 +215,12 @@
         }
         
         .footer h5 {
-            font-family: 'Playfair Display', serif;
+            font-family: var(--font-family-playfair);
             font-size: 1.4rem;
             color: var(--primary-color);
-            margin-bottom: 25px;
+            margin-bottom: var(--spacing-lg);
             position: relative;
-            padding-bottom: 15px;
+            padding-bottom: var(--spacing-md);
         }
         
         .footer h5::after {
@@ -222,7 +239,7 @@
         }
         
         .footer-links li {
-            margin-bottom: 12px;
+            margin-bottom: var(--spacing-md);
         }
         
         .footer-links a {
@@ -234,7 +251,7 @@
         
         .footer-links a:hover {
             color: var(--primary-color);
-            padding-left: 5px;
+            padding-left: var(--spacing-xs);
         }
         
         .social-links a {
@@ -243,7 +260,7 @@
             justify-content: center;
             width: 40px;
             height: 40px;
-            margin-right: 10px;
+            margin-right: var(--spacing-sm);
             border-radius: 50%;
             background-color: rgba(255, 255, 255, 0.1);
             color: white;
@@ -257,7 +274,7 @@
         
         .footer-bottom {
             margin-top: 50px;
-            padding-top: 20px;
+            padding-top: var(--spacing-lg);
             border-top: 1px solid rgba(255, 255, 255, 0.1);
             text-align: center;
             font-size: 0.9rem;
@@ -269,7 +286,7 @@
             border-radius: 8px;
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
             border: none;
-            margin-bottom: 20px;
+            margin-bottom: var(--spacing-lg);
         }
         
         .alert-success {
@@ -300,7 +317,7 @@
             width: 100%;
             background-color: rgba(26, 26, 26, 0.95);
             color: white;
-            padding: 25px 0;
+            padding: var(--spacing-lg) 0;
             z-index: 1001;
             box-shadow: 0 -5px 20px rgba(0, 0, 0, 0.2);
             display: none;
@@ -311,7 +328,7 @@
             justify-content: space-between;
             align-items: center;
             flex-wrap: wrap;
-            gap: 20px;
+            gap: var(--spacing-lg);
         }
         
         #cookieConsent .cookie-text {
@@ -321,18 +338,18 @@
         
         #cookieConsent .cookie-buttons {
             display: flex;
-            gap: 15px;
+            gap: var(--spacing-md);
             flex-wrap: wrap;
         }
         
         #cookieConsent button {
-            padding: 12px 25px;
+            padding: var(--spacing-sm) var(--spacing-lg);
             border: none;
             border-radius: 30px;
             cursor: pointer;
             font-weight: 500;
             transition: var(--transition);
-            font-family: 'Poppins', sans-serif;
+            font-family: var(--font-family-poppins);
         }
         
         #acceptCookies {
@@ -371,7 +388,7 @@
             left: 50%;
             transform: translate(-50%, -50%);
             background: white;
-            padding: 40px;
+            padding: var(--spacing-xl);
             border-radius: 15px;
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
             z-index: 1002;
@@ -395,16 +412,16 @@
         #cookieSettings h3 {
             margin-top: 0;
             color: var(--dark-color);
-            font-family: 'Playfair Display', serif;
+            font-family: var(--font-family-playfair);
             font-size: 1.8rem;
-            margin-bottom: 20px;
+            margin-bottom: var(--spacing-lg);
         }
         
         .cookie-option {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 20px 0;
+            padding: var(--spacing-lg) 0;
             border-bottom: 1px solid #eee;
         }
         
@@ -415,12 +432,12 @@
         .cookie-option h4 {
             margin: 0;
             color: var(--dark-color);
-            font-family: 'Poppins', sans-serif;
+            font-family: var(--font-family-poppins);
             font-size: 1.1rem;
         }
         
         .cookie-option p {
-            margin: 8px 0 0 0;
+            margin: var(--spacing-xs) 0 0 0;
             font-size: 0.9rem;
             color: #6c757d;
         }
@@ -505,15 +522,10 @@
             animation: loading 1.5s infinite;
         }
         
-        @keyframes loading {
-            0% { background-position: 200% 0; }
-            100% { background-position: -200% 0; }
-        }
-        
         /* Responsive adjustments */
         @media (max-width: 992px) {
             .navbar-nav .nav-link {
-                margin: 0 5px;
+                margin: 0 var(--spacing-xs);
             }
             
             .navbar-nav .nav-link::after {
@@ -531,7 +543,7 @@
             
             #cookieConsent .cookie-buttons {
                 justify-content: center;
-                margin-top: 15px;
+                margin-top: var(--spacing-md);
             }
             
             .whatsapp-float {
@@ -564,7 +576,7 @@
             }
             
             #cookieSettings {
-                padding: 25px;
+                padding: var(--spacing-lg);
             }
             
             #cookieSettings h3 {
@@ -576,8 +588,9 @@
 </head>
 <body>
     <!-- Loading Spinner -->
-    <div id="loadingSpinner" class="spinner-overlay">
+    <div id="loadingSpinner" class="spinner-overlay" role="status" aria-live="polite">
         <div class="spinner"></div>
+        <span class="sr-only">Loading...</span>
     </div>
     
     <!-- Luxury Navbar -->
@@ -647,15 +660,15 @@
                             <li><a class="dropdown-item" href="{% url 'car_rental:site_info_edit' %}"><i class="fas fa-cog me-2"></i>Site Settings</a></li>
                             {% endif %}
                             <li><hr class="dropdown-divider"></li>
-                            <li><a class="dropdown-item" href="{% url 'car_rental:logout' %}"><i class="fas fa-sign-out-alt me-2"></i>Logout</a></li>
+                            <li><a class="dropdown-item" href="{% url 'account_logout' %}"><i class="fas fa-sign-out-alt me-2"></i>Logout</a></li>
                         </ul>
                     </li>
                     {% else %}
                     <li class="nav-item">
-                        <a class="nav-link {% if request.resolver_match.url_name == 'login' %}active{% endif %}" href="{% url 'car_rental:login' %}">Login</a>
+                        <a class="nav-link {% if request.resolver_match.url_name == 'account_login' %}active{% endif %}" href="{% url 'account_login' %}">Login</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link {% if request.resolver_match.url_name == 'register' %}active{% endif %}" href="{% url 'car_rental:register' %}">Register</a>
+                        <a class="nav-link {% if request.resolver_match.url_name == 'account_signup' %}active{% endif %}" href="{% url 'account_signup' %}">Register</a>
                     </li>
                     {% endif %}
                 </ul>
@@ -810,7 +823,10 @@
         // Hide loading spinner when page is fully loaded
         window.addEventListener('load', function() {
             setTimeout(function() {
-                document.getElementById('loadingSpinner').style.display = 'none';
+                const spinner = document.getElementById('loadingSpinner');
+                if (spinner) {
+                    spinner.style.display = 'none';
+                }
             }, 500);
         });
         
@@ -834,7 +850,7 @@
             });
         });
         
-        // Enhanced Cookie Consent
+        // --- COMPLETE COOKIE CONSENT LOGIC ---
         const cookieConsent = document.getElementById('cookieConsent');
         const cookieSettings = document.getElementById('cookieSettings');
         const cookieSettingsBackdrop = document.getElementById('cookieSettingsBackdrop');
@@ -844,55 +860,135 @@
         const saveCookieSettings = document.getElementById('saveCookieSettings');
         const closeCookieSettings = document.getElementById('closeCookieSettings');
         
+        // --- THE COMPLETE applyCookiePreferences FUNCTION ---
+        function applyCookiePreferences(preferences) {
+            // --- 1. Set a Consent Cookie ---
+            // We use js-cookie to set a cookie that records the user's consent choice.
+            // This cookie is valid for 1 year (365 days).
+            Cookies.set('cookie_consent', preferences.choice, { expires: 365 });
+
+            // --- 2. Manage Analytics Cookies ---
+            const analyticsScriptId = 'G-XXXXXXXXXX'; // IMPORTANT: Replace with your actual GA Measurement ID
+            let analyticsScript = document.getElementById('ga-script');
+
+            if (preferences.analytics) {
+                // If user CONSENTS to analytics, ensure the script is loaded.
+                if (!analyticsScript) {
+                    // If the script tag doesn't exist, create and append it.
+                    analyticsScript = document.createElement('script');
+                    analyticsScript.id = 'ga-script';
+                    analyticsScript.async = true;
+                    analyticsScript.src = `https://www.googletagmanager.com/gtag/js?id=${analyticsScriptId}`;
+                    document.head.appendChild(analyticsScript);
+                }
+                // If the script already exists, make sure it's not disabled.
+                analyticsScript.removeAttribute('disabled');
+                
+                // Initialize gtag() if it hasn't been initialized yet.
+                window.dataLayer = window.dataLayer || [];
+                function gtag(){dataLayer.push(arguments);}
+                gtag('js', new Date());
+                gtag('config', analyticsScriptId, {
+                    'anonymize_ip': true, // Good for privacy
+                    'cookie_domain': 'auto', // Let GA handle the cookie domain
+                    'cookie_update': 'update' // Important for consent mode
+                });
+
+            } else {
+                // If user DECLINES analytics, disable the script.
+                if (analyticsScript) {
+                    analyticsScript.setAttribute('disabled', '');
+                }
+                console.log('Analytics disabled by user preference.');
+            }
+
+            // --- 3. Manage Marketing Cookies (Example: Facebook Pixel) ---
+            const pixelScriptId = 'XXXXXXXXXXXXXXXX'; // IMPORTANT: Replace with your Pixel ID
+            let pixelScript = document.getElementById('fb-pixel-script');
+
+            if (preferences.marketing) {
+                if (!pixelScript) {
+                    pixelScript = document.createElement('script');
+                    pixelScript.id = 'fb-pixel-script';
+                    pixelScript.textContent = `
+                        !function(f,b,e,v,n,t,s)
+                        {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+                        n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+                        if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+                        n.queue=[];t=b.createElement(e);t.async=!0;
+                        t.src=v;s=b.getElementsByTagName(e)[0];
+                        s.parentNode.insertBefore(t,s)}(window,document,
+                        'script','https://connect.facebook.net/en_US/fbevents.js');
+                        fbq('init', '${pixelScriptId}');
+                        fbq('track', 'PageView');
+                    `;
+                    document.head.appendChild(pixelScript);
+                }
+                // Ensure the script is not disabled.
+                pixelScript.removeAttribute('disabled');
+
+            } else {
+                if (pixelScript) {
+                    pixelScript.setAttribute('disabled', '');
+                }
+                console.log('Marketing cookies disabled by user preference.');
+            }
+
+            console.log('Cookie preferences have been applied:', preferences);
+        }
+        // ------------------------------------------
+
         // Check if user has already made a cookie choice
-        const cookieChoice = localStorage.getItem('cookieChoice');
+        const cookieChoice = Cookies.get('cookie_consent');
         if (!cookieChoice) {
             cookieConsent.style.display = 'block';
         } else {
             // Apply saved preferences
-            applyCookiePreferences(JSON.parse(localStorage.getItem('cookiePreferences') || '{}'));
+            const preferences = {
+                necessary: true,
+                analytics: Cookies.get('analytics') === 'true', // Read from cookie
+                marketing: Cookies.get('marketing') === 'true' // Read from cookie
+            };
+            applyCookiePreferences(preferences);
         }
         
         // Cookie consent event listeners
         acceptCookies.addEventListener('click', function() {
-            localStorage.setItem('cookieChoice', 'accepted');
-            localStorage.setItem('cookiePreferences', JSON.stringify({
-                necessary: true,
-                analytics: true,
-                marketing: true
-            }));
+            const preferences = { necessary: true, analytics: true, marketing: true, choice: 'accepted' };
+            Cookies.set('cookie_consent', 'accepted', { expires: 365 });
+            Cookies.set('analytics', 'true', { expires: 365 });
+            Cookies.set('marketing', 'true', { expires: 365 });
             cookieConsent.style.display = 'none';
-            applyCookiePreferences({necessary: true, analytics: true, marketing: true});
+            applyCookiePreferences(preferences);
         });
         
         declineCookies.addEventListener('click', function() {
-            localStorage.setItem('cookieChoice', 'declined');
-            localStorage.setItem('cookiePreferences', JSON.stringify({
-                necessary: true,
-                analytics: false,
-                marketing: false
-            }));
+            const preferences = { necessary: true, analytics: false, marketing: false, choice: 'declined' };
+            Cookies.set('cookie_consent', 'declined', { expires: 365 });
+            Cookies.set('analytics', 'false', { expires: 365 });
+            Cookies.set('marketing', 'false', { expires: 365 });
             cookieConsent.style.display = 'none';
-            applyCookiePreferences({necessary: true, analytics: false, marketing: false});
+            applyCookiePreferences(preferences);
         });
         
         customizeCookies.addEventListener('click', function() {
             cookieSettings.style.display = 'block';
             cookieSettingsBackdrop.style.display = 'block';
-            // Load current preferences
-            const preferences = JSON.parse(localStorage.getItem('cookiePreferences') || '{"necessary":true,"analytics":false,"marketing":false}');
-            document.getElementById('analyticsCookies').checked = preferences.analytics;
-            document.getElementById('marketingCookies').checked = preferences.marketing;
+            // Load current preferences from cookies
+            document.getElementById('analyticsCookies').checked = Cookies.get('analytics') === 'true';
+            document.getElementById('marketingCookies').checked = Cookies.get('marketing') === 'true';
         });
         
         saveCookieSettings.addEventListener('click', function() {
             const preferences = {
                 necessary: true,
                 analytics: document.getElementById('analyticsCookies').checked,
-                marketing: document.getElementById('marketingCookies').checked
+                marketing: document.getElementById('marketingCookies').checked,
+                choice: 'customized'
             };
-            localStorage.setItem('cookieChoice', 'customized');
-            localStorage.setItem('cookiePreferences', JSON.stringify(preferences));
+            Cookies.set('cookie_consent', 'customized', { expires: 365 });
+            Cookies.set('analytics', document.getElementById('analyticsCookies').checked, { expires: 365 });
+            Cookies.set('marketing', document.getElementById('marketingCookies').checked, { expires: 365 });
             cookieSettings.style.display = 'none';
             cookieSettingsBackdrop.style.display = 'none';
             cookieConsent.style.display = 'none';
@@ -909,18 +1005,7 @@
             cookieSettings.style.display = 'none';
             cookieSettingsBackdrop.style.display = 'none';
         });
-        
-        // Function to apply cookie preferences
-        function applyCookiePreferences(preferences) {
-            // Here you would typically enable/disable cookies based on preferences
-            // For demonstration, we'll just log the preferences
-            console.log('Applying cookie preferences:', preferences);
-            
-            // In a real implementation, you would:
-            // 1. Enable/disable Google Analytics if analytics cookies are accepted
-            // 2. Enable/disable marketing cookies for ad platforms
-            // 3. Always keep necessary cookies enabled
-        }
+        // --- END OF COOKIE CONSENT LOGIC ---
     </script>
     
     {% block extra_js %}{% endblock %}

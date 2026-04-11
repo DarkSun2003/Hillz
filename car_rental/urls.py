@@ -38,9 +38,7 @@ urlpatterns = [
     path('whatsapp-success/', views.WhatsAppSuccessView.as_view(), name='whatsapp_success'),
     
     # Authentication views
-    path('login/', views.LoginView.as_view(), name='login'),
-    path('register/', views.RegisterView.as_view(), name='register'),
-    path('logout/', views.logout_view, name='logout'),
+    #path('logout/', views.logout_view, name='logout'),
     
     # User profile views
     path('profile/', views.profile, name='profile'),
