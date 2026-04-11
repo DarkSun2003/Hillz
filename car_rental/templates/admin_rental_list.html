@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container mt-4">
+    <h1>All Rentals (Admin View)</h1>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Customer</th>
+                <th>Car</th>
+                <th>Status</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for rental in rentals %}
+            <tr>
+                <td><a href="{% url 'car_rental:customer_detail' rental.customer.pk %}">{{ rental.customer.name }}</a></td>
+                <td>{{ rental.car.make }} {{ rental.car.model }}</td>
+                <td>{{ rental.get_status_display }}</td>
+                <td>
+                    <a href="{% url 'car_rental:return_rental' pk=rental.pk %}" class="btn btn-sm btn-warning">Process Return</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

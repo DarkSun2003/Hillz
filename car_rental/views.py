@@ -1,6 +1,7 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth.mixins import UserPassesTestMixin, LoginRequiredMixin
+from django.contrib.admin.views.decorators import staff_member_required
 from django.views import View
 from django.contrib import messages
 from django.db.models import Q, Count, Sum, Avg, F, ExpressionWrapper, DurationField, Max
@@ -1479,11 +1480,18 @@ class RentalDetailView(UserPassesTestMixin, DetailView):
         
         return context
 
+@method_decorator(staff_member_required, name='dispatch')
+class RentalListView(ListView):
+    model = Rental
+    template_name = 'admin_rental_list.html'
+    context_object_name = 'rentals'
+    ordering = ['-rental_datetime']
+
 class ReturnRentalView(UserPassesTestMixin, UpdateView):
     model = Rental
     form_class = RentalReturnForm
     template_name = 'return_rental.html'
-    success_url = reverse_lazy('car_rental:rentals')
+    success_url = reverse_lazy('car_rental:rental_list')
     
     def test_func(self):
         return is_staff_user(self.request.user)

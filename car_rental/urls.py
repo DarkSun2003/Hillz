@@ -62,6 +62,7 @@ urlpatterns = [
     path('purchases/', views.PurchasesListView.as_view(), name='purchases'),
     
     # Rental management
+    path('all-rentals/', views.RentalListView.as_view(), name='rental_list'), 
     path('rentals/<int:pk>/', views.RentalDetailView.as_view(), name='rental_detail'),
     path('rentals/<int:pk>/return/', views.ReturnRentalView.as_view(), name='return_rental'),
     path('rentals/book/<int:car_id>/', views.CustomerRentalView.as_view(), name='customer_rental'),
