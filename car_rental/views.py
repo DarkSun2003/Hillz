@@ -876,6 +876,37 @@ def update_service_booking_status(request, pk):
     
     return redirect('car_rental:service_booking_detail', pk=booking.pk)
 
+@require_POST
+@login_required
+def cancel_service_booking(request, pk):
+    """
+    Cancels a service booking via an AJAX request.
+    """
+    try:
+        # Get the booking object
+        booking = ServiceBooking.objects.get(pk=pk)
+        
+        # Security check: Ensure the user can only cancel their own bookings
+        if booking.customer != request.user.customer_account:
+            return JsonResponse({'success': False, 'error': 'Permission denied.'}, status=403)
+
+        # Check if the booking can be cancelled (e.g., not already completed or cancelled)
+        if booking.status in ['completed', 'cancelled']:
+            return JsonResponse({'success': False, 'error': f'Cannot cancel a booking that is already {booking.status}.'}, status=400)
+        
+        # Update the booking status
+        booking.status = 'cancelled'
+        booking.save()
+        
+        # Return a success response
+        return JsonResponse({'success': True, 'message': 'Booking cancelled successfully.'})
+
+    except ServiceBooking.DoesNotExist:
+        return JsonResponse({'success': False, 'error': 'Booking not found.'}, status=404)
+    except AttributeError:
+        # This happens if the user doesn't have a customer_account
+        return JsonResponse({'success': False, 'error': 'User profile not found.'}, status=400)
+
 # --- AUTHENTICATION VIEWS ---
 
 class LoginView(View):
@@ -1815,6 +1846,9 @@ class UpdatePurchaseView(UserPassesTestMixin, UpdateView):
         return super().form_valid(form)
     
     def form_invalid(self, form):
+        """
+        Adds a generic error message and re-renders the form with errors.
+        """
         messages.error(self.request, 'Please correct the errors below.')
         return super().form_invalid(form)
     

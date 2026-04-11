@@ -374,14 +374,37 @@ class PurchaseForm(forms.ModelForm):
                 raise forms.ValidationError("Ensure that there are no more than 2 decimal places.")
         return total_amount
     
+    # ========================================================================
+    # UPDATED clean() METHOD
+    # ========================================================================
     def clean(self):
         cleaned_data = super().clean()
-        delivery_datetime = cleaned_data.get('delivery_datetime')
         
-        # Validate delivery date is in the future
-        if delivery_datetime and delivery_datetime < timezone.now():
-            raise ValidationError("Delivery date must be in the future.")
+        # --- CORRECTED Validation Rule ---
+        # Only check for a future delivery date when CREATING a new purchase.
+        if not self.instance.pk:
+            delivery_datetime = cleaned_data.get('delivery_datetime')
+            if delivery_datetime and delivery_datetime < timezone.now():
+                raise ValidationError("Delivery date must be in the future.")
         
+        # --- NEW Validation Rules ---
+        status = cleaned_data.get('status')
+        actual_delivery_date = cleaned_data.get('actual_delivery_datetime')
+
+        # Rule 1: If status is 'delivered', the actual delivery date is mandatory.
+        if status == 'delivered' and not actual_delivery_date:
+            raise ValidationError(
+                "You must provide the Actual Delivery Date when marking a purchase as 'Delivered'."
+            )
+
+        # Rule 2: If status is NOT 'delivered', the actual delivery date must be empty.
+        if status != 'delivered' and actual_delivery_date:
+            raise ValidationError(
+                "The Actual Delivery Date should only be set when the status is 'Delivered'. "
+                "Please clear this field to continue."
+            )
+        
+        # Always return the full collection of cleaned data.
         return cleaned_data
 
 # --- Service Forms ---

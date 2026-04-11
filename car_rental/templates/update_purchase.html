@@ -346,6 +346,11 @@
                                         <span class="input-group-text"><i class="fas fa-check-circle"></i></span>
                                         {{ form.actual_delivery_datetime.as_widget }}
                                     </div>
+                                    <!-- ========== NEW HTML ADDED HERE ========== -->
+                                    <div id="actual-delivery-help-text" class="form-text" style="display: none; color: #6c757d; margin-top: 0.25rem;">
+                                        Not applicable for cancelled or shipped orders.
+                                    </div>
+                                    <!-- ================================================= -->
                                     {% if form.actual_delivery_datetime.errors %}
                                         <div class="invalid-feedback d-block">{{ form.actual_delivery_datetime.errors|join:", " }}</div>
                                     {% endif %}
@@ -583,6 +588,39 @@
                 }
             });
         }
+
+        // =================== NEW JAVASCRIPT ADDED HERE ===================
+        // Logic to disable Actual Delivery Date based on status
+        const statusField = document.getElementById('{{ form.status.id_for_label }}');
+        const actualDeliveryDateField = document.getElementById('{{ form.actual_delivery_datetime.id_for_label }}');
+        const actualDeliveryHelpText = document.getElementById('actual-delivery-help-text');
+
+        function toggleActualDeliveryDate() {
+            const currentStatus = statusField.value;
+
+            if (currentStatus === 'cancelled' || currentStatus === 'shipped') {
+                // Disable the field and clear its value
+                actualDeliveryDateField.disabled = true;
+                actualDeliveryDateField.value = '';
+                // Show the helper text
+                actualDeliveryHelpText.style.display = 'block';
+            } else {
+                // Enable the field
+                actualDeliveryDateField.disabled = false;
+                // Hide the helper text
+                actualDeliveryHelpText.style.display = 'none';
+            }
+        }
+
+        // Add event listener to the status field
+        if (statusField) {
+            statusField.addEventListener('change', toggleActualDeliveryDate);
+            
+            // Run the function once on page load to set the correct initial state
+            toggleActualDeliveryDate();
+        }
+        // ========================================================
+
     });
 </script>
 {% endblock %}

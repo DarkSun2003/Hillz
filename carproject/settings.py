@@ -150,8 +150,8 @@ EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
-EMAIL_HOST_USER = 'your-email@gmail.com'
-EMAIL_HOST_PASSWORD = 'your-password'
+EMAIL_HOST_USER = os.environ.get('MY_EMAIL_ADDRESS')
+EMAIL_HOST_PASSWORD = os.environ.get('MY_EMAIL_PASSWORD')  # Consider using environment variable for this as well
 
 # Site URL for generating absolute URLs
 SITE_URL = 'http://localhost:8000'

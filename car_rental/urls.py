@@ -30,6 +30,7 @@ urlpatterns = [
     path('service-bookings/<int:pk>/', views.ServiceBookingDetailView.as_view(), name='service_booking_detail'),
     path('service-bookings/<int:pk>/update/', views.ServiceBookingUpdateView.as_view(), name='service_booking_update'),
     path('service-bookings/<int:pk>/update-status/', views.update_service_booking_status, name='update_service_booking_status'),
+    path('service-bookings/<int:pk>/cancel/', views.cancel_service_booking, name='cancel_service_booking'),
     
     # WhatsApp success page
     path('whatsapp-success/', views.WhatsAppSuccessView.as_view(), name='whatsapp_success'),

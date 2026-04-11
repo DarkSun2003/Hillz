@@ -130,7 +130,10 @@
                                                     <i class="fas fa-eye"></i>
                                                 </a>
                                                 {% if booking.status == 'pending' %}
-                                                <button class="btn btn-sm btn-outline-danger cancel-booking" data-id="{{ booking.id }}">
+                                                <!-- =============================================================== -->
+                                                <!-- KEY CHANGE: Added type="button" to prevent default form submission -->
+                                                <!-- =============================================================== -->
+                                                <button type="button" class="btn btn-sm btn-outline-danger cancel-booking" data-id="{{ booking.id }}">
                                                     <i class="fas fa-times"></i>
                                                 </button>
                                                 {% endif %}
@@ -187,7 +190,9 @@
         </div>
     </div>
 </div>
-
+<!-- ================================================================================= -->
+<!-- KEY CHANGE: Replaced the entire script block with a more robust version -->
+<!-- ================================================================================= -->
 {% block extra_js %}
 <script>
     document.addEventListener('DOMContentLoaded', function() {
@@ -195,10 +200,17 @@
         const cancelButtons = document.querySelectorAll('.cancel-booking');
         
         cancelButtons.forEach(button => {
-            button.addEventListener('click', function() {
+            button.addEventListener('click', function(event) {
+                // This prevents the button's default action (e.g., submitting a form)
+                event.preventDefault(); 
+
                 const bookingId = this.getAttribute('data-id');
                 
                 if (confirm('Are you sure you want to cancel this booking?')) {
+                    // Disable the button to prevent multiple clicks
+                    this.disabled = true;
+                    this.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+
                     // Send AJAX request to cancel booking
                     fetch(`/service-bookings/${bookingId}/cancel/`, {
                         method: 'POST',
@@ -209,16 +221,31 @@
                         body: JSON.stringify({})
                     })
                     .then(response => {
+                        console.log('Response received:', response); // Log for debugging
+                        
                         if (response.ok) {
                             // Reload the page to show updated bookings
                             window.location.reload();
                         } else {
-                            alert('Failed to cancel booking. Please try again.');
+                            // Try to get more error details from the response
+                            response.json().then(errData => {
+                                console.error('Error data from server:', errData);
+                                alert(`Failed to cancel booking: ${errData.error || 'Unknown error'}`);
+                            }).catch(() => {
+                                // If the response is not valid JSON
+                                alert(`Failed to cancel booking. Server responded with status: ${response.status}`);
+                            });
+                            // Re-enable the button on failure
+                            this.disabled = false;
+                            this.innerHTML = '<i class="fas fa-times"></i>';
                         }
                     })
                     .catch(error => {
-                        console.error('Error:', error);
-                        alert('Failed to cancel booking. Please try again.');
+                        console.error('Fetch error:', error); // Log for debugging
+                        alert('A network error occurred. Please check your connection and try again.');
+                        // Re-enable the button on failure
+                        this.disabled = false;
+                        this.innerHTML = '<i class="fas fa-times"></i>';
                     });
                 }
             });
