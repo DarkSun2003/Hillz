@@ -102,12 +102,13 @@ class SiteInfoForm(forms.ModelForm):
 class CustomerForm(forms.ModelForm):
     class Meta:
         model = Customer
-        fields = ('name', 'email', 'phone', 'address', 'drivers_license', 'license_expiry', 'license_image')
+        fields = ('name', 'email', 'phone', 'address', 'delivery_address' ,'drivers_license', 'license_expiry', 'license_image')
         widgets = {
             'name': forms.TextInput(attrs={'class': 'form-control'}),
             'email': forms.EmailInput(attrs={'class': 'form-control'}),
             'phone': forms.TextInput(attrs={'class': 'form-control'}),
             'address': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
+            'delivery_address': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
             'drivers_license': forms.TextInput(attrs={'class': 'form-control'}),
             'license_expiry': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
             'license_image': forms.ClearableFileInput(attrs={'class': 'form-control-file'}),

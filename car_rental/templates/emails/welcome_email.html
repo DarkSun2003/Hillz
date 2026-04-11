@@ -1,0 +1,20 @@
+{% extends 'emails/base_email.html' %}
+
+{% block content %}
+    <h2>Welcome to Hillz Exquisites!</h2>
+    <p>Hi {{ user.first_name }},</p>
+    <p>Thank you for creating an account with us. We're excited to have you as part of our community.</p>
+    
+    <p>Your account is now active, and you can start exploring our wide range of exotic cars for rent or sale, and book services for your vehicle.</p>
+    
+    <h3>What's Next?</h3>
+    <ul>
+        <li><strong>Browse Cars:</strong> Check out our <a href="{{ site_url }}{% url 'car_rental:all_cars' %}">car listings</a>.</li>
+        <li><strong>Update Profile:</strong> Add your phone number and address to your <a href="{{ site_url }}{% url 'car_rental:profile' %}">profile</a> for a smoother experience.</li>
+        <li><strong>Get Support:</strong> If you have any questions, feel free to <a href="{{ site_url }}{% url 'car_rental:contact' %}">contact us</a>.</li>
+    </ul>
+    
+    <p>We look forward to serving you!</p>
+    
+    <a href="{{ site_url }}{% url 'car_rental:profile' %}" class="button">Go to My Profile</a>
+{% endblock %}

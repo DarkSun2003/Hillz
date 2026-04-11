@@ -1,0 +1,13 @@
+{% extends 'emails/base_email.html' %}
+
+{% block content %}
+    <h2>Your Profile Has Been Updated!</h2>
+    <p>Hi {{ user.first_name }},</p>
+    <p>This is a confirmation message to inform you that your profile information was successfully updated.</p>
+    
+    <p>If you did not make this change, please secure your account by checking your recent activity and changing your password.</p>
+    
+    <p>You can view your updated profile by logging into your account on our website.</p>
+    
+    <a href="{{ site_url }}{% url 'car_rental:profile' %}" class="button">View My Profile</a>
+{% endblock %}

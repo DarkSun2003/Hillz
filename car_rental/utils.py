@@ -370,3 +370,64 @@ def handle_uploaded_file(f, upload_dir):
             destination.write(chunk)
     
     return filepath
+
+# --- NEW FUNCTIONS FOR USER ACCOUNTS ---
+
+def send_welcome_email(user):
+    """
+    Sends a welcome email to a newly registered user.
+    """
+    site_info = SiteInfo.objects.first()
+    if not site_info:
+        site_info = SiteInfo()
+
+    subject = f"Welcome to Hillz Exquisites, {user.first_name}!"
+    
+    context = {
+        'user': user,
+        'site_info': site_info,
+        'site_url': settings.SITE_URL,
+    }
+    
+    try:
+        html_message = render_to_string('emails/welcome_email.html', context)
+        plain_message = strip_tags(html_message)
+        
+        from_email = site_info.email
+        to_email = user.email
+        
+        send_mail(subject, plain_message, from_email, [to_email], html_message=html_message, fail_silently=False)
+        return True
+    except Exception as e:
+        print(f"Error sending welcome email to {user.email}: {e}")
+        return False
+
+
+def send_profile_update_email(user):
+    """
+    Sends a confirmation email to a user after they successfully update their profile.
+    """
+    site_info = SiteInfo.objects.first()
+    if not site_info:
+        site_info = SiteInfo()
+
+    subject = "Your Hillz Exquisites Profile Has Been Updated"
+    
+    context = {
+        'user': user,
+        'site_info': site_info,
+        'site_url': settings.SITE_URL,
+    }
+    
+    try:
+        html_message = render_to_string('emails/profile_update_email.html', context)
+        plain_message = strip_tags(html_message)
+        
+        from_email = site_info.email
+        to_email = user.email
+        
+        send_mail(subject, plain_message, from_email, [to_email], html_message=html_message, fail_silently=False)
+        return True
+    except Exception as e:
+        print(f"Error sending profile update email to {user.email}: {e}")
+        return False

@@ -31,7 +31,9 @@ from .utils import (
     send_rental_confirmation_email, 
     send_purchase_confirmation_email, 
     send_service_confirmation_email,
-    send_status_update_email
+    send_status_update_email,
+    send_welcome_email,
+    send_profile_update_email
 )
 # -----------------------------------------
 
@@ -419,7 +421,6 @@ class BookDiagnosticServiceView(LoginRequiredMixin, CreateView):
     model = ServiceBooking
     form_class = ServiceBookingForm
     template_name = 'book_diagnostic_service.html'
-    # Update the success URL
     success_url = reverse_lazy('car_rental:whatsapp_diagnostic_success')
     
     def get_form_kwargs(self):
@@ -451,6 +452,13 @@ class BookDiagnosticServiceView(LoginRequiredMixin, CreateView):
                 )
                 booking.customer = customer
         
+        booking.save() # Save the booking first
+        
+        # --- EMAIL INTEGRATION START ---
+        # Send confirmation email to customer and management
+        send_service_confirmation_email(booking)
+        # --- EMAIL INTEGRATION END ---
+        
         # Generate WhatsApp URL for diagnostic service
         site_info = SiteInfo.objects.first()
         if site_info and site_info.whatsapp_phone:
@@ -468,7 +476,7 @@ class BookDiagnosticServiceView(LoginRequiredMixin, CreateView):
             )
             
             booking.whatsapp_sent = True
-            booking.save()
+            booking.save() # Save again to mark WhatsApp as sent
             
             whatsapp_url = f"https://wa.me/{phone}?text={message}"
             
@@ -482,11 +490,9 @@ class BookDiagnosticServiceView(LoginRequiredMixin, CreateView):
             messages.success(self.request, 'Your diagnostic service booking has been submitted successfully!')
             return redirect('car_rental:whatsapp_diagnostic_success')
         else:
-            booking.save()
             messages.success(self.request, 'Your diagnostic service booking has been submitted successfully!')
             return redirect('car_rental:services_overview')
 
-# Apply the same pattern to the other service booking views
 class BookRepairServiceView(LoginRequiredMixin, CreateView):
     model = ServiceBooking
     form_class = ServiceBookingForm
@@ -522,6 +528,13 @@ class BookRepairServiceView(LoginRequiredMixin, CreateView):
                 )
                 booking.customer = customer
         
+        booking.save() # Save the booking first
+        
+        # --- EMAIL INTEGRATION START ---
+        # Send confirmation email to customer and management
+        send_service_confirmation_email(booking)
+        # --- EMAIL INTEGRATION END ---
+        
         # Generate WhatsApp URL for repair service
         site_info = SiteInfo.objects.first()
         if site_info and site_info.whatsapp_phone:
@@ -539,7 +552,7 @@ class BookRepairServiceView(LoginRequiredMixin, CreateView):
             )
             
             booking.whatsapp_sent = True
-            booking.save()
+            booking.save() # Save again to mark WhatsApp as sent
             
             whatsapp_url = f"https://wa.me/{phone}?text={message}"
             
@@ -553,7 +566,6 @@ class BookRepairServiceView(LoginRequiredMixin, CreateView):
             messages.success(self.request, 'Your repair service booking has been submitted successfully!')
             return redirect('car_rental:whatsapp_repair_success')
         else:
-            booking.save()
             messages.success(self.request, 'Your repair service booking has been submitted successfully!')
             return redirect('car_rental:services_overview')
 
@@ -592,6 +604,13 @@ class BookUpgradeServiceView(LoginRequiredMixin, CreateView):
                 )
                 booking.customer = customer
         
+        booking.save() # Save the booking first
+        
+        # --- EMAIL INTEGRATION START ---
+        # Send confirmation email to customer and management
+        send_service_confirmation_email(booking)
+        # --- EMAIL INTEGRATION END ---
+        
         # Generate WhatsApp URL for upgrade service
         site_info = SiteInfo.objects.first()
         if site_info and site_info.whatsapp_phone:
@@ -609,7 +628,7 @@ class BookUpgradeServiceView(LoginRequiredMixin, CreateView):
             )
             
             booking.whatsapp_sent = True
-            booking.save()
+            booking.save() # Save again to mark WhatsApp as sent
             
             whatsapp_url = f"https://wa.me/{phone}?text={message}"
             
@@ -623,7 +642,6 @@ class BookUpgradeServiceView(LoginRequiredMixin, CreateView):
             messages.success(self.request, 'Your upgrade service booking has been submitted successfully!')
             return redirect('car_rental:whatsapp_upgrade_success')
         else:
-            booking.save()
             messages.success(self.request, 'Your upgrade service booking has been submitted successfully!')
             return redirect('car_rental:services_overview')
 
@@ -662,6 +680,13 @@ class BookConsultationServiceView(LoginRequiredMixin, CreateView):
                 )
                 booking.customer = customer
         
+        booking.save() # Save the booking first
+        
+        # --- EMAIL INTEGRATION START ---
+        # Send confirmation email to customer and management
+        send_service_confirmation_email(booking)
+        # --- EMAIL INTEGRATION END ---
+        
         # Generate WhatsApp URL for consultation service
         site_info = SiteInfo.objects.first()
         if site_info and site_info.whatsapp_phone:
@@ -679,7 +704,7 @@ class BookConsultationServiceView(LoginRequiredMixin, CreateView):
             )
             
             booking.whatsapp_sent = True
-            booking.save()
+            booking.save() # Save again to mark WhatsApp as sent
             
             whatsapp_url = f"https://wa.me/{phone}?text={message}"
             
@@ -693,7 +718,6 @@ class BookConsultationServiceView(LoginRequiredMixin, CreateView):
             messages.success(self.request, 'Your consultation service booking has been submitted successfully!')
             return redirect('car_rental:whatsapp_consultation_success')
         else:
-            booking.save()
             messages.success(self.request, 'Your consultation service booking has been submitted successfully!')
             return redirect('car_rental:services_overview')
 
@@ -1001,6 +1025,11 @@ class RegisterView(View):
             # Create UserProfile if it doesn't exist
             UserProfile.objects.get_or_create(user=user)
             
+            # --- EMAIL INTEGRATION START ---
+            # Send welcome email to the new user
+            send_welcome_email(user)
+            # --- EMAIL INTEGRATION END ---
+            
             # Authenticate and login the user
             user = authenticate(
                 username=form.cleaned_data.get('username'), 
@@ -1057,6 +1086,12 @@ def profile(request):
                 profile_form.save()
                 customer_form.save()
                 messages.success(request, 'Your profile has been updated successfully!')
+                
+                # --- EMAIL INTEGRATION START ---
+                # Send a confirmation email to the user
+                send_profile_update_email(request.user)
+                # --- EMAIL INTEGRATION END ---
+                
                 return redirect('car_rental:profile')
             except Exception as e:
                 messages.error(request, f'An error occurred while updating your profile: {str(e)}')
