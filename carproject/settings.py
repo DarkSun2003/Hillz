@@ -151,7 +151,13 @@ EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 EMAIL_HOST_USER = os.environ.get('MY_EMAIL_ADDRESS')
-EMAIL_HOST_PASSWORD = os.environ.get('MY_EMAIL_PASSWORD')  # Consider using environment variable for this as well
+EMAIL_HOST_PASSWORD = os.environ.get('YOUR_EMAIL_PASSWORD')  # Consider using environment variable for this as well
+
+# A default address to send emails from
+DEFAULT_FROM_EMAIL = os.environ.get('MY_EMAIL_ADDRESS')
+
+# A dedicated email for management notifications
+MANAGEMENT_EMAIL = os.environ.get('MY_EMAIL_ADDRESS')  # Or your own email for testing
 
 # Site URL for generating absolute URLs
 SITE_URL = 'http://localhost:8000'

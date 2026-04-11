@@ -26,7 +26,15 @@ from .forms import (
     CustomerForm, RentalForm, RentalReturnForm, PurchaseForm,
     ServiceBookingForm, ServiceBookingUpdateForm, CustomerRatingForm, StaffRentalForm
 )
-from .utils import send_rental_confirmation_email, send_purchase_confirmation_email
+# --- EMAIL INTEGRATION: ADD THESE IMPORTS ---
+from .utils import (
+    send_rental_confirmation_email, 
+    send_purchase_confirmation_email, 
+    send_service_confirmation_email,
+    send_status_update_email
+)
+# -----------------------------------------
+
 from urllib.parse import quote
 
 from django.views.decorators.csrf import csrf_exempt
@@ -871,6 +879,16 @@ def update_service_booking_status(request, pk):
             booking.notes = notes
         booking.save()
         messages.success(request, f'Booking status updated to {booking.get_status_display()}.')
+        
+        # --- EMAIL INTEGRATION: Send status update email to customer ---
+        send_status_update_email(
+            customer=booking.customer,
+            item_type='service booking',
+            item_title=f"{booking.get_service_type_display()} - {booking.car_make} {booking.car_model}",
+            new_status=booking.get_status_display()
+        )
+        # --------------------------------------------------------------------
+        
     else:
         messages.error(request, 'Invalid status.')
     
@@ -1590,6 +1608,10 @@ class CustomerRentalView(LoginRequiredMixin, View):
             
             rental.save()
             
+            # --- EMAIL INTEGRATION START ---
+            send_rental_confirmation_email(rental)
+            # --- EMAIL INTEGRATION END ---
+            
             # Generate WhatsApp URL
             site_info = SiteInfo.objects.first()
             if site_info and site_info.whatsapp_phone:
@@ -1668,21 +1690,40 @@ class UpdateRentalView(UserPassesTestMixin, UpdateView):
 def update_rental_status(request, pk):
     rental = get_object_or_404(Rental, pk=pk)
     
-    # Update rental status if provided
+    # --- EMAIL INTEGRATION: Send email for STATUS changes ---
+    # We only send an email if the 'status' field is being updated, not 'payment_status'.
     if 'status' in request.POST:
         new_status = request.POST.get('status')
         if new_status in dict(rental.STATUS_CHOICES):
+            old_status = rental.status
             rental.status = new_status
             rental.save()
             messages.success(request, f'Rental status updated to {rental.get_status_display()}.')
+            
+            send_status_update_email(
+                customer=rental.customer,
+                item_type='rental',
+                item_title=f"{rental.car.year} {rental.car.make} {rental.car.model}",
+                new_status=rental.get_status_display()
+            )
+    # --------------------------------------------------------------------
     
-    # Update payment status if provided
+    # --- EMAIL INTEGRATION: Send email for PAYMENT status changes ---
+    # You can choose to send an email for payment updates too, or comment it out.
     if 'payment_status' in request.POST:
         new_payment_status = request.POST.get('payment_status')
         if new_payment_status in dict(rental.PAYMENT_STATUS_CHOICES):
             rental.payment_status = new_payment_status
             rental.save()
             messages.success(request, f'Payment status updated to {rental.get_payment_status_display()}.')
+            
+            # Uncomment the lines below if you also want an email for payment updates
+            send_status_update_email(
+                customer=rental.customer,
+                 item_type='rental payment',
+                 item_title=f"Payment for {rental.car.make} {rental.car.model}",
+                 new_status=rental.get_payment_status_display()
+             )
     
     return redirect('car_rental:rental_detail', pk=rental.pk)
 
@@ -1736,6 +1777,10 @@ class CustomerPurchaseView(LoginRequiredMixin, View):
             purchase.car = car
             purchase.customer = request.user.customer_account
             purchase.save()
+            
+            # --- EMAIL INTEGRATION START ---
+            send_purchase_confirmation_email(purchase)
+            # --- EMAIL INTEGRATION END ---
             
             # Generate WhatsApp URL with customer information
             site_info = SiteInfo.objects.first()
@@ -1866,7 +1911,16 @@ def update_purchase_status(request, purchase_id):
     if new_status in dict(Purchase.STATUS_CHOICES):
         purchase.status = new_status
         purchase.save()
-        messages.success(request, f'Purchase status updated to {new_status}.')
+        messages.success(request, f'Purchase status updated to {purchase.get_status_display()}.')
+        
+        # --- EMAIL INTEGRATION: Send status update email to customer ---
+        send_status_update_email(
+            customer=purchase.customer,
+            item_type='purchase',
+            item_title=f"{purchase.car.year} {purchase.car.make} {purchase.car.model}",
+            new_status=purchase.get_status_display()
+        )
+        
     else:
         messages.error(request, 'Invalid status.')
     

@@ -1,6 +1,8 @@
 from django.urls import path, reverse_lazy
 from django.views.generic import TemplateView
+from django.http import HttpResponse
 from . import views
+from django.contrib.auth.decorators import login_required
 
 app_name = 'car_rental'
 
@@ -107,4 +109,6 @@ urlpatterns = [
     path('whatsapp-repair-success/', views.WhatsAppRepairSuccessView.as_view(), name='whatsapp_repair_success'),
     path('whatsapp-upgrade-success/', views.WhatsAppUpgradeSuccessView.as_view(), name='whatsapp_upgrade_success'),
     path('whatsapp-consultation-success/', views.WhatsAppConsultationSuccessView.as_view(), name='whatsapp_consultation_success'),
+    
+    path('test-email/', login_required(lambda r: HttpResponse("Email test view is working.")), name='test_email_view'),
 ]

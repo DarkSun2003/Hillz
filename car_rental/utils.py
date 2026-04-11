@@ -11,9 +11,11 @@ import math
 import os
 from .models import Rental, Purchase, SiteInfo, ServiceBooking
 
+# --- MODIFIED CONFIRMATION FUNCTIONS TO ALSO EMAIL MANAGEMENT ---
+
 def send_rental_confirmation_email(rental):
     """
-    Send rental confirmation email to customer
+    Send rental confirmation email to customer AND management.
     """
     site_info = SiteInfo.objects.first()
     if not site_info:
@@ -40,14 +42,11 @@ def send_rental_confirmation_email(rental):
     to_email = rental.customer.email
     
     try:
-        send_mail(
-            subject,
-            plain_message,
-            from_email,
-            [to_email],
-            html_message=html_message,
-            fail_silently=False,
-        )
+        # Send to customer
+        send_mail(subject, plain_message, from_email, [to_email], html_message=html_message, fail_silently=False)
+        # Send to management
+        management_subject = f"NEW BOOKING: {subject}"
+        send_mail(management_subject, plain_message, from_email, [settings.MANAGEMENT_EMAIL], html_message=html_message, fail_silently=False)
         return True
     except Exception as e:
         print(f"Error sending rental confirmation email: {e}")
@@ -55,7 +54,7 @@ def send_rental_confirmation_email(rental):
 
 def send_purchase_confirmation_email(purchase):
     """
-    Send purchase confirmation email to customer
+    Send purchase confirmation email to customer AND management.
     """
     site_info = SiteInfo.objects.first()
     if not site_info:
@@ -80,26 +79,25 @@ def send_purchase_confirmation_email(purchase):
     to_email = purchase.customer.email
     
     try:
-        send_mail(
-            subject,
-            plain_message,
-            from_email,
-            [to_email],
-            html_message=html_message,
-            fail_silently=False,
-        )
+        # Send to customer
+        send_mail(subject, plain_message, from_email, [to_email], html_message=html_message, fail_silently=False)
+        # Send to management
+        management_subject = f"NEW ORDER: {subject}"
+        send_mail(management_subject, plain_message, from_email, [settings.MANAGEMENT_EMAIL], html_message=html_message, fail_silently=False)
         return True
     except Exception as e:
         print(f"Error sending purchase confirmation email: {e}")
         return False
 
 def send_service_confirmation_email(booking):
-    # New code using ServiceBooking model
+    """
+    Send service confirmation email to customer AND management.
+    """
     site_info = SiteInfo.objects.first()
     if not site_info:
         site_info = SiteInfo()
     
-    subject = f"{booking.get_service_type_display()} Confirmation - {booking.title}"
+    subject = f"{booking.get_service_type_display()} Confirmation - {booking.name}"
     
     context = {
         'booking': booking,
@@ -116,6 +114,43 @@ def send_service_confirmation_email(booking):
     to_email = booking.email
     
     try:
+        # Send to customer
+        send_mail(subject, plain_message, from_email, [to_email], html_message=html_message, fail_silently=False)
+        # Send to management
+        management_subject = f"NEW BOOKING: {subject}"
+        send_mail(management_subject, plain_message, from_email, [settings.MANAGEMENT_EMAIL], html_message=html_message, fail_silently=False)
+        return True
+    except Exception as e:
+        print(f"Error sending service confirmation email: {e}")
+        return False
+
+# --- NEW FUNCTION FOR STATUS UPDATES ---
+
+def send_status_update_email(customer, item_type, item_title, new_status):
+    """
+    Sends a generic status update email to a customer for any item type.
+    """
+    site_info = SiteInfo.objects.first()
+    if not site_info:
+        site_info = SiteInfo()
+
+    subject = f"Status Update: Your {item_type.title()}"
+    
+    context = {
+        'customer_name': customer.name,
+        'item_type': item_type,
+        'item_title': item_title,
+        'new_status': new_status,
+        'site_info': site_info,
+    }
+    
+    html_message = render_to_string('emails/status_update.html', context)
+    plain_message = strip_tags(html_message)
+    
+    from_email = site_info.email
+    to_email = customer.email
+    
+    try:
         send_mail(
             subject,
             plain_message,
@@ -126,8 +161,11 @@ def send_service_confirmation_email(booking):
         )
         return True
     except Exception as e:
-        print(f"Error sending service confirmation email: {e}")
+        print(f"Error sending status update email: {e}")
         return False
+
+
+# --- REST OF YOUR EXISTING UTILITIES (UNCHANGED) ---
 
 def send_password_reset_email(user):
     """

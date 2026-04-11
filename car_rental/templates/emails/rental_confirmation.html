@@ -1,0 +1,19 @@
+{% extends 'emails/base_email.html' %}
+
+{% block content %}
+    <h2>Rental Booking Confirmed!</h2>
+    <p>Hi {{ customer_name }},</p>
+    <p>Thank you for your rental request. We are pleased to confirm your booking details below.</p>
+    
+    <h3>Booking Details</h3>
+    <ul>
+        <li><strong>Car:</strong> {{ rental.car.year }} {{ rental.car.make }} {{ rental.car.model }}</li>
+        <li><strong>Rental Period:</strong> {{ rental.rental_datetime|date:"M d, Y H:i" }} to {{ rental.return_datetime|date:"M d, Y H:i" }}</li>
+        <li><strong>Pickup Location:</strong> {{ rental.pickup_location|default:"TBD" }}</li>
+        <li><strong>Total Amount:</strong> ₦{{ rental.total_amount|floatformat:2 }}</li>
+    </ul>
+
+    <p>We will contact you shortly via WhatsApp to finalize the payment and confirm the pickup details.</p>
+    
+    <a href="{{ site_url }}{% url 'car_rental:my_rentals' %}" class="button">View My Rentals</a>
+{% endblock %}

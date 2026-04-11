@@ -1,0 +1,18 @@
+{% extends 'emails/base_email.html' %}
+
+{% block content %}
+    <h2>Service Booking Confirmed!</h2>
+    <p>Hi {{ booking.name }},</p>
+    <p>Thank you for booking a service with us. We have received your request and will be in touch to confirm the appointment.</p>
+    
+    <h3>Booking Details</h3>
+    <ul>
+        <li><strong>Service Type:</strong> {{ booking.get_service_type_display }}</li>
+        <li><strong>Vehicle:</strong> {{ booking.car_year }} {{ booking.car_make }} {{ booking.car_model }}</li>
+        <li><strong>Preferred Date:</strong> {{ booking.preferred_date|date:"M d, Y" }}</li>
+    </ul>
+    
+    <p>We will contact you shortly via WhatsApp to confirm the final date and time.</p>
+    
+    <a href="{{ site_url }}{% url 'car_rental:my_services' %}" class="button">View My Services</a>
+{% endblock %}
