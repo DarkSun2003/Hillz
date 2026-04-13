@@ -1,0 +1,21 @@
+{% extends 'emails/base_email.html' %}
+
+{% block content %}
+    <h2>Your Account Has Been Deleted</h2>
+    <p>Hi {{ user_name }},</p>
+    <p>This email is to confirm that your Hillz Exquisites account, associated with the email address <strong>{{ request.user.email }}</strong>, has been successfully deleted as per your request.</p>
+    
+    <h3>What This Means:</h3>
+    <ul>
+        <li>You can no longer log in to your account on our website.</li>
+        <li>Your personal information, rental history, and other related data have been permanently removed from our system.</li>
+        <li>If you did not request this deletion, please contact our support team immediately.</li>
+    </ul>
+    
+    <p>We're sorry to see you go and hope you had a great experience with us. If you ever change your mind, you are always welcome to create a new account in the future.</p>
+    
+    <p>Thank you for being a part of the Hillz Exquisites community.</p>
+    
+    <p>Best regards,<br>
+    The Hillz Exquisites Team</p>
+{% endblock %}

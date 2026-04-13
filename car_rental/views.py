@@ -3,6 +3,9 @@ from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth.mixins import UserPassesTestMixin, LoginRequiredMixin
 from django.contrib.admin.views.decorators import staff_member_required
 from django.views import View
+from django.db import transaction
+from django.core.files.storage import default_storage
+from django.conf import settings
 from django.contrib import messages
 from django.db.models import Q, Count, Sum, Avg, F, ExpressionWrapper, DurationField, Max
 from django.core.paginator import Paginator
@@ -41,8 +44,13 @@ from urllib.parse import quote
 
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
+from django.template.loader import render_to_string
+from django.utils.html import strip_tags
+from django.core.mail import send_mail
 import json
 import logging
+import cloudinary
+import cloudinary.api
 
 logger = logging.getLogger(__name__)
 
@@ -949,109 +957,6 @@ def cancel_service_booking(request, pk):
         # This happens if the user doesn't have a customer_account
         return JsonResponse({'success': False, 'error': 'User profile not found.'}, status=400)
 
-# --- AUTHENTICATION VIEWS ---
-
-# class LoginView(View):
-#     def get(self, request):
-#         form = AuthenticationForm()
-#         site_info = SiteInfo.objects.first()
-#         context = {
-#             'form': form,
-#             'site_info': site_info
-#         }
-#         return render(request, 'login.html', context)
-#     
-#     def post(self, request):
-#         form = AuthenticationForm(request, data=request.POST)
-#         
-#         if form.is_valid():
-#             user = form.get_user() 
-#             
-#             if user is not None:
-#                 login(request, user) 
-#                 
-#                 messages.success(request, f"Welcome back, {user.username}!")
-#                 
-#                 next_url = request.GET.get('next', reverse('car_rental:profile'))
-#                 
-#                 return redirect(next_url) 
-#                 
-#             messages.error(request, 'Invalid username or password.')
-#         
-#         else:
-#             messages.error(request, 'Invalid username or password. Please check your credentials.')
-#         
-#         site_info = SiteInfo.objects.first()
-#         context = {
-#             'form': form,
-#             'site_info': site_info
-#         }
-#         return render(request, 'login.html', context)
-
-# class RegisterView(View):
-#     """Handle user registration"""
-#     template_name = 'register.html'
-#     
-#     def get(self, request):
-#         """Display registration form"""
-#         form = UserCreationForm()
-#         site_info = SiteInfo.objects.first()
-#         context = {
-#             'form': form,
-#             'site_info': site_info
-#         }
-#         return render(request, self.template_name, context)
-    
-#     def post(self, request):
-#         """Process registration form submission"""
-#         form = UserCreationForm(request.POST)
-#         if form.is_valid():
-#             user = form.save()
-#             
-#             # Create a Customer record if email is provided
-#             if user.email:
-#                 customer, created = Customer.objects.get_or_create(
-#                     email=user.email,
-#                     defaults={
-#                         'name': f"{user.first_name} {user.last_name}".strip() or user.username,
-#                         'user': user
-#                     }
-#                 )
-#                 
-#                 # Link the customer to the user
-#                 user.customer_profile = customer
-#                 user.save()
-#             
-#             # Create UserProfile if it doesn't exist
-#             UserProfile.objects.get_or_create(user=user)
-#             
-#             # --- EMAIL INTEGRATION START ---
-#             # Send welcome email to the new user
-#             send_welcome_email(user)
-#             # --- EMAIL INTEGRATION END ---
-#             
-#             # Authenticate and login the user
-#             user = authenticate(
-#                 username=form.cleaned_data.get('username'), 
-#                 password=form.cleaned_data.get('password1')
-#             )
-#             if user:
-#                 login(request, user)
-#                 messages.success(request, 'Registration successful. Welcome to Hillz Exquisite!')
-#             else:
-#                 messages.warning(request, 'Registration successful, but automatic login failed. Please log in.')
-#             
-#             return redirect('car_rental:profile') 
-#         else:
-#             messages.error(request, 'Registration failed. Please correct the errors below.')
-#         
-#         site_info = SiteInfo.objects.first()
-#         context = {
-#             'form': form,
-#             'site_info': site_info
-#         }
-#         return render(request, self.template_name, context)
-
 # --- USER PROFILE VIEWS ---
 
 @login_required
@@ -1059,22 +964,22 @@ def profile(request):
     # Ensure UserProfile exists
     profile, _ = UserProfile.objects.get_or_create(user=request.user)
     
-    # Get or create Customer information
-    try:
-        customer = request.user.customer_account
-        rentals = Rental.objects.filter(customer=customer).order_by('-rental_datetime')
-        purchases = Purchase.objects.filter(customer=customer).order_by('-purchase_datetime')
-    except Customer.DoesNotExist:
-        # Create customer account if it doesn't exist
-        customer = Customer.objects.create(
-            name=f"{request.user.first_name} {request.user.last_name}".strip() or request.user.username,
-            email=request.user.email,
-            user=request.user
-        )
-        rentals = Rental.objects.none()
-        purchases = Purchase.objects.none()
-        messages.info(request, 'A customer account has been created for you.')
-
+    # --- ROBUSTLY GET OR CREATE THE CUSTOMER ---
+    customer, created = Customer.objects.get_or_create(
+        email=request.user.email,
+        defaults={
+            'name': f"{request.user.first_name} {request.user.last_name}".strip() or request.user.username,
+            'user': request.user
+        }
+    )
+    # ---------------------------------------------
+    
+    # --- Initialize forms ---
+    user_form = UserForm(instance=request.user)
+    profile_form = UserProfileForm(instance=profile)
+    customer_form = CustomerForm(instance=customer, user=request.user)
+    
+    # --- Handle POST Request (Form Submission) ---
     if request.method == 'POST':
         user_form = UserForm(request.POST, instance=request.user)
         profile_form = UserProfileForm(request.POST, request.FILES, instance=profile)
@@ -1088,47 +993,73 @@ def profile(request):
                 messages.success(request, 'Your profile has been updated successfully!')
                 
                 # --- EMAIL INTEGRATION START ---
-                # Send a confirmation email to the user
                 send_profile_update_email(request.user)
                 # --- EMAIL INTEGRATION END ---
                 
                 return redirect('car_rental:profile')
             except Exception as e:
-                messages.error(request, f'An error occurred while updating your profile: {str(e)}')
+                messages.error(request, f'An error occurred while updating your profile: {str(e)}.')
                 logger.error(f"Profile update error: {e}")
         else:
             messages.error(request, 'Please correct the errors below.')
-    else:
-        user_form = UserForm(instance=request.user)
-        profile_form = UserProfileForm(instance=profile)
-        customer_form = CustomerForm(instance=customer, user=request.user)
-    
-    # Calculate statistics
-    total_rentals = rentals.count() if rentals else 0
-    total_purchases = purchases.count() if purchases else 0
-    
-    rental_spent = rentals.filter(payment_status='paid').aggregate(total=Sum('total_amount'))['total'] or 0
-    purchase_spent = purchases.filter(payment_status='paid').aggregate(total=Sum('total_amount'))['total'] or 0
-    total_spent = rental_spent + purchase_spent
-    
+            # Re-render forms with errors so the user can see them
+            user_form = UserForm(request.POST, instance=request.user)
+            profile_form = UserProfileForm(request.POST, request.FILES, instance=profile)
+            customer_form = CustomerForm(request.POST, request.FILES, instance=customer, user=request.user)
+
+    # --- Calculate Statistics (for both GET and POST) ---
+    try:
+        full_rentals = Rental.objects.filter(customer=customer).order_by('-rental_datetime')
+        full_purchases = Purchase.objects.filter(customer=customer).order_by('-purchase_datetime')
+        
+        total_rentals = full_rentals.count()
+        active_rentals = full_rentals.filter(status__in=['active', 'overdue']).count()
+        
+        rental_spent = full_rentals.filter(payment_status='paid').aggregate(total=Sum('total_amount'))['total'] or 0
+        purchase_spent = full_purchases.filter(payment_status='paid').aggregate(total=Sum('total_amount'))['total'] or 0
+        total_spent = rental_spent + purchase_spent
+        
+        # Get ratings for rentals
+        rated_rentals = []
+        if request.user.is_authenticated:
+            try:
+                customer = request.user.customer_account
+                rated_rentals = list(CustomerRating.objects.filter(
+                    customer=customer,
+                    service_type='rental'
+                ).values_list('object_id', flat=True))
+            except (Customer.DoesNotExist, AttributeError):
+                pass
+                
+    except (Customer.DoesNotExist, AttributeError):
+        total_rentals = 0
+        active_rentals = 0
+        rental_spent = 0
+        purchase_spent = 0
+        total_spent = 0
+        rated_rentals = []
+                
+    # --- Create the Context Dictionary (This will always be reached) ---
     context = {
         'profile': profile,
         'customer': customer,
-        'rentals': rentals[:5],
-        'purchases': purchases[:5],
+        'rentals': full_rentals[:5],
+        'purchases': Purchase.objects.filter(customer=customer).order_by('-purchase_datetime')[:5],
         'user_form': user_form,
         'profile_form': profile_form,
         'customer_form': customer_form,
         'site_info': SiteInfo.objects.first(),
         'stats': {
             'total_rentals': total_rentals,
-            'total_purchases': total_purchases,
+            'total_purchases': full_purchases.count(),
             'rental_spent': rental_spent,
             'purchase_spent': purchase_spent,
             'total_spent': total_spent,
+            'rated_rentals': rated_rentals,
         }
     }
     
+    # --- Render the Template (This will always be reached) ---
     return render(request, 'profile.html', context)
 
 @login_required
@@ -1154,21 +1085,97 @@ def change_password(request):
 
 @login_required
 def delete_account(request):
+    """
+    Handles both displaying the deletion confirmation page (GET)
+    and processing the actual account deletion (POST).
+    """
     if request.method == 'POST':
-        if request.POST.get('confirm_delete') == 'yes':
-            user = request.user
-            username = user.username
-            logout(request)
-            user.delete()
-            messages.success(request, f'Account "{username}" has been successfully deleted.')
-            return redirect('car_rental:home')
-        else:
-            messages.error(request, 'Account deletion was not confirmed.')
+        confirmation = request.POST.get('confirm_delete')
+        if confirmation != 'yes':
+            messages.error(request, 'Account deletion was not confirmed. Your account is safe.')
             return redirect('car_rental:profile')
-    
-    site_info = SiteInfo.objects.first()
-    context = {'site_info': site_info}
-    return render(request, 'delete_account.html', context)
+
+        user = request.user
+        user_email = user.email # Store the email before logging out
+
+        try:
+            with transaction.atomic():
+                # --- 1. Store User Data for Email ---
+                user_name = user.get_full_name() or user.username
+                
+                # --- 2. Delete Related Data First ---
+                try:
+                    customer = user.customer_account
+                    if customer:
+                        # --- CLOUDINARY FILE DELETION ---
+                        # Check and delete profile picture from Cloudinary
+                        if hasattr(customer, 'profile_picture') and customer.profile_picture:
+                            # Use .public_id for CloudinaryResource
+                            cloudinary.api.delete_resources([customer.profile_picture.public_id])
+                        # --- END CLOUDINARY DELETION ---
+                        
+                        # Check and delete license image from Cloudinary
+                        if hasattr(customer, 'license_image') and customer.license_image:
+                            cloudinary.api.delete_resources([customer.license_image.public_id])
+                        # --- END CLOUDINARY DELETION ---
+                        customer.delete()
+                except Customer.DoesNotExist:
+                    pass
+                
+                try:
+                    profile = user.profile
+                    if profile:
+                        # --- CLOUDINARY FILE DELETION ---
+                        if hasattr(profile, 'profile_picture') and profile.profile_picture:
+                            # Use .public_id for CloudinaryResource
+                            cloudinary.api.delete_resources([profile.profile_picture.public_id])
+                        # --- END CLOUDINARY DELETION ---
+                        profile.delete()
+                except UserProfile.DoesNotExist:
+                    pass
+
+                # --- 3. Delete the User Account ---
+                logout(request)
+                user.delete()
+
+            # --- 4. Send a Confirmation Email ---
+            try:
+                site_info = SiteInfo.objects.first()
+                subject = f"Your Hillz Exquisites Account Has Been Deleted"
+                
+                context = {
+                    'user_name': user_name,
+                    'site_info': site_info,
+                    'site_url': settings.SITE_URL,
+                }
+                
+                html_message = render_to_string('emails/account_deleted_email.html', context)
+                plain_message = strip_tags(html_message)
+                
+                from_email = site_info.email
+                to_email = [user_email]
+                
+                send_mail(subject, plain_message, from_email, to_email, html_message=html_message, fail_silently=False)
+            except Exception as e:
+                logging.error(f"Failed to send account deletion email to {user_email}: {e}")
+
+            # --- 5. Provide Success Feedback and Redirect ---
+            messages.success(request, 'Your account has been successfully deleted. A confirmation email has been sent to you.')
+            return redirect('car_rental:home')
+
+        except Exception as e:
+            messages.error(request, f'An error occurred during account deletion: {e}. Please contact support.')
+            logging.error(f"Error deleting account for user {user.username}: {e}", exc_info=True)
+            return redirect('car_rental:profile')
+
+    else:
+        # --- Handle GET Request (Show Confirmation Page) ---
+        site_info = SiteInfo.objects.first()
+        context = {
+            'site_info': site_info,
+            'user': request.user,
+        }
+        return render(request, 'delete_account.html', context)
 
 class ProfileEditView(LoginRequiredMixin, UpdateView):
     model = UserProfile

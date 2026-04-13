@@ -1,0 +1,88 @@
+{% extends 'base.html' %}
+
+{% block title %}Delete Account - {{ site_info.company_name }}{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-6 col-md-8">
+            <div class="card shadow">
+                <div class="card-header bg-danger text-white text-center">
+                    <h4 class="mb-0"><i class="fas fa-exclamation-triangle me-2"></i>Delete Account</h4>
+                </div>
+                <div class="card-body p-4">
+                    <!-- Personalized Warning Message -->
+                    <div class="text-center mb-4">
+                        <h3>Hello, {{ user.get_full_name|default:user.username }}.</h3>
+                        <p class="text-muted">
+                            We're sorry to see you go. Before you proceed, please be aware that this action is <strong>permanent and irreversible</strong>.
+                        </p>
+                    </div>
+
+                    <!-- List of What Will Be Deleted -->
+                    <div class="alert alert-warning" role="alert">
+                        <h5 class="alert-heading">By deleting your account, the following will be permanently removed:</h5>
+                        <ul class="mb-0">
+                            <li>Your profile information (name, email, phone, address)</li>
+                            <li>Your profile picture</li>
+                            <li>Your rental history and records</li>
+                            <li>Your purchase history and records</li>
+                            <li>Your service booking history and records</li>
+                            <li>Your customer ratings and reviews</li>
+                        </ul>
+                    </div>
+
+                    <!-- Final Confirmation Form -->
+                    <form method="post" action="{% url 'car_rental:delete_account' %}" onsubmit="return confirm('Are you absolutely sure you want to delete your account? This action cannot be undone.');">
+                        {% csrf_token %}
+                        <div class="d-grid gap-2">
+                            <button type="submit" name="confirm_delete" value="yes" class="btn btn-danger">
+                                <i class="fas fa-trash-alt me-2"></i>Yes, Delete My Account
+                            </button>
+                            <a href="{% url 'car_rental:profile' %}" class="btn btn-secondary">
+                                <i class="fas fa-arrow-left me-2"></i>Cancel, Keep My Account
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .card-header h4 {
+        font-family: var(--font-family-playfair);
+    }
+    .alert-warning {
+        background-color: rgba(255, 193, 7, 0.1);
+        border-color: rgba(255, 193, 7, 0.2);
+        color: #856404;
+    }
+    .alert-warning h5 {
+        color: #856404;
+    }
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // This script is a fallback for the onsubmit confirmation.
+    // The form's onsubmit attribute is the primary protection.
+    document.addEventListener('DOMContentLoaded', function() {
+        const form = document.querySelector('form');
+        if (form) {
+            form.addEventListener('submit', function(event) {
+                // Double-check the confirmation value
+                const confirmationInput = form.querySelector('input[name="confirm_delete"]');
+                if (confirmationInput && confirmationInput.value !== 'yes') {
+                    event.preventDefault();
+                    alert('Please confirm that you want to delete your account by typing "yes" in the box.');
+                }
+            });
+        }
+    });
+</script>
+{% endblock %}
