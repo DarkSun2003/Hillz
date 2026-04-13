@@ -44,6 +44,7 @@ class UserProfileForm(forms.ModelForm):
             'zip_code': forms.TextInput(attrs={'class': 'form-control'}),
             'country': forms.TextInput(attrs={'class': 'form-control'}),
             'date_of_birth': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
+            'profile_picture': forms.ClearableFileInput(attrs={'class': 'form-control-file'}),
             'bio': forms.Textarea(attrs={'class': 'form-control', 'rows': 4}),
             'website': forms.URLInput(attrs={'class': 'form-control'}),
             'instagram_url': forms.URLInput(attrs={'class': 'form-control'}),
@@ -56,10 +57,15 @@ class UserProfileForm(forms.ModelForm):
     
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        # Make license fields optional
-        self.fields['drivers_license'].required = False
-        self.fields['license_expiry'].required = False
+        
+        # --- MAKE FIELDS OPTIONAL ---
+        # This is the most effective way to make fields optional.
+        self.fields['profile_picture'].required = False
         self.fields['license_image'].required = False
+        self.fields['license_expiry'].required = False
+        # You can make other fields optional here too if needed
+        # self.fields['bio'].required = False
+        # -----------------------------
     
     def clean_license_expiry(self):
         license_expiry = self.cleaned_data.get('license_expiry')
