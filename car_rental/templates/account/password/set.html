@@ -1,0 +1,64 @@
+{% extends 'base.html' %}
+{% load i18n %}
+
+{% block title %}Set Password - {{ site_info.company_name }}{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6 col-lg-5">
+            <div class="card shadow">
+                <div class="card-header bg-success text-white text-center">
+                    <h4 class="mb-0"><i class="fas fa-lock me-2"></i>Set Your Password</h4>
+                </div>
+                <div class="card-body p-4">
+                    <p class="text-center mb-4">
+                        You used a social login to create your account. Please set a password for your email address to secure your account.
+                    </p>
+                    
+                    <form method="post" action="{% url 'account_set_password' %}" class="needs-validation" novalidate>
+                        {% csrf_token %}
+                        
+                        <!-- New Password Fields -->
+                        <div class="mb-3">
+                            <label for="id_password1" class="form-label">New Password</label>
+                            <input type="password" name="password1" required id="id_password1" class="form-control" autocomplete="new-password">
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="id_password2" class="form-label">Confirm New Password</label>
+                            <input type="password" name="password2" required id="id_password2" class="form-control" autocomplete="new-password">
+                        </div>
+                        
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-success">
+                                <i class="fas fa-save me-2"></i>Set Password
+                            </button>
+                            <a href="{% url 'account_email' %}" class="btn btn-secondary">
+                                <i class="fas fa-arrow-left me-2"></i>Back to Profile
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const form = document.querySelector('.needs-validation');
+        if (form) {
+            form.addEventListener('submit', function(event) {
+                const password1 = document.getElementById('id_password1');
+                const password2 = document.getElementById('id_password2');
+                if (password1.value !== password2.value) {
+                    event.preventDefault();
+                    alert('New passwords do not match.');
+                }
+            });
+        }
+    });
+</script>
+{% endblock %}

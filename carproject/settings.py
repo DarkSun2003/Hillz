@@ -173,6 +173,19 @@ ACCOUNT_USERNAME_REQUIRED = False
 # Adapter to handle the email sending logic
 EMAIL_ADAPTER = 'allauth.account.adapters.DefaultAccountAdapter'
 
+# --- DJANGO-ALLAUTH SETTINGS ---
+AUTHENTICATION_BACKENDS = [
+    'django.contrib.auth.backends.ModelBackend',
+    'allauth.account.auth_backends.AuthenticationBackend',
+]
+
+# --- POINT TO YOUR CUSTOM SUBCLASS ---
+# This is safe because it inherits all other behavior.
+ACCOUNT_ADAPTER = 'car_rental.adapter.CustomAccountAdapter'
+# ----------------------------------------------
+
+# ... other allauth settings
+
 # This is the list of social applications users can connect to.
 # For now, we'll just include Google.
 SOCIALACCOUNT_PROVIDERS = {

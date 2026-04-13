@@ -1063,27 +1063,6 @@ def profile(request):
     return render(request, 'profile.html', context)
 
 @login_required
-def change_password(request):
-    if request.method == 'POST':
-        form = PasswordChangeForm(request.user, request.POST)
-        if form.is_valid():
-            user = form.save()
-            update_session_auth_hash(request, user)
-            messages.success(request, 'Your password was successfully updated!')
-            return redirect('car_rental:profile')
-        else:
-            messages.error(request, 'Please correct the errors below.')
-    else:
-        form = PasswordChangeForm(request.user)
-    
-    site_info = SiteInfo.objects.first()
-    context = {
-        'form': form,
-        'site_info': site_info
-    }
-    return render(request, 'change_password.html', context)
-
-@login_required
 def delete_account(request):
     """
     Handles both displaying the deletion confirmation page (GET)
