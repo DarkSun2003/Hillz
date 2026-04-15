@@ -7,6 +7,7 @@ from django.contrib.auth.tokens import default_token_generator
 from django.utils.http import urlsafe_base64_encode
 from django.utils.encoding import force_bytes
 from django.db.models import Sum
+import logging
 import math
 import os
 from .models import Rental, Purchase, SiteInfo, ServiceBooking
@@ -15,14 +16,12 @@ from .models import Rental, Purchase, SiteInfo, ServiceBooking
 
 def send_rental_confirmation_email(rental):
     """
-    Send rental confirmation email to customer AND management.
+    Send custom rental confirmation email to customer 
+    AND a detailed notification to management.
     """
-    site_info = SiteInfo.objects.first()
-    if not site_info:
-        site_info = SiteInfo()
+    site_info = SiteInfo.objects.first() or SiteInfo()
     
-    subject = f"Rental Confirmation - {rental.car.make} {rental.car.model}"
-    
+    # Common context used in both (or slightly modified)
     context = {
         'rental': rental,
         'site_info': site_info,
@@ -30,37 +29,54 @@ def send_rental_confirmation_email(rental):
         'car_name': f"{rental.car.year} {rental.car.make} {rental.car.model}",
         'rental_date': rental.rental_datetime.strftime('%B %d, %Y'),
         'return_date': rental.return_datetime.strftime('%B %d, %Y'),
-        'daily_rate': rental.daily_rate,
         'total_amount': rental.total_amount,
         'pickup_location': rental.pickup_location or site_info.address,
     }
-    
-    html_message = render_to_string('emails/rental_confirmation.html', context)
-    plain_message = strip_tags(html_message)
-    
-    from_email = site_info.email
-    to_email = rental.customer.email
-    
+
     try:
-        # Send to customer
-        send_mail(subject, plain_message, from_email, [to_email], html_message=html_message, fail_silently=False)
-        # Send to management
-        management_subject = f"NEW BOOKING: {subject}"
-        send_mail(management_subject, plain_message, from_email, [settings.MANAGEMENT_EMAIL], html_message=html_message, fail_silently=False)
+        # --- 1. SEND TO CUSTOMER ---
+        # Keep using your existing template for the customer "Thank You"
+        customer_html = render_to_string('emails/rental_confirmation.html', context)
+        customer_plain = strip_tags(customer_html)
+        customer_subject = f"Rental Confirmation - {rental.car.make} {rental.car.model}"
+        
+        send_mail(
+            customer_subject, 
+            customer_plain, 
+            site_info.email, 
+            [rental.customer.email], 
+            html_message=customer_html, 
+            fail_silently=False
+        )
+
+        # --- 2. SEND TO MANAGEMENT ---
+        # Render a DIFFERENT template for management notification
+        management_html = render_to_string('emails/rental_notification_admin.html', context)
+        management_plain = strip_tags(management_html)
+        management_subject = f"NEW BOOKING ALERT: {rental.customer.name} - #{rental.id}"
+        
+        send_mail(
+            management_subject, 
+            management_plain, 
+            site_info.email, 
+            [settings.MANAGEMENT_EMAIL], 
+            html_message=management_html, 
+            fail_silently=False
+        )
+        
         return True
     except Exception as e:
-        print(f"Error sending rental confirmation email: {e}")
+        # Use logging in production instead of print
+        import logging
+        logging.error(f"Error sending rental confirmation email: {e}")
         return False
 
 def send_purchase_confirmation_email(purchase):
     """
-    Send purchase confirmation email to customer AND management.
+    Send purchase confirmation email to customer 
+    AND a sales notification to management.
     """
-    site_info = SiteInfo.objects.first()
-    if not site_info:
-        site_info = SiteInfo()
-    
-    subject = f"Purchase Confirmation - {purchase.car.make} {purchase.car.model}"
+    site_info = SiteInfo.objects.first() or SiteInfo()
     
     context = {
         'purchase': purchase,
@@ -71,22 +87,39 @@ def send_purchase_confirmation_email(purchase):
         'purchase_price': purchase.purchase_price,
         'total_amount': purchase.total_amount,
     }
-    
-    html_message = render_to_string('emails/purchase_confirmation.html', context)
-    plain_message = strip_tags(html_message)
-    
-    from_email = site_info.email
-    to_email = purchase.customer.email
-    
+
     try:
-        # Send to customer
-        send_mail(subject, plain_message, from_email, [to_email], html_message=html_message, fail_silently=False)
-        # Send to management
-        management_subject = f"NEW ORDER: {subject}"
-        send_mail(management_subject, plain_message, from_email, [settings.MANAGEMENT_EMAIL], html_message=html_message, fail_silently=False)
+        # --- 1. SEND TO CUSTOMER (Receipt) ---
+        customer_html = render_to_string('emails/purchase_confirmation.html', context)
+        customer_plain = strip_tags(customer_html)
+        customer_subject = f"Purchase Confirmation - {purchase.car.make} {purchase.car.model}"
+        
+        send_mail(
+            customer_subject, 
+            customer_plain, 
+            site_info.email, 
+            [purchase.customer.email], 
+            html_message=customer_html, 
+            fail_silently=False
+        )
+
+        # --- 2. SEND TO MANAGEMENT (Sales Alert) ---
+        management_html = render_to_string('emails/purchase_notification_admin.html', context)
+        management_plain = strip_tags(management_html)
+        management_subject = f"NEW CAR SALE ALERT: {purchase.customer.name} - #{purchase.id}"
+        
+        send_mail(
+            management_subject, 
+            management_plain, 
+            site_info.email, 
+            [settings.MANAGEMENT_EMAIL], 
+            html_message=management_html, 
+            fail_silently=False
+        )
+        
         return True
     except Exception as e:
-        print(f"Error sending purchase confirmation email: {e}")
+        logging.error(f"Error sending purchase confirmation email: {e}")
         return False
 
 def send_service_confirmation_email(booking):

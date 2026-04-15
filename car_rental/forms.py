@@ -297,9 +297,16 @@ class RentalReturnForm(forms.ModelForm):
         ]
 
 #purchase forms
+from django import forms
+from django.core.exceptions import ValidationError
+from django.utils import timezone
+from decimal import Decimal
+from .models import Purchase, Car
+
 class PurchaseForm(forms.ModelForm):
     """
     Form for creating or editing a purchase.
+    Integrates staff-level fields and customer-facing auto-population.
     """
     class Meta:
         model = Purchase
@@ -334,7 +341,7 @@ class PurchaseForm(forms.ModelForm):
         self.request = kwargs.pop('request', None)
         super().__init__(*args, **kwargs)
         
-        # If we have a car in the request, set initial values
+        # --- 1. SET PRICING FROM CAR ID ---
         if self.request and self.request.GET.get('car_id'):
             try:
                 car = Car.objects.get(pk=self.request.GET.get('car_id'))
@@ -344,13 +351,27 @@ class PurchaseForm(forms.ModelForm):
                 self.fields['total_amount'].initial = round(car.get_sale_price * Decimal('1.07'), 2)
             except Car.DoesNotExist:
                 pass
+
+        # --- 2. NEW: PRE-POPULATE DELIVERY ADDRESS FROM PROFILE ---
+        if self.request and self.request.user.is_authenticated:
+            user = self.request.user
+            saved_address = None
+
+            # Priority 1: UserProfile
+            if hasattr(user, 'profile') and user.profile.delivery_address:
+                saved_address = user.profile.delivery_address
+            # Priority 2: Customer Account
+            elif hasattr(user, 'customer_account') and user.customer_account.delivery_address:
+                saved_address = user.customer_account.delivery_address
+
+            if saved_address:
+                self.fields['delivery_address'].initial = saved_address
     
+    # --- FINANCIAL FIELD CLEANING ---
     def clean_taxes(self):
         taxes = self.cleaned_data.get('taxes')
         if taxes is not None:
-            # Round to 2 decimal places
             taxes = round(taxes, 2)
-            # Validate that it doesn't exceed 2 decimal places
             if len(str(taxes).split('.')[-1]) > 2:
                 raise forms.ValidationError("Ensure that there are no more than 2 decimal places.")
         return taxes
@@ -358,9 +379,7 @@ class PurchaseForm(forms.ModelForm):
     def clean_fees(self):
         fees = self.cleaned_data.get('fees')
         if fees is not None:
-            # Round to 2 decimal places
             fees = round(fees, 2)
-            # Validate that it doesn't exceed 2 decimal places
             if len(str(fees).split('.')[-1]) > 2:
                 raise forms.ValidationError("Ensure that there are no more than 2 decimal places.")
         return fees
@@ -368,46 +387,35 @@ class PurchaseForm(forms.ModelForm):
     def clean_total_amount(self):
         total_amount = self.cleaned_data.get('total_amount')
         if total_amount is not None:
-            # Round to 2 decimal places
             total_amount = round(total_amount, 2)
-            # Validate that it doesn't exceed 2 decimal places
             if len(str(total_amount).split('.')[-1]) > 2:
                 raise forms.ValidationError("Ensure that there are no more than 2 decimal places.")
         return total_amount
     
-    # ========================================================================
-    # UPDATED clean() METHOD
-    # ========================================================================
+    # --- BUSINESS LOGIC VALIDATION ---
     def clean(self):
         cleaned_data = super().clean()
         
-        # --- CORRECTED Validation Rule ---
-        # Only check for a future delivery date when CREATING a new purchase.
         if not self.instance.pk:
             delivery_datetime = cleaned_data.get('delivery_datetime')
             if delivery_datetime and delivery_datetime < timezone.now():
                 raise ValidationError("Delivery date must be in the future.")
         
-        # --- NEW Validation Rules ---
         status = cleaned_data.get('status')
         actual_delivery_date = cleaned_data.get('actual_delivery_datetime')
 
-        # Rule 1: If status is 'delivered', the actual delivery date is mandatory.
         if status == 'delivered' and not actual_delivery_date:
             raise ValidationError(
                 "You must provide the Actual Delivery Date when marking a purchase as 'Delivered'."
             )
 
-        # Rule 2: If status is NOT 'delivered', the actual delivery date must be empty.
         if status != 'delivered' and actual_delivery_date:
             raise ValidationError(
                 "The Actual Delivery Date should only be set when the status is 'Delivered'. "
                 "Please clear this field to continue."
             )
         
-        # Always return the full collection of cleaned data.
         return cleaned_data
-
 # --- Service Forms ---
 
 

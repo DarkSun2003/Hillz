@@ -214,7 +214,7 @@ class CarDetailView(DetailView):
         # Check if user has already rented this car
         if self.request.user.is_authenticated:
             try:
-                customer = Customer.objects.get(email=self.request.user.email)
+                customer = getattr(self.request.user, 'customer_account', None)
                 context['has_rented'] = Rental.objects.filter(customer=customer, car=self.object).exists()
             except Customer.DoesNotExist:
                 context['has_rented'] = False
@@ -1812,12 +1812,21 @@ class CreatePurchaseView(UserPassesTestMixin, CreateView):
         context['site_info'] = SiteInfo.objects.first()
         return context
 
+from django.views import View
+from django.contrib.auth.mixins import LoginRequiredMixin
+from urllib.parse import quote
 
 class CustomerPurchaseView(LoginRequiredMixin, View):
+    """
+    Handles the final step of a car purchase for customers.
+    Initializes the form with pre-filled profile data and handles
+    redirection to WhatsApp for payment finalization.
+    """
     def get(self, request, car_id):
+        # Fetch the car, ensuring it is actually for sale and not deleted
         car = get_object_or_404(Car, id=car_id, for_sale=True, is_deleted=False)
         
-        # Initialize form with car data
+        # Initialize form with request so __init__ can pull the saved address
         form = PurchaseForm(request=request)
         
         context = {
@@ -1830,63 +1839,61 @@ class CustomerPurchaseView(LoginRequiredMixin, View):
     def post(self, request, car_id):
         car = get_object_or_404(Car, id=car_id, for_sale=True, is_deleted=False)
         
+        # Pass request.POST AND request object to the form
         form = PurchaseForm(request.POST, request=request)
         
         if form.is_valid():
-            # Create purchase with car and customer data
-            purchase = form.save(commit=False)
-            purchase.car = car
-            purchase.customer = request.user.customer_account
-            purchase.save()
-            
-            # --- EMAIL INTEGRATION START ---
-            send_purchase_confirmation_email(purchase)
-            # --- EMAIL INTEGRATION END ---
-            
-            # Generate WhatsApp URL with customer information
-            site_info = SiteInfo.objects.first()
-            if site_info and site_info.whatsapp_phone:
-                phone = site_info.whatsapp_phone.replace('+', '').replace(' ', '').replace('-', '')
+            try:
+                # Create purchase with car and customer data
+                purchase = form.save(commit=False)
+                purchase.car = car
+                # Direct link to the current active customer account
+                purchase.customer = request.user.customer_account
+                purchase.save()
                 
-                # Get customer information
-                customer = request.user.customer_account
-                customer_name = customer.name
-                customer_email = customer.email
-                customer_phone = customer.phone
+                # --- EMAIL INTEGRATION ---
+                send_purchase_confirmation_email(purchase)
                 
-                # Format delivery date if available
-                delivery_date = ""
-                if purchase.delivery_datetime:
-                    delivery_date = purchase.delivery_datetime.strftime('%B %d, %Y')
-                
-                message = quote(
-                    f"Hello, I'd like to complete my purchase for a {car.year} {car.make} {car.model}.\n\n"
-                    f"Customer Information:\n"
-                    f"Name: {customer_name}\n"
-                    f"Email: {customer_email}\n"
-                    f"Phone: {customer_phone}\n\n"
-                    f"Purchase Details:\n"
-                    f"Purchase ID: {purchase.id}\n"
-                    f"Car: {car.year} {car.make} {car.model}\n"
-                    f"VIN: {car.vin or 'N/A'}\n"
-                    f"Total Amount: ₦{purchase.total_amount}\n"
-                    f"Delivery Date: {delivery_date or 'To be determined'}\n"
-                    f"Delivery Address: {purchase.delivery_address or 'To be provided'}\n\n"
-                    f"Please advise on the next steps for payment."
-                )
-                
-                whatsapp_url = f"https://wa.me/{phone}?text={message}"
-                
-                # Store purchase info in session for success page
-                request.session['last_purchase_id'] = purchase.id
-                request.session['whatsapp_url'] = whatsapp_url
-                
-                messages.success(request, 'Your purchase request has been submitted successfully!')
-                return redirect('car_rental:whatsapp_purchase_success')
-            else:
-                messages.success(request, 'Your purchase request has been submitted successfully!')
-                return redirect('car_rental:purchase_success')
+                # --- WHATSAPP REDIRECTION LOGIC ---
+                site_info = SiteInfo.objects.first()
+                if site_info and site_info.whatsapp_phone:
+                    # Clean the phone number for the URL
+                    phone = site_info.whatsapp_phone.replace('+', '').replace(' ', '').replace('-', '')
+                    
+                    customer = request.user.customer_account
+                    delivery_date = purchase.delivery_datetime.strftime('%B %d, %Y') if purchase.delivery_datetime else 'To be determined'
+                    
+                    # Format the professional message for the dealer
+                    message_text = (
+                        f"Hello, I'd like to complete my purchase for a {car.year} {car.make} {car.model}.\n\n"
+                        f"*Customer Information:*\n"
+                        f"Name: {customer.name}\n"
+                        f"Email: {customer.email}\n"
+                        f"Phone: {customer.phone}\n\n"
+                        f"*Purchase Details:*\n"
+                        f"Purchase ID: #{purchase.id}\n"
+                        f"Total Amount: ₦{purchase.total_amount:,.2f}\n"
+                        f"Delivery Date: {delivery_date}\n"
+                        f"Delivery Address: {purchase.delivery_address or 'To be provided'}\n\n"
+                        f"Please advise on the next steps for payment."
+                    )
+                    
+                    whatsapp_url = f"https://wa.me/{phone}?text={quote(message_text)}"
+                    
+                    # Store info in session for the success page to pick up
+                    request.session['last_purchase_id'] = purchase.id
+                    request.session['whatsapp_url'] = whatsapp_url
+                    
+                    messages.success(request, 'Your purchase request has been submitted successfully!')
+                    return redirect('car_rental:whatsapp_purchase_success')
+                else:
+                    messages.success(request, 'Your purchase request has been submitted successfully!')
+                    return redirect('car_rental:purchase_success')
+                    
+            except Exception as e:
+                messages.error(request, f"An error occurred while processing your purchase: {str(e)}")
         
+        # If form is invalid, re-render with errors
         context = {
             'car': car,
             'form': form,

@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+<body style="font-family: Arial, sans-serif; color: #333; line-height: 1.6;">
+    <div style="background-color: #d4af37; color: #212529; padding: 20px; text-align: center;">
+        <h2 style="margin: 0;">New Car Sale Recorded</h2>
+    </div>
+    <div style="padding: 20px; border: 1px solid #ddd;">
+        <p>A new car purchase request has been submitted. Please check the WhatsApp link or Admin panel to finalize payment.</p>
+        
+        <h3 style="border-bottom: 1px solid #ccc; padding-bottom: 10px;">Transaction Details</h3>
+        <table style="width: 100%;">
+            <tr><td style="font-weight: bold; width: 40%;">Order ID:</td><td>#{{ purchase.id }}</td></tr>
+            <tr><td style="font-weight: bold;">Customer Name:</td><td>{{ customer_name }}</td></tr>
+            <tr><td style="font-weight: bold;">Customer Phone:</td><td>{{ purchase.customer.phone }}</td></tr>
+            <tr><td style="font-weight: bold;">Vehicle:</td><td>{{ car_name }}</td></tr>
+            <tr><td style="font-weight: bold;">VIN:</td><td>{{ purchase.car.vin|default:"N/A" }}</td></tr>
+            <tr><td style="font-weight: bold;">Total Amount:</td><td>₦{{ total_amount }}</td></tr>
+            <tr><td style="font-weight: bold;">Delivery Address:</td><td>{{ purchase.delivery_address }}</td></tr>
+        </table>
+
+        <div style="margin-top: 30px; text-align: center;">
+            <a href="{{ settings.SITE_URL }}/admin/car_rental/purchase/{{ purchase.id }}/change/" 
+               style="background-color: #212529; color: #fff; padding: 12px 24px; text-decoration: none; border-radius: 5px; font-weight: bold;">
+                Open in Admin Panel
+            </a>
+        </div>
+    </div>
+</body>
+</html>

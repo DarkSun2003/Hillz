@@ -252,7 +252,7 @@
                     {% if car.image %}
                         <img src="{{ car.image.url }}" alt="{{ car.make }} {{ car.model }}" class="car-image">
                     {% else %}
-                        <img src="https://images.unsplash.com/photo-1552519507-da3b142c6e3d?ixlib=rb-4.0.3" alt="Car Image" class="car-image">
+                        <img src="{% static 'images/placeholder-car.jpg' %}" alt="Car Image" class="car-image">
                     {% endif %}
                     
                     <div class="row">
@@ -267,7 +267,7 @@
                             </div>
                             <div class="detail-row">
                                 <div>Mileage:</div>
-                                <div>{{ car.mileage|default:"N/A" }} miles</div>
+                                <div>{{ car.mileage|default:"N/A"|floatformat:0 }} miles</div>
                             </div>
                         </div>
                         <div class="col-md-6">
@@ -307,7 +307,6 @@
                     
                     {{ form.non_field_errors }}
                     
-                    <!-- Hidden required fields -->
                     <input type="hidden" name="customer" value="{{ request.user.customer_account.id }}">
                     <input type="hidden" name="car" value="{{ car.id }}">
                     <input type="hidden" name="purchase_datetime" value="{% now 'Y-m-d H:i' %}">
@@ -315,13 +314,18 @@
                     <input type="hidden" name="payment_status" value="pending">
                     <input type="hidden" name="employee" value="{{ request.user.id }}">
                     
+                    <input type="hidden" name="purchase_price" value="{{ car.get_sale_price|floatformat:2 }}">
+                    <input type="hidden" name="taxes" value="{{ car.get_sale_price|multiply:0.05|floatformat:2 }}">
+                    <input type="hidden" name="fees" value="{{ car.get_sale_price|multiply:0.02|floatformat:2 }}">
+                    <input type="hidden" name="total_amount" value="{{ car.get_sale_price|multiply:1.07|floatformat:2 }}">
+                    
                     <div class="form-group">
                         <label for="{{ form.delivery_address.id_for_label }}" class="section-title">Delivery Address</label>
                         {{ form.delivery_address }}
                         {% if form.delivery_address.errors %}
                             <div class="text-danger">{{ form.delivery_address.errors }}</div>
                         {% endif %}
-                        <small class="form-text text-muted">Please provide a complete address including postal code.</small>
+                        <small class="form-text text-muted">Please provide a complete address for vehicle delivery.</small>
                     </div>
                     
                     <div class="form-group">
@@ -330,7 +334,6 @@
                         {% if form.delivery_datetime.errors %}
                             <div class="text-danger">{{ form.delivery_datetime.errors }}</div>
                         {% endif %}
-                        <small class="form-text text-muted">Select your preferred delivery date.</small>
                     </div>
                     
                     <div class="form-group">
@@ -339,14 +342,7 @@
                         {% if form.delivery_notes.errors %}
                             <div class="text-danger">{{ form.delivery_notes.errors }}</div>
                         {% endif %}
-                        <small class="form-text text-muted">Any special instructions or requests regarding delivery</small>
                     </div>
-                    
-                    <!-- Hidden fields for pricing -->
-                    <input type="hidden" name="purchase_price" id="purchase_price" value="{{ car.get_sale_price|floatformat:2 }}" step="0.01">
-                    <input type="hidden" name="taxes" id="taxes" value="{{ car.get_sale_price|multiply:0.05|floatformat:2 }}" step="0.01">
-                    <input type="hidden" name="fees" id="fees" value="{{ car.get_sale_price|multiply:0.02|floatformat:2 }}" step="0.01">
-                    <input type="hidden" name="total_amount" id="total_amount" value="{{ car.get_sale_price|multiply:1.07|floatformat:2 }}" step="0.01">
                     
                     <div class="form-group mt-4">
                         <div class="form-check">
@@ -393,36 +389,18 @@
         const deliveryDateInput = document.getElementById('{{ form.delivery_datetime.id_for_label }}');
         if (deliveryDateInput) {
             const today = new Date();
-            const formattedDate = today.toISOString().split('T')[0];
-            deliveryDateInput.setAttribute('min', formattedDate);
+            // Local date for datetime-local input
+            const yyyy = today.getFullYear();
+            const mm = String(today.getMonth() + 1).padStart(2, '0');
+            const dd = String(today.getDate()).padStart(2, '0');
+            const hh = String(today.getHours()).padStart(2, '0');
+            const min = String(today.getMinutes()).padStart(2, '0');
+            
+            const minDateTime = `${yyyy}-${mm}-${dd}T${hh}:${min}`;
+            deliveryDateInput.setAttribute('min', minDateTime);
         }
         
-        // Enforce 2 decimal places for number inputs
-        const numberInputs = document.querySelectorAll('input[type="number"]');
-        numberInputs.forEach(input => {
-            input.addEventListener('blur', function() {
-                if (this.value && this.value !== '') {
-                    // Round to 2 decimal places
-                    const value = parseFloat(this.value);
-                    if (!isNaN(value)) {
-                        this.value = value.toFixed(2);
-                    }
-                }
-            });
-            
-            // Prevent entering more than 2 decimal places
-            input.addEventListener('input', function() {
-                const value = this.value;
-                if (value.includes('.')) {
-                    const parts = value.split('.');
-                    if (parts[1] && parts[1].length > 2) {
-                        this.value = parseFloat(value).toFixed(2);
-                    }
-                }
-            });
-        });
-        
-        // Form submission
+        // Form submission loading state
         const form = document.querySelector('#purchaseForm');
         if (form) {
             form.addEventListener('submit', function(event) {
@@ -430,13 +408,9 @@
                 const btnText = document.getElementById('btnText');
                 const btnSpinner = document.getElementById('btnSpinner');
                 
-                // Show loading state
                 btnText.textContent = 'Processing...';
                 btnSpinner.style.display = 'inline-block';
                 submitButton.disabled = true;
-                
-                // Let the form submit normally
-                // The loading state will be reset when the page reloads
             });
         }
     });

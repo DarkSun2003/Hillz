@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+<body style="font-family: sans-serif; line-height: 1.6; color: #333;">
+    <div style="background: #222; color: #fff; padding: 20px; text-align: center;">
+        <h2 style="margin: 0;">New Rental Booking Alert</h2>
+    </div>
+    <div style="padding: 20px; border: 1px solid #eee;">
+        <p>A new rental has been recorded on the platform. Please prepare the vehicle for pickup.</p>
+        
+        <h3 style="color: #d4af37; border-bottom: 2px solid #eee;">Booking Summary</h3>
+        <table style="width: 100%; border-collapse: collapse;">
+            <tr><td style="padding: 8px; font-weight: bold;">Booking ID:</td><td>#{{ rental.id }}</td></tr>
+            <tr><td style="padding: 8px; font-weight: bold;">Customer:</td><td>{{ customer_name }}</td></tr>
+            <tr><td style="padding: 8px; font-weight: bold;">Customer Email:</td><td>{{ rental.customer.email }}</td></tr>
+            <tr><td style="padding: 8px; font-weight: bold;">Vehicle:</td><td>{{ car_name }}</td></tr>
+            <tr><td style="padding: 8px; font-weight: bold;">Pickup Date:</td><td>{{ rental_date }}</td></tr>
+            <tr><td style="padding: 8px; font-weight: bold;">Return Date:</td><td>{{ return_date }}</td></tr>
+            <tr><td style="padding: 8px; font-weight: bold;">Total Amount:</td><td>₦{{ total_amount }}</td></tr>
+        </table>
+
+        <div style="margin-top: 30px; text-align: center;">
+            <a href="{{ site_url }}/admin/car_rental/rental/{{ rental.id }}/change/" 
+               style="background: #d4af37; color: #000; padding: 12px 25px; text-decoration: none; font-weight: bold; border-radius: 5px;">
+               View Booking in Admin Panel
+            </a>
+        </div>
+    </div>
+</body>
+</html>
