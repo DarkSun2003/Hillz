@@ -102,7 +102,7 @@ class SiteInfo(TimeStampedModel, AuditableModel):
 # Customer Model
 class Customer(TimeStampedModel, AuditableModel, SoftDeletionModel):
     name = models.CharField(max_length=100)
-    email = models.EmailField(unique=True, db_index=True)
+    email = models.EmailField(db_index=True)
     phone = models.CharField(
         max_length=20, 
         blank=True,

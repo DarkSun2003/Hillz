@@ -10,40 +10,73 @@
                 <div class="card-header bg-danger text-white text-center">
                     <h4 class="mb-0"><i class="fas fa-exclamation-triangle me-2"></i>Delete Account</h4>
                 </div>
+                
                 <div class="card-body p-4">
-                    <!-- Personalized Warning Message -->
                     <div class="text-center mb-4">
                         <h3>Hello, {{ user.get_full_name|default:user.username }}.</h3>
-                        <p class="text-muted">
-                            We're sorry to see you go. Before you proceed, please be aware that this action is <strong>permanent and irreversible</strong>.
-                        </p>
                     </div>
 
-                    <!-- List of What Will Be Deleted -->
-                    <div class="alert alert-warning" role="alert">
-                        <h5 class="alert-heading">By deleting your account, the following will be permanently removed:</h5>
-                        <ul class="mb-0">
-                            <li>Your profile information (name, email, phone, address)</li>
-                            <li>Your profile picture</li>
-                            <li>Your rental history and records</li>
-                            <li>Your purchase history and records</li>
-                            <li>Your service booking history and records</li>
-                            <li>Your customer ratings and reviews</li>
-                        </ul>
-                    </div>
-
-                    <!-- Final Confirmation Form -->
-                    <form method="post" action="{% url 'car_rental:delete_account' %}" onsubmit="return confirm('Are you absolutely sure you want to delete your account? This action cannot be undone.');">
-                        {% csrf_token %}
-                        <div class="d-grid gap-2">
-                            <button type="submit" name="confirm_delete" value="yes" class="btn btn-danger">
-                                <i class="fas fa-trash-alt me-2"></i>Yes, Delete My Account
-                            </button>
-                            <a href="{% url 'car_rental:profile' %}" class="btn btn-secondary">
-                                <i class="fas fa-arrow-left me-2"></i>Cancel, Keep My Account
+                    {% if not can_delete %}
+                        <div class="alert alert-danger" role="alert">
+                            <h5 class="alert-heading"><i class="fas fa-lock me-2"></i> Account Deletion Blocked</h5>
+                            <p>You cannot delete your account at this time because you currently have active transactions with us. Please resolve the following before leaving:</p>
+                            <hr>
+                            <ul class="mb-0">
+                                {% if active_rentals %}
+                                    <li><strong>Active Rentals:</strong> You have vehicles currently rented or pending. Please return the vehicles or cancel the pending request.</li>
+                                {% endif %}
+                                {% if active_purchases %}
+                                    <li><strong>Pending Purchases:</strong> You have a vehicle purchase that has not yet been delivered.</li>
+                                {% endif %}
+                                {% if active_services %}
+                                    <li><strong>Ongoing Services:</strong> You have an active diagnostic, repair, or consultation booking.</li>
+                                {% endif %}
+                            </ul>
+                        </div>
+                        
+                        <div class="d-grid mt-4">
+                            <a href="{% url 'car_rental:profile' %}" class="btn btn-primary">
+                                <i class="fas fa-arrow-left me-2"></i>Return to Profile
                             </a>
                         </div>
-                    </form>
+
+                    {% else %}
+                        <div class="text-center mb-4">
+                            <p class="text-muted">
+                                We're sorry to see you go. Before you proceed, please be aware that this action is <strong>permanent and irreversible</strong>.
+                            </p>
+                        </div>
+
+                        <div class="alert alert-warning" role="alert">
+                            <h5 class="alert-heading">By deleting your account, the following will be permanently removed:</h5>
+                            <ul class="mb-0">
+                                <li>Your profile information (name, email, phone, address)</li>
+                                <li>Your profile picture</li>
+                                <li>Your ability to log in and manage your history</li>
+                            </ul>
+                        </div>
+
+                        <form method="post" onsubmit="return confirm('Are you absolutely sure you want to permanently delete your account? This cannot be undone.');">
+                            {% csrf_token %}
+                            <div class="mb-4">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="confirm_delete" value="yes" id="confirmDeleteCheck" required>
+                                    <label class="form-check-label fw-bold text-danger" for="confirmDeleteCheck">
+                                        I understand that my account will be permanently deleted and cannot be recovered.
+                                    </label>
+                                </div>
+                            </div>
+                            
+                            <div class="d-grid gap-3 d-md-flex justify-content-md-center">
+                                <button type="submit" class="btn btn-danger">
+                                    <i class="fas fa-trash-alt me-2"></i>Yes, Delete My Account
+                                </button>
+                                <a href="{% url 'car_rental:profile' %}" class="btn btn-secondary">
+                                    <i class="fas fa-arrow-left me-2"></i>Cancel, Keep My Account
+                                </a>
+                            </div>
+                        </form>
+                    {% endif %}
                 </div>
             </div>
         </div>
@@ -79,7 +112,7 @@
                 const confirmationInput = form.querySelector('input[name="confirm_delete"]');
                 if (confirmationInput && confirmationInput.value !== 'yes') {
                     event.preventDefault();
-                    alert('Please confirm that you want to delete your account by typing "yes" in the box.');
+                    alert('You must check the confirmation box to proceed.');
                 }
             });
         }

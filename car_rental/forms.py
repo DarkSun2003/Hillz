@@ -131,12 +131,6 @@ class CustomerForm(forms.ModelForm):
         # If we have a user, pre-populate the name field
         if self.user and not self.initial.get('name'):
             self.initial['name'] = f"{self.user.first_name} {self.user.last_name}".strip() or self.user.username
-    
-    def clean_email(self):
-        email = self.cleaned_data.get('email')
-        if Customer.objects.filter(email=email).exclude(pk=self.instance.pk).exists():
-            raise ValidationError("This email is already associated with another customer.")
-        return email
 
     def clean_license_expiry(self):
         license_expiry = self.cleaned_data.get('license_expiry')

@@ -496,3 +496,13 @@ def prevent_car_deletion_with_active_rentals(sender, instance, **kwargs):
         logger = logging.getLogger(__name__)
         logger.error(f"Error preventing car deletion: {e}")
         raise e
+    
+@receiver(pre_delete, sender=User)
+def completely_wipe_customer_data(sender, instance, **kwargs):
+    """
+    Forces a hard delete of the Customer record when a User deletes their account.
+    Using QuerySet .delete() bypasses any model-level custom soft-delete methods.
+    """
+    if hasattr(instance, 'customer_account') and instance.customer_account:
+        # This forcefully drops the row from the database table
+        Customer.objects.filter(id=instance.customer_account.id).delete()

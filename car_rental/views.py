@@ -959,19 +959,30 @@ def cancel_service_booking(request, pk):
 
 # --- USER PROFILE VIEWS ---
 
+# car_rental/views.py
+
+from django.db.models import Sum
+from .forms import UserForm, UserProfileForm, CustomerForm
+from .utils import send_profile_update_email # Assuming this is imported properly
+from .models import CustomerRating # Assuming this is in your imports
+
 @login_required
 def profile(request):
     # Ensure UserProfile exists
     profile, _ = UserProfile.objects.get_or_create(user=request.user)
     
-    # --- ROBUSTLY GET OR CREATE THE CUSTOMER ---
-    customer, created = Customer.objects.get_or_create(
-        email=request.user.email,
-        defaults={
-            'name': f"{request.user.first_name} {request.user.last_name}".strip() or request.user.username,
-            'user': request.user
-        }
-    )
+    # --- STRICT BLANK SLATE CREATION ---
+    # We explicitly check if THIS specific user has a linked customer account.
+    if hasattr(request.user, 'customer_account') and request.user.customer_account:
+        customer = request.user.customer_account
+    else:
+        # If they don't (like a re-registered account), generate a brand new Customer ID
+        # completely ignoring any old archived records with the same email.
+        customer = Customer.objects.create(
+            user=request.user,
+            email=request.user.email,
+            name=f"{request.user.first_name} {request.user.last_name}".strip() or request.user.username
+        )
     # ---------------------------------------------
     
     # --- Initialize forms ---
@@ -999,13 +1010,9 @@ def profile(request):
                 return redirect('car_rental:profile')
             except Exception as e:
                 messages.error(request, f'An error occurred while updating your profile: {str(e)}.')
-                logger.error(f"Profile update error: {e}")
+                logging.error(f"Profile update error: {e}")
         else:
             messages.error(request, 'Please correct the errors below.')
-            # Re-render forms with errors so the user can see them
-            user_form = UserForm(request.POST, instance=request.user)
-            profile_form = UserProfileForm(request.POST, request.FILES, instance=profile)
-            customer_form = CustomerForm(request.POST, request.FILES, instance=customer, user=request.user)
 
     # --- Calculate Statistics (for both GET and POST) ---
     try:
@@ -1013,6 +1020,7 @@ def profile(request):
         full_purchases = Purchase.objects.filter(customer=customer).order_by('-purchase_datetime')
         
         total_rentals = full_rentals.count()
+        total_purchases_count = full_purchases.count()
         active_rentals = full_rentals.filter(status__in=['active', 'overdue']).count()
         
         rental_spent = full_rentals.filter(payment_status='paid').aggregate(total=Sum('total_amount'))['total'] or 0
@@ -1023,7 +1031,6 @@ def profile(request):
         rated_rentals = []
         if request.user.is_authenticated:
             try:
-                customer = request.user.customer_account
                 rated_rentals = list(CustomerRating.objects.filter(
                     customer=customer,
                     service_type='rental'
@@ -1032,26 +1039,29 @@ def profile(request):
                 pass
                 
     except (Customer.DoesNotExist, AttributeError):
+        full_rentals = []
+        full_purchases = []
         total_rentals = 0
+        total_purchases_count = 0
         active_rentals = 0
         rental_spent = 0
         purchase_spent = 0
         total_spent = 0
         rated_rentals = []
                 
-    # --- Create the Context Dictionary (This will always be reached) ---
+    # --- Create the Context Dictionary ---
     context = {
         'profile': profile,
         'customer': customer,
-        'rentals': full_rentals[:5],
-        'purchases': Purchase.objects.filter(customer=customer).order_by('-purchase_datetime')[:5],
+        'rentals': full_rentals[:5] if full_rentals else [],
+        'purchases': full_purchases[:5] if full_purchases else [],
         'user_form': user_form,
         'profile_form': profile_form,
         'customer_form': customer_form,
         'site_info': SiteInfo.objects.first(),
         'stats': {
             'total_rentals': total_rentals,
-            'total_purchases': full_purchases.count(),
+            'total_purchases': total_purchases_count,
             'rental_spent': rental_spent,
             'purchase_spent': purchase_spent,
             'total_spent': total_spent,
@@ -1059,16 +1069,57 @@ def profile(request):
         }
     }
     
-    # --- Render the Template (This will always be reached) ---
     return render(request, 'profile.html', context)
+
+# car_rental/views.py
+
+import logging
+import cloudinary.api
+from django.contrib import messages
+from django.shortcuts import render, redirect
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth import logout
+from django.db import transaction
+from django.core.mail import send_mail
+from django.template.loader import render_to_string
+from django.utils.html import strip_tags
+from django.conf import settings
 
 @login_required
 def delete_account(request):
     """
-    Handles both displaying the deletion confirmation page (GET)
-    and processing the actual account deletion (POST).
+    Handles displaying the deletion confirmation page, blocking deletion if 
+    active transactions exist, and processing the actual account deletion (POST).
+    It archives the Customer record (by setting user to NULL via model SET_NULL)
+    while hard-deleting the User and UserProfile.
     """
+    customer = getattr(request.user, 'customer_account', None)
+    
+    # Initialize flags for active transactions
+    active_rentals = False
+    active_purchases = False
+    active_services = False
+    
+    if customer:
+        active_rentals = Rental.objects.filter(
+            customer=customer, status__in=['pending', 'active', 'overdue']
+        ).exists()
+        active_purchases = Purchase.objects.filter(
+            customer=customer, status__in=['pending', 'processing', 'shipped']
+        ).exists()
+        active_services = ServiceBooking.objects.filter(
+            customer=customer, status__in=['pending', 'confirmed', 'in_progress']
+        ).exists()
+        
+    # User can only delete if all of these are False
+    can_delete = not (active_rentals or active_purchases or active_services)
+
     if request.method == 'POST':
+        # Security check: prevent POST bypass if they have active transactions
+        if not can_delete:
+            messages.error(request, "Account deletion failed. You have active ongoing transactions.")
+            return redirect('car_rental:delete_account')
+
         confirmation = request.POST.get('confirm_delete')
         if confirmation != 'yes':
             messages.error(request, 'Account deletion was not confirmed. Your account is safe.')
@@ -1083,30 +1134,14 @@ def delete_account(request):
                 user_name = user.get_full_name() or user.username
                 
                 # --- 2. Delete Related Data First ---
-                try:
-                    customer = user.customer_account
-                    if customer:
-                        # --- CLOUDINARY FILE DELETION ---
-                        # Check and delete profile picture from Cloudinary
-                        if hasattr(customer, 'profile_picture') and customer.profile_picture:
-                            # Use .public_id for CloudinaryResource
-                            cloudinary.api.delete_resources([customer.profile_picture.public_id])
-                        # --- END CLOUDINARY DELETION ---
-                        
-                        # Check and delete license image from Cloudinary
-                        if hasattr(customer, 'license_image') and customer.license_image:
-                            cloudinary.api.delete_resources([customer.license_image.public_id])
-                        # --- END CLOUDINARY DELETION ---
-                        customer.delete()
-                except Customer.DoesNotExist:
-                    pass
+                # WE NO LONGER DELETE THE CUSTOMER HERE. 
+                # It will be orphaned (user_id = NULL) when the User is deleted.
                 
                 try:
                     profile = user.profile
                     if profile:
                         # --- CLOUDINARY FILE DELETION ---
                         if hasattr(profile, 'profile_picture') and profile.profile_picture:
-                            # Use .public_id for CloudinaryResource
                             cloudinary.api.delete_resources([profile.profile_picture.public_id])
                         # --- END CLOUDINARY DELETION ---
                         profile.delete()
@@ -1115,12 +1150,13 @@ def delete_account(request):
 
                 # --- 3. Delete the User Account ---
                 logout(request)
+                # Deleting the user triggers the SET_NULL cascade on Customer.user
                 user.delete()
 
-            # --- 4. Send a Confirmation Email ---
+            # --- 4. Send a Confirmation Email (Outside atomic block) ---
             try:
                 site_info = SiteInfo.objects.first()
-                subject = f"Your Hillz Exquisites Account Has Been Deleted"
+                subject = "Your Hillz Exquisites Account Has Been Deleted"
                 
                 context = {
                     'user_name': user_name,
@@ -1131,7 +1167,7 @@ def delete_account(request):
                 html_message = render_to_string('emails/account_deleted_email.html', context)
                 plain_message = strip_tags(html_message)
                 
-                from_email = site_info.email
+                from_email = site_info.email if site_info else settings.DEFAULT_FROM_EMAIL
                 to_email = [user_email]
                 
                 send_mail(subject, plain_message, from_email, to_email, html_message=html_message, fail_silently=False)
@@ -1153,6 +1189,10 @@ def delete_account(request):
         context = {
             'site_info': site_info,
             'user': request.user,
+            'can_delete': can_delete,
+            'active_rentals': active_rentals,
+            'active_purchases': active_purchases,
+            'active_services': active_services,
         }
         return render(request, 'delete_account.html', context)
 
