@@ -10,7 +10,7 @@ from django.db.models import Sum
 import logging
 import math
 import os
-from .models import Rental, Purchase, SiteInfo, ServiceBooking
+from .models import Rental, Purchase, SiteInfo #ServiceBooking
 
 # --- MODIFIED CONFIRMATION FUNCTIONS TO ALSO EMAIL MANAGEMENT ---
 
@@ -69,6 +69,42 @@ def send_rental_confirmation_email(rental):
         # Use logging in production instead of print
         import logging
         logging.error(f"Error sending rental confirmation email: {e}")
+        return False
+
+# this is for rental cancellations due to Pay-First policy. 
+# It sends a polite notice to the customer and informs management of the cancellation.
+
+def send_cancellation_email(rental):
+    """
+    Sends a polite cancellation notice due to the Pay-First policy.
+    """
+    site_info = SiteInfo.objects.first() or SiteInfo()
+    
+    context = {
+        'rental': rental,
+        'site_info': site_info,
+        'customer_name': rental.customer.name,
+        'car_name': f"{rental.car.year} {rental.car.make} {rental.car.model}",
+        'rental_date': rental.rental_datetime.strftime('%B %d, %Y %I:%M %p'),
+    }
+
+    try:
+        # SEND TO CUSTOMER
+        customer_html = render_to_string('emails/rental_cancellation.html', context)
+        customer_plain = strip_tags(customer_html)
+        customer_subject = f"Booking Update: {rental.car.make} {rental.car.model} is no longer available"
+        
+        send_mail(
+            customer_subject, 
+            customer_plain, 
+            site_info.email or settings.DEFAULT_FROM_EMAIL, 
+            [rental.customer.email], 
+            html_message=customer_html
+        )
+        return True
+    except Exception as e:
+        import logging
+        logging.error(f"Error sending rental cancellation email: {e}")
         return False
 
 def send_purchase_confirmation_email(purchase):

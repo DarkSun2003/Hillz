@@ -4,6 +4,7 @@ from django.contrib.auth.forms import PasswordChangeForm as DjangoPasswordChange
 from django.core.exceptions import ValidationError
 from django.utils import timezone
 from decimal import Decimal
+from django.db.models import Q
 from .models import (
     UserProfile, SiteInfo, Car, Customer, Rental, Purchase,
     re, CustomerRating, ServiceBooking
@@ -178,80 +179,99 @@ class CarForm(forms.ModelForm):
 # --- Rental Forms ---
 
 class RentalForm(forms.ModelForm):
+    # Using specific input_formats to match Flatpickr (Y-m-d H:i)
     rental_datetime = forms.DateTimeField(
-        input_formats=['%Y-%m-%dT%H:%M'],
+        input_formats=['%Y-%m-%d %H:%M', '%Y-%m-%dT%H:%M'],
         widget=forms.DateTimeInput(attrs={
-            'type': 'datetime-local',
             'class': 'form-control',
-            'required': 'required'
-        })
+            'placeholder': 'Select Pickup Date & Time',
+            'autocomplete': 'off'
+        }),
+        label="Pickup Date & Time"
     )
     
     return_datetime = forms.DateTimeField(
-        input_formats=['%Y-%m-%dT%H:%M'],
+        input_formats=['%Y-%m-%d %H:%M', '%Y-%m-%dT%H:%M'],
         widget=forms.DateTimeInput(attrs={
-            'type': 'datetime-local',
             'class': 'form-control',
-            'required': 'required'
-        })
+            'placeholder': 'Select Return Date & Time',
+            'autocomplete': 'off'
+        }),
+        label="Return Date & Time"
     )
-    
+
     class Meta:
         model = Rental
         fields = [
             'rental_datetime', 
             'return_datetime', 
-            'pickup_location',
-            'insurance_provider',
+            'pickup_location', 
+            'insurance_provider', 
             'insurance_policy'
         ]
         widgets = {
             'pickup_location': forms.TextInput(attrs={
                 'class': 'form-control',
                 'required': 'required',
-                'placeholder': 'Enter pickup location'
+                'placeholder': 'e.g. Main Office or Airport Terminal'
             }),
             'insurance_provider': forms.TextInput(attrs={
                 'class': 'form-control',
-                'placeholder': 'Insurance provider name'
+                'placeholder': 'Name of insurance company'
             }),
             'insurance_policy': forms.TextInput(attrs={
                 'class': 'form-control',
-                'placeholder': 'Policy number'
+                'placeholder': 'Policy or ID number'
             }),
         }
-    
+
     def __init__(self, *args, **kwargs):
+        # We pass the 'car' object from the view to perform availability checks
         self.car = kwargs.pop('car', None)
         super().__init__(*args, **kwargs)
         
-        # Set initial rental datetime to now if not provided
-        if not self.initial.get('rental_datetime'):
-            # Format the datetime correctly for datetime-local input
-            now = timezone.now()
-            self.initial['rental_datetime'] = now.strftime('%Y-%m-%dT%H:%M')
-    
-    def clean(self):
-        cleaned_data = super().clean()
-        rental_datetime = cleaned_data.get('rental_datetime')
-        return_datetime = cleaned_data.get('return_datetime')
+        self.fields['pickup_location'].required = True
         
-        if rental_datetime and return_datetime:
-            if return_datetime <= rental_datetime:
-                raise forms.ValidationError("Return date must be after rental date.")
+        # Pre-set the pickup time to 'now' if it's a new form
+        if not self.initial.get('rental_datetime'):
+            self.initial['rental_datetime'] = timezone.now().strftime('%Y-%m-%d %H:%M')
+
+    def clean(self):
+        """
+        Server-side validation for date logic and car availability.
+        """
+        cleaned_data = super().clean()
+        start_date = cleaned_data.get('rental_datetime')
+        end_date = cleaned_data.get('return_datetime')
+
+        # 1. Basic Logic Check
+        if start_date and end_date:
+            if end_date <= start_date:
+                raise forms.ValidationError("The return date must be at least one hour after the pickup date.")
             
-            # Check if car is available for these dates
+            if start_date < timezone.now():
+                raise forms.ValidationError("Pickup date cannot be in the past.")
+
+            # 2. Strict Availability Check (Pay-First Policy)
+            # We only block the car if there is an overlapping 'active' or 'overdue' rental.
+            # 'pending' status does NOT block the car.
             if self.car:
                 overlapping_rentals = Rental.objects.filter(
+                    Q(status__in=['active', 'overdue', 'paid']) | Q(payment_status='paid'),
                     car=self.car,
-                    status__in=['active', 'pending'],
-                    rental_datetime__lt=return_datetime,
-                    return_datetime__gt=rental_datetime
+                    rental_datetime__lt=end_date,
+                    return_datetime__gt=start_date
                 )
-                
+
+                # If we are editing an existing rental, don't count itself as an overlap
+                if self.instance.pk:
+                    overlapping_rentals = overlapping_rentals.exclude(pk=self.instance.pk)
+
                 if overlapping_rentals.exists():
-                    raise forms.ValidationError("This car is not available for the selected dates.")
-        
+                    raise forms.ValidationError(
+                        "This car has already been booked and paid for during these selected dates."
+                    )
+
         return cleaned_data
 
 class StaffRentalForm(forms.ModelForm):

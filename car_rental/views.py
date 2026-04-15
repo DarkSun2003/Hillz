@@ -1617,20 +1617,26 @@ class ReturnRentalView(UserPassesTestMixin, UpdateView):
         return context
 
 class CustomerRentalView(LoginRequiredMixin, View):
+    """
+    Handles car rental bookings for customers.
+    Integrates with Flatpickr for date blocking and WhatsApp for payment.
+    """
+    
     def get(self, request, car_id):
+        # 1. Fetch the car and ensure it's actually available for rent
         car = get_object_or_404(Car, id=car_id, for_rent=True, is_deleted=False)
         
-        # Check if car is available for the requested dates
-        if not car.is_available(timezone.now(), timezone.now() + timedelta(days=1)):
-            messages.error(request, 'This car is not available for the selected dates.')
-            return redirect('car_rental:car_detail', pk=car.pk)
+        # 2. Get high-precision booked dates (excluding 'pending' per Pay-First policy)
+        # This allows users to see which slots are officially 'taken'
+        booked_dates_json = json.dumps(car.get_booked_dates())
         
-        # Initialize form with car data
+        # 3. Initialize the form, passing the 'car' for the internal 'clean' validation
         form = RentalForm(car=car)
         
         context = {
             'car': car,
             'form': form,
+            'booked_dates_json': booked_dates_json,
             'site_info': SiteInfo.objects.first(),
         }
         return render(request, 'customer_rental.html', context)
@@ -1638,70 +1644,81 @@ class CustomerRentalView(LoginRequiredMixin, View):
     def post(self, request, car_id):
         car = get_object_or_404(Car, id=car_id, for_rent=True, is_deleted=False)
         
+        # Initialize form with POST data and the car object
         form = RentalForm(request.POST, car=car)
         
         if form.is_valid():
-            # Create rental with car and customer data
+            # Create rental object but don't save to DB yet
             rental = form.save(commit=False)
             rental.car = car
             
-            # Fix: Get the customer through the correct relationship
+            # --- Robust Customer Retrieval ---
+            # We use the established OneToOne relationship with the User
             try:
                 customer = request.user.customer_account
-            except Customer.DoesNotExist:
-                # If customer doesn't exist, create one
+            except (Customer.DoesNotExist, AttributeError):
+                # Auto-create a customer profile if it doesn't exist for some reason
                 customer = Customer.objects.create(
-                    name=f"{request.user.first_name} {request.user.last_name}".strip() or request.user.username,
+                    name=f"{request.user.get_full_name()}".strip() or request.user.username,
                     email=request.user.email,
                     user=request.user
                 )
             
             rental.customer = customer
             rental.daily_rate = car.get_rent_price
+            
+            # Per policy, initial status is always 'pending' until payment is verified
             rental.status = 'pending'
             rental.payment_status = 'pending'
             
-            # Calculate total amount
-            rental_days = (rental.return_datetime.date() - rental.rental_datetime.date()).days
-            if rental_days < 1:  # Minimum 1 day
-                rental_days = 1
+            # --- Calculation Logic ---
+            # Calculate duration in days (Minimum 1 day billing)
+            delta = rental.return_datetime - rental.rental_datetime
+            rental_days = max(1, delta.days + (1 if delta.seconds > 3600 else 0)) 
             rental.total_amount = rental.daily_rate * rental_days
             
+            # Save the record
             rental.save()
             
-            # --- EMAIL INTEGRATION START ---
+            # --- Notifications ---
+            # Sends 'Thank you' to customer and 'New Lead' to management
             send_rental_confirmation_email(rental)
-            # --- EMAIL INTEGRATION END ---
             
-            # Generate WhatsApp URL
+            # --- WhatsApp Redirection ---
             site_info = SiteInfo.objects.first()
             if site_info and site_info.whatsapp_phone:
                 phone = site_info.whatsapp_phone.replace('+', '').replace(' ', '').replace('-', '')
-                message = quote(
-                    f"Hello, I'd like to book a rental for a {car.year} {car.make} {car.model}.\n\n"
-                    f"Customer: {customer.name}\n"
-                    f"Phone: {customer.phone or 'N/A'}\n"
-                    f"Rental Dates: {rental.rental_datetime.strftime('%Y-%m-%d %H:%M')} to {rental.return_datetime.strftime('%Y-%m-%d %H:%M')}\n"
-                    f"Pickup Location: {rental.pickup_location or 'N/A'}\n"
-                    f"Total Amount: ₦{rental.total_amount}\n\n"
-                    f"Please advise on the next steps for payment."
+                
+                # Professional formatting for the dealer message
+                message_text = (
+                    f"Hello, I'd like to book a rental for the *{car.year} {car.make} {car.model}*.\n\n"
+                    f"*Booking ID:* #{rental.id}\n"
+                    f"*Customer:* {customer.name}\n"
+                    f"*Pickup Date:* {rental.rental_datetime.strftime('%B %d, %Y %I:%M %p')}\n"
+                    f"*Return Date:* {rental.return_datetime.strftime('%B %d, %Y %I:%M %p')}\n"
+                    f"*Total Estimated:* ₦{rental.total_amount:,.2f}\n\n"
+                    f"Please let me know the payment instructions."
                 )
                 
-                whatsapp_url = f"https://wa.me/{phone}?text={message}"
+                whatsapp_url = f"https://wa.me/{phone}?text={quote(message_text)}"
                 
-                # Store rental info in session for success page
+                # Store info in session for the success page
                 request.session['last_rental_id'] = rental.id
                 request.session['whatsapp_url'] = whatsapp_url
                 
-                messages.success(request, 'Your rental booking has been submitted successfully!')
+                messages.success(request, 'Your booking request has been submitted! Opening WhatsApp for payment...')
                 return redirect('car_rental:whatsapp_rental_success')
             else:
-                messages.success(request, 'Your rental booking has been submitted successfully!')
+                messages.success(request, 'Booking successful! Our team will contact you for payment.')
                 return redirect('car_rental:home')
         
+        # --- Form Invalid Logic ---
+        # If the form fails validation, we MUST re-pass the booked dates 
+        # so the calendar library doesn't stop working on the re-rendered page.
         context = {
             'car': car,
             'form': form,
+            'booked_dates_json': json.dumps(car.get_booked_dates()),
             'site_info': SiteInfo.objects.first(),
         }
         return render(request, 'customer_rental.html', context)

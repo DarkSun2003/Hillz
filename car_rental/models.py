@@ -12,7 +12,7 @@ import math
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 from cloudinary.models import CloudinaryField
-
+from django.db.models import Q
 # Abstract Base Models
 class TimeStampedModel(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
@@ -298,6 +298,27 @@ class Car(TimeStampedModel, AuditableModel, SoftDeletionModel):
         )
         return not overlapping_rentals.exists()
     
+    # Inside your Car model
+    def get_booked_dates(self):
+        """
+        Returns high-precision date ranges for confirmed rentals.
+        Excludes 'pending' to allow others to book until payment is made.
+        """
+        # We only block dates for 'active' or 'overdue' rentals.
+        # 'pending' is excluded because of the pay-first policy.
+        active_rentals = self.rentals.filter(
+            Q(status__in=['active', 'overdue', 'paid']) | Q(payment_status='paid'),
+            is_deleted=False
+        ).values('rental_datetime', 'return_datetime')
+
+        booked_ranges = []
+        for rental in active_rentals:
+            booked_ranges.append({
+                'from': rental['rental_datetime'].strftime('%Y-%m-%d %H:%M'),
+                'to': rental['return_datetime'].strftime('%Y-%m-%d %H:%M'),
+            })
+        return booked_ranges
+    
     def get_current_rental(self):
         """Get the current active rental if any"""
         return self.rentals.filter(status__in=['active', 'overdue']).first()
@@ -342,7 +363,6 @@ class Car(TimeStampedModel, AuditableModel, SoftDeletionModel):
         verbose_name = "Car"
         verbose_name_plural = "Cars"
 
-# Rental Model
 class Rental(TimeStampedModel, AuditableModel, SoftDeletionModel):
     STATUS_CHOICES = [
         ('pending', 'Pending'),
@@ -405,7 +425,7 @@ class Rental(TimeStampedModel, AuditableModel, SoftDeletionModel):
     insurance_provider = models.CharField(max_length=100, blank=True)
     insurance_policy = models.CharField(max_length=50, blank=True)
     
-    #late fee override
+    # late fee override
     override_late_fee = models.BooleanField(default=False, help_text="Check to manually set late fee instead of calculating automatically")
     manual_late_fee = models.DecimalField(max_digits=18, decimal_places=2, default=0, help_text="Manually set late fee amount")
     
@@ -419,6 +439,9 @@ class Rental(TimeStampedModel, AuditableModel, SoftDeletionModel):
             raise ValidationError("Actual return date must be after rental date.")
     
     def save(self, *args, **kwargs):
+        # 1. Record if this is an update before saving
+        is_updating = self.pk is not None
+
         # Calculate total_amount if not provided
         if not self.total_amount and self.daily_rate and self.return_datetime and self.rental_datetime:
             rental_days = (self.return_datetime.date() - self.rental_datetime.date()).days
@@ -445,7 +468,34 @@ class Rental(TimeStampedModel, AuditableModel, SoftDeletionModel):
         elif self.status in ['active', 'overdue'] and self.actual_return_datetime:
             self.status = 'completed'
         
+        # 2. Save the instance to the database
         super().save(*args, **kwargs)
+
+        # 3. AUTO-CANCELLATION LOGIC (The "Sweep")
+        if is_updating and (self.status in ['active', 'overdue'] or getattr(self, 'payment_status', '') == 'paid'):
+            overlapping_pending = type(self).objects.filter(
+                car=self.car,
+                status='pending',
+                rental_datetime__lt=self.return_datetime,
+                return_datetime__gt=self.rental_datetime
+            ).exclude(pk=self.pk)
+
+            if overlapping_pending.exists():
+                # Step A: Evaluate the query into a list so we know exactly who lost the slot
+                cancelled_rentals = list(overlapping_pending)
+                
+                # Step B: Do the fast bulk update
+                overlapping_pending.update(status='cancelled')
+                
+                # --- LAZY IMPORT HERE TO FIX CIRCULAR DEPENDENCY ---
+                from .utils import send_cancellation_email
+                
+                # Step C: Loop through the losers and send the bad news
+                for cancelled_rental in cancelled_rentals:
+                    # Optional: Don't send an email if the "loser" is actually the exact same user 
+                    # who just paid (e.g., they accidentally submitted the form twice).
+                    if cancelled_rental.customer.email != self.customer.email:
+                        send_cancellation_email(cancelled_rental)
 
     @property
     def rental_days(self):
