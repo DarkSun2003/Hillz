@@ -1507,9 +1507,20 @@ class CustomersView(LoginRequiredMixin, UserPassesTestMixin, ListView):
         return self.request.user.is_staff
     
     def get_queryset(self):
-        queryset = Customer.objects.filter(is_deleted=False)
+        status_filter = self.request.GET.get('status')
         
-        # Search functionality
+        # 1. Base Queryset based on filter
+        if status_filter == 'deleted':
+            # Show ONLY deleted records for legal/audit purposes
+            queryset = Customer.objects.filter(is_deleted=True)
+        elif status_filter == 'banned':
+            # Show active but banned accounts
+            queryset = Customer.objects.filter(is_deleted=False, is_banned=True)
+        else:
+            # Default: Show all active and banned customers (not deleted)
+            queryset = Customer.objects.filter(is_deleted=False)
+        
+        # 2. Search functionality (works across ALL statuses)
         search_query = self.request.GET.get('q')
         if search_query:
             queryset = queryset.filter(
@@ -1518,20 +1529,16 @@ class CustomersView(LoginRequiredMixin, UserPassesTestMixin, ListView):
                 Q(phone__icontains=search_query)
             )
         
-        # Filter by status
-        status_filter = self.request.GET.get('status')
-        if status_filter == 'banned':
-            queryset = queryset.filter(is_banned=True)
-        
         return queryset.order_by('-created_at')
     
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['site_info'] = SiteInfo.objects.first()
         
-        # Add statistics
+        # Add statistics for the dashboard cards
         context['active_customers_count'] = Customer.objects.filter(is_deleted=False, is_banned=False).count()
         context['banned_customers_count'] = Customer.objects.filter(is_deleted=False, is_banned=True).count()
+        context['deleted_customers_count'] = Customer.objects.filter(is_deleted=True).count()
         
         # Calculate total revenue
         total_rental_revenue = Rental.objects.filter(payment_status='paid').aggregate(total=Sum('total_amount'))['total'] or 0
@@ -1539,6 +1546,7 @@ class CustomersView(LoginRequiredMixin, UserPassesTestMixin, ListView):
         context['total_revenue'] = total_rental_revenue + total_purchase_revenue
         
         return context
+
 
 class CustomerDetailView(UserPassesTestMixin, DetailView):
     model = Customer
