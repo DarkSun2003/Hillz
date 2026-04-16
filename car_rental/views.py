@@ -406,6 +406,13 @@ class AboutView(View):
         
         return render(request, 'about.html', context)
 
+from django.core.mail import send_mail
+from django.conf import settings
+from django.contrib import messages
+from django.shortcuts import render, redirect
+from django.views import View
+# Make sure SiteInfo is imported!
+
 class ContactView(View):
     def get(self, request):
         site_info = SiteInfo.objects.first()
@@ -413,15 +420,42 @@ class ContactView(View):
         return render(request, 'contact.html', context)
     
     def post(self, request):
+        site_info = SiteInfo.objects.first()
+        
+        # Grab the data from the form
         name = request.POST.get('name')
-        email = request.POST.get('email')
+        sender_email = request.POST.get('email')
         subject = request.POST.get('subject')
         message = request.POST.get('message')
         
-        # Process contact form (send email, save to database, etc.)
-        # This is a placeholder for actual contact form processing
+        # 1. Format the email content for the Admin
+        email_subject = f"Website Contact Form: {subject}"
+        email_body = (
+            f"You have a new message from the Hillz Exquisite contact form.\n\n"
+            f"Customer Name: {name}\n"
+            f"Customer Email: {sender_email}\n\n"
+            f"Message:\n{message}"
+        )
         
-        messages.success(request, 'Your message has been sent successfully!')
+        # 2. Determine who receives the email (Fallback to settings if SiteInfo is empty)
+        admin_email = site_info.email if site_info and site_info.email else settings.DEFAULT_FROM_EMAIL
+        
+        # 3. Attempt to send the email
+        try:
+            send_mail(
+                subject=email_subject,
+                message=email_body,
+                from_email=settings.DEFAULT_FROM_EMAIL,
+                recipient_list=[admin_email],
+                fail_silently=False, # We want to know if it fails!
+            )
+            messages.success(request, 'Your message has been sent successfully! Our team will get back to you shortly.')
+            
+        except Exception as e:
+            # If the email fails (e.g., bad SMTP settings), catch it so the site doesn't crash
+            messages.error(request, 'Sorry, our email server is currently down. Please use the WhatsApp button instead!')
+            print(f"EMAIL ERROR: {e}") # This will print to your terminal so you can debug the exact reason
+            
         return redirect('car_rental:contact')
 
 # --- INDIVIDUAL SERVICE BOOKING VIEWS ---
