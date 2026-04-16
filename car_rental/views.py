@@ -1497,6 +1497,66 @@ class UpdateCarView(UserPassesTestMixin, UpdateView):
         context['site_info'] = SiteInfo.objects.first()
         return context
 
+class FleetManagementView(LoginRequiredMixin, UserPassesTestMixin, ListView):
+    model = Car
+    template_name = 'fleet_management.html'
+    context_object_name = 'cars'
+    paginate_by = 20
+    
+    def test_func(self):
+        return self.request.user.is_staff
+        
+    def get_queryset(self):
+        # We want to see ALL cars here, even ones hidden from the public
+        queryset = Car.objects.filter(is_deleted=False)
+        
+        # Filter by Status (Available, Rented, Maintenance, etc.)
+        status_filter = self.request.GET.get('status')
+        if status_filter:
+            queryset = queryset.filter(status=status_filter)
+            
+        # Search by Make, Model, or VIN
+        search_query = self.request.GET.get('q')
+        if search_query:
+            queryset = queryset.filter(
+                Q(make__icontains=search_query) |
+                Q(model__icontains=search_query) |
+                Q(vin__icontains=search_query)
+            )
+            
+        return queryset.order_by('-id') # Shows newest cars first
+        
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['site_info'] = SiteInfo.objects.first()
+        
+        # Statistics for the top cards
+        context['total_fleet'] = Car.objects.filter(is_deleted=False).count()
+        context['available_count'] = Car.objects.filter(is_deleted=False, status='available').count()
+        # Adjust 'maintenance' to whatever your actual choice string is (e.g., 'in_service')
+        context['maintenance_count'] = Car.objects.filter(is_deleted=False, status__in=['maintenance', 'in_service']).count()
+        context['rented_count'] = Car.objects.filter(is_deleted=False, status='rented').count()
+        
+        return context
+
+@require_POST
+@login_required
+@user_passes_test(lambda u: u.is_staff)
+def quick_update_car_status(request, car_id):
+    """Instantly updates a car's status from the Fleet Management table"""
+    car = get_object_or_404(Car, id=car_id)
+    new_status = request.POST.get('status')
+    
+    if new_status:
+        car.status = new_status
+        car.save()
+        messages.success(request, f'Successfully updated the {car.year} {car.make} to {car.get_status_display()}!')
+    else:
+        messages.error(request, 'Invalid status provided.')
+        
+    # Redirect back to the exact page they were on
+    return redirect(request.META.get('HTTP_REFERER', 'car_rental:fleet_management'))
+
 class CustomersView(LoginRequiredMixin, UserPassesTestMixin, ListView):
     model = Customer
     template_name = 'customers.html'
@@ -1579,20 +1639,70 @@ class CustomerBanDeleteView(LoginRequiredMixin, UserPassesTestMixin, View):
         customer = get_object_or_404(Customer, pk=pk)
         action = request.POST.get('action')
         
+        cancel_msg = ""
+        
+        # --- SAFEGUARD & AUTO-CANCEL LOGIC ---
+        # Only run these checks if the action is restricting the user
+        if action in ['ban', 'delete', 'ban_and_delete']:
+            
+            # 1. HARD BLOCK: Check for active rentals or paid/shipped purchases
+            has_active_rentals = customer.rentals.filter(status='active').exists()
+            has_shipped_purchases = customer.purchases.filter(status='shipped').exists()
+            has_paid_purchases = customer.purchases.filter(
+                status__in=['pending', 'processing'], 
+                payment_status__in=['paid', 'financed']
+            ).exists()
+            
+            if has_active_rentals or has_shipped_purchases or has_paid_purchases:
+                messages.error(
+                    request, 
+                    f"ACTION BLOCKED: {customer.name} currently has an active rental or a paid/shipped vehicle in progress. "
+                    "You must resolve these active transactions before banning or deleting the account to avoid legal issues."
+                )
+                return redirect('car_rental:customer_detail', pk=customer.pk)
+            
+            # 2. THE SWEEP: Auto-cancel all unpaid pending/processing requests
+            purchases_cancelled = customer.purchases.filter(
+                status__in=['pending', 'processing'],
+                payment_status='pending'
+            ).update(status='cancelled')
+            
+            rentals_cancelled = customer.rentals.filter(
+                status='pending',
+                payment_status='pending'
+            ).update(status='cancelled')
+            
+            # Service Bookings (Assuming they are linked by the customer's email)
+            try:
+                from .models import ServiceBooking
+                services_cancelled = ServiceBooking.objects.filter(
+                    email=customer.email, 
+                    status='pending'
+                ).update(status='cancelled')
+            except ImportError:
+                services_cancelled = 0
+                
+            # Build the notification string if anything was actually cancelled
+            total_cancelled = purchases_cancelled + rentals_cancelled + services_cancelled
+            if total_cancelled > 0:
+                cancel_msg = f" (Auto-cancelled {purchases_cancelled} purchases, {rentals_cancelled} rentals, and {services_cancelled} services)."
+        # ----------------------------------------
+        
+        # Execute the requested action
         if action == 'ban':
             customer.ban()
-            messages.success(request, f'Customer {customer.name} has been banned.')
+            messages.success(request, f'Customer {customer.name} has been banned.{cancel_msg}')
         elif action == 'unban':
             customer.unban()
             messages.success(request, f'Customer {customer.name} has been unbanned.')
         elif action == 'delete':
             customer.delete()
-            messages.success(request, f'Customer {customer.name} has been deleted.')
+            messages.success(request, f'Customer {customer.name} has been archived.{cancel_msg}')
             return redirect('car_rental:customers')
         elif action == 'ban_and_delete':
             customer.ban()
             customer.delete()
-            messages.success(request, f'Customer {customer.name} has been banned and deleted.')
+            messages.success(request, f'Customer {customer.name} has been banned and archived.{cancel_msg}')
             return redirect('car_rental:customers')
         
         return redirect('car_rental:customer_detail', pk=customer.pk)

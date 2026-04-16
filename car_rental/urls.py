@@ -54,6 +54,8 @@ urlpatterns = [
     path('purchase/<int:purchase_id>/update-status/', views.update_purchase_status, name='update_purchase_status'),
     path('customer/<int:pk>/', views.CustomerDetailView.as_view(), name='customer_detail'),
     path('customer/<int:pk>/ban-delete/', views.CustomerBanDeleteView.as_view(), name='customer_ban_delete'),
+    path('fleet-management/', views.FleetManagementView.as_view(), name='fleet_management'),
+    path('fleet-management/update-status/<int:car_id>/', views.quick_update_car_status, name='quick_update_car_status'),
     
     # Admin/staff purchase list
     path('purchases/', views.PurchasesListView.as_view(), name='purchases'),

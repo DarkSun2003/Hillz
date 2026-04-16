@@ -7,19 +7,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}Hillz Exquisites{% endblock %}</title>
     
-    <!-- Favicon -->
     {% if site_info and site_info.favicon %}
     <link rel="icon" type="image/x-icon" href="{{ site_info.favicon.url }}">
     {% else %}
     <link rel="icon" type="image/x-icon" href="https://res.cloudinary.com/dd8wup4iv/image/upload/v1/site/favicon">
     {% endif %}
     
-    <!-- Google Fonts - Luxury Typography -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     
-    <!-- js-cookie library -->
     <script src="https://cdn.jsdelivr.net/npm/js-cookie@3.0.5/dist/js.cookie.min.js"></script>
     
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -79,14 +76,15 @@
         
         .navbar-brand {
             font-family: var(--font-family-playfair);
-            font-size: 1.8rem;
+            font-size: 1.5rem; /* Reduced to save space */
             font-weight: 700;
             color: var(--primary-color) !important;
             letter-spacing: 1px;
+            white-space: nowrap; /* Prevents brand from wrapping */
         }
         
         .navbar-brand img {
-            max-height: 40px;
+            max-height: 35px; /* Slightly smaller logo */
             width: auto;
             transition: var(--transition);
         }
@@ -97,12 +95,16 @@
         
         .navbar-nav .nav-link {
             font-family: var(--font-family-poppins);
+            font-size: 0.95rem; /* Slightly smaller text */
             font-weight: 500;
             color: rgba(255, 255, 255, 0.8) !important;
-            margin: 0 var(--spacing-sm);
+            margin: 0 0.3rem; /* Drastically reduced empty space between links */
+            padding-left: 0.5rem !important; /* Tighter bootstrap padding */
+            padding-right: 0.5rem !important;
             position: relative;
             transition: var(--transition);
-            letter-spacing: 0.5px;
+            letter-spacing: 0.3px; /* Slightly tighter letter spacing */
+            white-space: nowrap; /* Prevents text wrapping */
         }
         
         .navbar-nav .nav-link:hover {
@@ -110,6 +112,11 @@
         }
         
         .navbar-nav .nav-link.active {
+            color: var(--primary-color) !important;
+        }
+
+        /* Specific style for the Management dropdown to stand out */
+        .nav-link.mgmt-link {
             color: var(--primary-color) !important;
         }
         
@@ -587,15 +594,13 @@
     {% block extra_css %}{% endblock %}
 </head>
 <body>
-    <!-- Loading Spinner -->
     <div id="loadingSpinner" class="spinner-overlay" role="status" aria-live="polite">
         <div class="spinner"></div>
         <span class="sr-only">Loading...</span>
     </div>
     
-    <!-- Luxury Navbar -->
     <nav class="navbar navbar-expand-lg navbar-dark sticky-top">
-        <div class="container">
+        <div class="container-xl">
             <a class="navbar-brand d-flex align-items-center" href="{% url 'car_rental:home' %}">
                 {% if site_info and site_info.logo %}
                 <img src="{{ site_info.logo.url }}" alt="{{ site_info.company_name }}" class="me-2">
@@ -641,42 +646,52 @@
                         <a class="nav-link {% if request.resolver_match.url_name == 'contact' %}active{% endif %}" href="{% url 'car_rental:contact' %}">Contact</a>
                     </li>
                 </ul>
+
                 <ul class="navbar-nav">
                     {% if user.is_authenticated %}
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown">
-                            <i class="fas fa-user-circle me-1"></i>{{ user.username }}
-                        </a>
-                        <ul class="dropdown-menu dropdown-menu-end">
-                            <li><a class="dropdown-item" href="{% url 'car_rental:profile' %}"><i class="fas fa-user me-2"></i>My Profile</a></li>
-                            <li><a class="dropdown-item" href="{% url 'car_rental:my_rentals' %}"><i class="fas fa-car me-2"></i>My Rentals</a></li>
-                            <li><a class="dropdown-item" href="{% url 'car_rental:my_purchases' %}"><i class="fas fa-shopping-cart me-2"></i>My Purchases</a></li>
-                            <li><a class="dropdown-item" href="{% url 'car_rental:my_services' %}"><i class="fas fa-wrench me-2"></i>My Services</a></li>
-                            {% if user.is_staff %}
-                            <li><hr class="dropdown-divider"></li>
-                            <li><a class="dropdown-item" href="{% url 'car_rental:service_booking_list' %}"><i class="fas fa-calendar-check me-2"></i>Service Bookings</a></li>
-                            <li><a class="dropdown-item" href="{% url 'car_rental:customers' %}"><i class="fas fa-users me-2"></i>Customers</a></li>
-                            <li><a class="dropdown-item" href="{% url 'car_rental:add_car' %}"><i class="fas fa-plus-circle me-2"></i>Add Vehicle</a></li>
-                            <li><a class="dropdown-item" href="{% url 'car_rental:site_info_edit' %}"><i class="fas fa-cog me-2"></i>Site Settings</a></li>
-                            {% endif %}
-                            <li><hr class="dropdown-divider"></li>
-                            <li><a class="dropdown-item" href="{% url 'account_logout' %}"><i class="fas fa-sign-out-alt me-2"></i>Logout</a></li>
-                        </ul>
-                    </li>
+                        
+                        {% if user.is_staff %}
+                        <li class="nav-item dropdown me-2">
+                            <a class="nav-link dropdown-toggle mgmt-link" href="#" id="adminDropdown" role="button" data-bs-toggle="dropdown">
+                                <i class="fas fa-shield-alt me-1"></i>Manage
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-end">
+                                <li><a class="dropdown-item" href="{% url 'car_rental:fleet_management' %}"><i class="fas fa-car-side me-2"></i>Fleet Management</a></li>
+                                <li><a class="dropdown-item" href="{% url 'car_rental:service_booking_list' %}"><i class="fas fa-calendar-check me-2"></i>Service Bookings</a></li>
+                                <li><a class="dropdown-item" href="{% url 'car_rental:customers' %}"><i class="fas fa-users me-2"></i>Customers</a></li>
+                                <li><a class="dropdown-item" href="{% url 'car_rental:add_car' %}"><i class="fas fa-plus-circle me-2"></i>Add Vehicle</a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item" href="{% url 'car_rental:site_info_edit' %}"><i class="fas fa-cog me-2"></i>Site Settings</a></li>
+                            </ul>
+                        </li>
+                        {% endif %}
+
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown">
+                                <i class="fas fa-user-circle me-1"></i>{{ user.username }}
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-end">
+                                <li><a class="dropdown-item" href="{% url 'car_rental:profile' %}"><i class="fas fa-user me-2"></i>My Profile</a></li>
+                                <li><a class="dropdown-item" href="{% url 'car_rental:my_rentals' %}"><i class="fas fa-car me-2"></i>My Rentals</a></li>
+                                <li><a class="dropdown-item" href="{% url 'car_rental:my_purchases' %}"><i class="fas fa-shopping-cart me-2"></i>My Purchases</a></li>
+                                <li><a class="dropdown-item" href="{% url 'car_rental:my_services' %}"><i class="fas fa-wrench me-2"></i>My Services</a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item" href="{% url 'account_logout' %}"><i class="fas fa-sign-out-alt me-2"></i>Logout</a></li>
+                            </ul>
+                        </li>
                     {% else %}
-                    <li class="nav-item">
-                        <a class="nav-link {% if request.resolver_match.url_name == 'account_login' %}active{% endif %}" href="{% url 'account_login' %}">Login</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link {% if request.resolver_match.url_name == 'account_signup' %}active{% endif %}" href="{% url 'account_signup' %}">Register</a>
-                    </li>
+                        <li class="nav-item">
+                            <a class="nav-link {% if request.resolver_match.url_name == 'account_login' %}active{% endif %}" href="{% url 'account_login' %}">Login</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link {% if request.resolver_match.url_name == 'account_signup' %}active{% endif %}" href="{% url 'account_signup' %}">Register</a>
+                        </li>
                     {% endif %}
                 </ul>
             </div>
         </div>
     </nav>
 
-    <!-- Alert Messages -->
     {% if messages %}
     <div class="container mt-4">
         {% for message in messages %}
@@ -691,22 +706,18 @@
     </div>
     {% endif %}
 
-    <!-- Main Content -->
     {% block content %}{% endblock %}
 
-    <!-- WhatsApp Float Button -->
     {% if site_info and site_info.whatsapp_phone %}
     <a href="https://wa.me/{{ site_info.whatsapp_phone|cut:'+'|cut:' '|cut:'-' }}?text=Hello%20I'm%20interested%20in%20your%20services" class="whatsapp-float" target="_blank">
         <i class="fab fa-whatsapp"></i>
     </a>
     {% endif %}
 
-    <!-- Back to Top Button -->
     <button id="backToTop" title="Back to top">
         <i class="fas fa-arrow-up"></i>
     </button>
 
-    <!-- Luxury Footer -->
     <footer class="footer mt-5">
         <div class="container">
             <div class="row">
@@ -758,7 +769,6 @@
         </div>
     </footer>
 
-    <!-- Enhanced Cookie Consent Banner -->
     <div id="cookieConsent">
         <div class="container">
             <div class="cookie-text">
@@ -772,7 +782,6 @@
         </div>
     </div>
 
-    <!-- Cookie Settings Modal -->
     <div id="cookieSettingsBackdrop"></div>
     <div id="cookieSettings">
         <h3>Cookie Preferences</h3>
@@ -863,8 +872,6 @@
         // --- THE COMPLETE applyCookiePreferences FUNCTION ---
         function applyCookiePreferences(preferences) {
             // --- 1. Set a Consent Cookie ---
-            // We use js-cookie to set a cookie that records the user's consent choice.
-            // This cookie is valid for 1 year (365 days).
             Cookies.set('cookie_consent', preferences.choice, { expires: 365 });
 
             // --- 2. Manage Analytics Cookies ---
@@ -872,37 +879,31 @@
             let analyticsScript = document.getElementById('ga-script');
 
             if (preferences.analytics) {
-                // If user CONSENTS to analytics, ensure the script is loaded.
                 if (!analyticsScript) {
-                    // If the script tag doesn't exist, create and append it.
                     analyticsScript = document.createElement('script');
                     analyticsScript.id = 'ga-script';
                     analyticsScript.async = true;
                     analyticsScript.src = `https://www.googletagmanager.com/gtag/js?id=${analyticsScriptId}`;
                     document.head.appendChild(analyticsScript);
                 }
-                // If the script already exists, make sure it's not disabled.
                 analyticsScript.removeAttribute('disabled');
                 
-                // Initialize gtag() if it hasn't been initialized yet.
                 window.dataLayer = window.dataLayer || [];
                 function gtag(){dataLayer.push(arguments);}
                 gtag('js', new Date());
                 gtag('config', analyticsScriptId, {
-                    'anonymize_ip': true, // Good for privacy
-                    'cookie_domain': 'auto', // Let GA handle the cookie domain
-                    'cookie_update': 'update' // Important for consent mode
+                    'anonymize_ip': true,
+                    'cookie_domain': 'auto',
+                    'cookie_update': 'update'
                 });
-
             } else {
-                // If user DECLINES analytics, disable the script.
                 if (analyticsScript) {
                     analyticsScript.setAttribute('disabled', '');
                 }
                 console.log('Analytics disabled by user preference.');
             }
 
-            // --- 3. Manage Marketing Cookies (Example: Facebook Pixel) ---
+            // --- 3. Manage Marketing Cookies ---
             const pixelScriptId = 'XXXXXXXXXXXXXXXX'; // IMPORTANT: Replace with your Pixel ID
             let pixelScript = document.getElementById('fb-pixel-script');
 
@@ -924,9 +925,7 @@
                     `;
                     document.head.appendChild(pixelScript);
                 }
-                // Ensure the script is not disabled.
                 pixelScript.removeAttribute('disabled');
-
             } else {
                 if (pixelScript) {
                     pixelScript.setAttribute('disabled', '');
@@ -943,11 +942,10 @@
         if (!cookieChoice) {
             cookieConsent.style.display = 'block';
         } else {
-            // Apply saved preferences
             const preferences = {
                 necessary: true,
-                analytics: Cookies.get('analytics') === 'true', // Read from cookie
-                marketing: Cookies.get('marketing') === 'true' // Read from cookie
+                analytics: Cookies.get('analytics') === 'true',
+                marketing: Cookies.get('marketing') === 'true'
             };
             applyCookiePreferences(preferences);
         }
@@ -974,7 +972,6 @@
         customizeCookies.addEventListener('click', function() {
             cookieSettings.style.display = 'block';
             cookieSettingsBackdrop.style.display = 'block';
-            // Load current preferences from cookies
             document.getElementById('analyticsCookies').checked = Cookies.get('analytics') === 'true';
             document.getElementById('marketingCookies').checked = Cookies.get('marketing') === 'true';
         });
