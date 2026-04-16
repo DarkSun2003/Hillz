@@ -875,10 +875,10 @@
             Cookies.set('cookie_consent', preferences.choice, { expires: 365 });
 
             // --- 2. Manage Analytics Cookies ---
-            const analyticsScriptId = 'G-XXXXXXXXXX'; // IMPORTANT: Replace with your actual GA Measurement ID
+            const analyticsScriptId = '{{ GOOGLE_ANALYTICS_ID|default:"" }}'; 
             let analyticsScript = document.getElementById('ga-script');
 
-            if (preferences.analytics) {
+            if (preferences.analytics && analyticsScriptId) {
                 if (!analyticsScript) {
                     analyticsScript = document.createElement('script');
                     analyticsScript.id = 'ga-script';
@@ -900,14 +900,14 @@
                 if (analyticsScript) {
                     analyticsScript.setAttribute('disabled', '');
                 }
-                console.log('Analytics disabled by user preference.');
+                console.log('Analytics disabled by user preference or missing ID.');
             }
 
             // --- 3. Manage Marketing Cookies ---
-            const pixelScriptId = 'XXXXXXXXXXXXXXXX'; // IMPORTANT: Replace with your Pixel ID
+            const pixelScriptId = '{{ META_PIXEL_ID|default:"" }}'; 
             let pixelScript = document.getElementById('fb-pixel-script');
 
-            if (preferences.marketing) {
+            if (preferences.marketing && pixelScriptId) {
                 if (!pixelScript) {
                     pixelScript = document.createElement('script');
                     pixelScript.id = 'fb-pixel-script';
@@ -930,7 +930,7 @@
                 if (pixelScript) {
                     pixelScript.setAttribute('disabled', '');
                 }
-                console.log('Marketing cookies disabled by user preference.');
+                console.log('Marketing cookies disabled by user preference or missing ID.');
             }
 
             console.log('Cookie preferences have been applied:', preferences);
