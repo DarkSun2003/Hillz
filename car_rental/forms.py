@@ -316,13 +316,6 @@ class RentalReturnForm(forms.ModelForm):
             ('overdue', 'Overdue'),
         ]
 
-#purchase forms
-from django import forms
-from django.core.exceptions import ValidationError
-from django.utils import timezone
-from decimal import Decimal
-from .models import Purchase, Car
-
 class PurchaseForm(forms.ModelForm):
     """
     Form for creating or editing a purchase.

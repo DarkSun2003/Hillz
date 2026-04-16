@@ -524,7 +524,7 @@ class Rental(TimeStampedModel, AuditableModel, SoftDeletionModel):
         verbose_name = "Rental"
         verbose_name_plural = "Rentals"
 
-# Purchase Model
+
 class Purchase(TimeStampedModel, AuditableModel, SoftDeletionModel):
     STATUS_CHOICES = [
         ('pending', 'Pending'),
@@ -532,6 +532,13 @@ class Purchase(TimeStampedModel, AuditableModel, SoftDeletionModel):
         ('shipped', 'Shipped'),
         ('delivered', 'Delivered'),
         ('cancelled', 'Cancelled'),
+    ]
+    
+    PAYMENT_STATUS_CHOICES = [
+        ('pending', 'Pending'), 
+        ('paid', 'Paid'), 
+        ('financed', 'Financed'), 
+        ('refunded', 'Refunded')
     ]
     
     customer = models.ForeignKey(
@@ -563,7 +570,7 @@ class Purchase(TimeStampedModel, AuditableModel, SoftDeletionModel):
     # Payment
     payment_status = models.CharField(
         max_length=20,
-        choices=[('pending', 'Pending'), ('paid', 'Paid'), ('financed', 'Financed'), ('refunded', 'Refunded')],
+        choices=PAYMENT_STATUS_CHOICES,
         default='pending'
     )
     
@@ -582,17 +589,6 @@ class Purchase(TimeStampedModel, AuditableModel, SoftDeletionModel):
     # Warranty information
     warranty_expiry = models.DateField(blank=True, null=True)
     warranty_terms = models.TextField(blank=True)
-    
-    # Trade-in information
-    trade_in = models.ForeignKey(
-        'self', 
-        on_delete=models.SET_NULL, 
-        null=True, 
-        blank=True,
-        related_name='trade_in_for', 
-        help_text="Car traded in for this purchase"
-    )
-    trade_in_value = models.DecimalField(max_digits=18, decimal_places=2, blank=True, null=True)
     
     # Delivery information
     delivery_address = models.TextField(blank=True)
@@ -614,10 +610,10 @@ class Purchase(TimeStampedModel, AuditableModel, SoftDeletionModel):
             self.fees = round(self.fees, 2)
         if self.total_amount:
             self.total_amount = round(self.total_amount, 2)
-        if self.trade_in_value:
-            self.trade_in_value = round(self.trade_in_value, 2)
     
     def save(self, *args, **kwargs):
+        is_updating = self.pk is not None
+
         # Calculate total_amount if not provided
         if not self.total_amount:
             self.total_amount = round(self.purchase_price + self.taxes + self.fees, 2)
@@ -631,36 +627,62 @@ class Purchase(TimeStampedModel, AuditableModel, SoftDeletionModel):
         elif self.status == 'shipped' and self.delivery_datetime and self.delivery_datetime < now:
             self.status = 'delivered'
         
-        # ---  DELETION LOGIC (Only runs if Car is linked) ---
+        # --- PRE-SAVE STATE CAPTURE ---
         old_status = None
-        if self.pk and self.car:
+        if is_updating and self.car:
             try:
-                old_status = Purchase.objects.get(pk=self.pk).status
-            except Purchase.DoesNotExist:
+                old_status = type(self).objects.get(pk=self.pk).status
+            except type(self).DoesNotExist:
                 pass
+                
+        # Store a safe reference to the car before delivery logic potentially unlinks it
+        current_car = self.car
+        
+        # --- DELETION LOGIC (Only runs if Car is linked) ---
         car_to_delete = None
         if self.status == 'delivered' and old_status != 'delivered' and self.car:
-            # 1. Store car reference
             car_to_delete = self.car
-            
-            # 2. Update car status to 'sold' (optional but good practice for history)
             car_to_delete.status = 'sold'
             car_to_delete.save()
+            self.car = None # Unlink
             
-            # 3. Unlink car from purchase BEFORE deleting the car (critical for ForeignKey integrity)
-            self.car = None
         super().save(*args, **kwargs)
+        
         if car_to_delete:
-            car_to_delete.delete() # Executes SoftDeletionModel logic (is_deleted=True)
+            car_to_delete.delete() 
+
+        # --- AUTO-CANCELLATION & CAR LOCKDOWN (The "Sweep") ---
+        # Triggered the moment the payment clears, even if the car hasn't shipped yet
+        if is_updating and current_car and self.payment_status in ['paid', 'financed']:
+            
+            # Step A: Lock the car down so it disappears from the storefront
+            if current_car.status != 'sold':
+                current_car.status = 'sold'
+                # Assuming your Car model uses 'for_sale' to show/hide it on the frontend
+                if hasattr(current_car, 'for_sale'):
+                    current_car.for_sale = False
+                current_car.save()
+
+            # Step B: Find anyone else who was trying to buy this exact car
+            competing_pending = type(self).objects.filter(
+                car=current_car,
+                status='pending'
+            ).exclude(pk=self.pk)
+
+            # Step C: Cancel them and send the emails
+            if competing_pending.exists():
+                cancelled_purchases = list(competing_pending)
+                competing_pending.update(status='cancelled')
+                
+                # Lazy import to prevent circular dependency
+                from .utils import send_purchase_cancellation_email
+                
+                for cancelled_purchase in cancelled_purchases:
+                    if cancelled_purchase.customer.email != self.customer.email:
+                        send_purchase_cancellation_email(cancelled_purchase)
         
     def __str__(self):
         return f"{self.customer.name} - {self.car.make if self.car else 'DELETED CAR'} {self.car.model if self.car else ''}"
-    
-    @property
-    def net_amount(self):
-        """Calculate net amount after trade-in value"""
-        trade_in_value = self.trade_in_value or 0
-        return round(self.total_amount - trade_in_value, 2)
     
     def get_warranty_status(self):
         """Check if warranty is still valid"""

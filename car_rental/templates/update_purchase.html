@@ -227,7 +227,6 @@
 
 {% block content %}
 <div class="container my-5">
-    <!-- Page Header -->
     <div class="page-header">
         <div class="d-flex align-items-center">
             <div class="icon-badge">
@@ -240,7 +239,6 @@
         </div>
     </div>
 
-    <!-- Main Card -->
     <div class="card main-card">
         <div class="card-header">
             <h5 class="card-title"><i class="fas fa-edit me-2"></i>Purchase Update Form</h5>
@@ -261,7 +259,6 @@
             <form method="post">
                 {% csrf_token %}
                 
-                <!-- Navigation Tabs -->
                 <ul class="nav nav-tabs mb-4" id="purchaseTabs" role="tablist">
                     <li class="nav-item" role="presentation">
                         <button class="nav-link active" id="basic-tab" data-bs-toggle="tab" data-bs-target="#basic" type="button" role="tab">
@@ -285,9 +282,7 @@
                     </li>
                 </ul>
                 
-                <!-- Tab Content -->
                 <div class="tab-content" id="purchaseTabsContent">
-                    <!-- Basic Information Tab -->
                     <div class="tab-pane fade show active" id="basic" role="tabpanel">
                         <div class="card-section">
                             <h5 class="section-title">Purchase Information</h5>
@@ -346,11 +341,9 @@
                                         <span class="input-group-text"><i class="fas fa-check-circle"></i></span>
                                         {{ form.actual_delivery_datetime.as_widget }}
                                     </div>
-                                    <!-- ========== NEW HTML ADDED HERE ========== -->
                                     <div id="actual-delivery-help-text" class="form-text" style="display: none; color: #6c757d; margin-top: 0.25rem;">
                                         Not applicable for cancelled or shipped orders.
                                     </div>
-                                    <!-- ================================================= -->
                                     {% if form.actual_delivery_datetime.errors %}
                                         <div class="invalid-feedback d-block">{{ form.actual_delivery_datetime.errors|join:", " }}</div>
                                     {% endif %}
@@ -391,7 +384,6 @@
                         </div>
                     </div>
                     
-                    <!-- Pricing Tab -->
                     <div class="tab-pane fade" id="pricing" role="tabpanel">
                         <div class="card-section">
                             <h5 class="section-title">Pricing Details</h5>
@@ -440,35 +432,8 @@
                                 </div>
                             </div>
                         </div>
-                        
-                        <div class="card-section">
-                            <h5 class="section-title">Trade-in Information</h5>
-                            <div class="row">
-                                <div class="col-md-6 mb-3">
-                                    <label for="{{ form.trade_in.id_for_label }}" class="form-label">Trade-in</label>
-                                    <div class="input-group">
-                                        <span class="input-group-text"><i class="fas fa-exchange-alt"></i></span>
-                                        {{ form.trade_in.as_widget }}
-                                    </div>
-                                    {% if form.trade_in.errors %}
-                                        <div class="invalid-feedback d-block">{{ form.trade_in.errors|join:", " }}</div>
-                                    {% endif %}
-                                </div>
-                                <div class="col-md-6 mb-3">
-                                    <label for="{{ form.trade_in_value.id_for_label }}" class="form-label">Trade-in Value</label>
-                                    <div class="input-group">
-                                        <span class="input-group-text">₦</span>
-                                        {{ form.trade_in_value.as_widget }}
-                                    </div>
-                                    {% if form.trade_in_value.errors %}
-                                        <div class="invalid-feedback d-block">{{ form.trade_in_value.errors|join:", " }}</div>
-                                    {% endif %}
-                                </div>
-                            </div>
-                        </div>
                     </div>
                     
-                    <!-- Warranty Tab -->
                     <div class="tab-pane fade" id="warranty" role="tabpanel">
                         <div class="card-section">
                             <h5 class="section-title">Warranty Information</h5>
@@ -494,7 +459,6 @@
                         </div>
                     </div>
                     
-                    <!-- Delivery Tab -->
                     <div class="tab-pane fade" id="delivery" role="tabpanel">
                         <div class="card-section">
                             <h5 class="section-title">Delivery Information</h5>
@@ -523,7 +487,6 @@
                     </div>
                 </div>
                 
-                <!-- Action Buttons -->
                 <div class="d-grid gap-2 d-md-flex mt-4">
                     <button type="submit" class="btn btn-primary btn-lg me-md-2">
                         <i class="fas fa-save me-2"></i> Update Purchase
@@ -589,7 +552,6 @@
             });
         }
 
-        // =================== NEW JAVASCRIPT ADDED HERE ===================
         // Logic to disable Actual Delivery Date based on status
         const statusField = document.getElementById('{{ form.status.id_for_label }}');
         const actualDeliveryDateField = document.getElementById('{{ form.actual_delivery_datetime.id_for_label }}');
@@ -619,7 +581,6 @@
             // Run the function once on page load to set the correct initial state
             toggleActualDeliveryDate();
         }
-        // ========================================================
 
     });
 </script>

@@ -251,7 +251,6 @@
 
 {% block content %}
 <div class="container my-5">
-    <!-- Page Header -->
     <div class="page-header">
         <div class="d-flex align-items-center">
             <div class="icon-badge">
@@ -266,7 +265,6 @@
     
     <div class="row">
         <div class="col-lg-8">
-            <!-- Purchase Information Card -->
             <div class="card info-card">
                 <div class="card-header bg-dark text-white">
                     <h5 class="card-title"><i class="fas fa-receipt me-2"></i>Purchase Information</h5>
@@ -305,7 +303,6 @@
                 </div>
             </div>
             
-            <!-- Vehicle Information Card -->
             {% if purchase.car %}
             <div class="card info-card">
                 <div class="card-header bg-primary text-white">
@@ -358,7 +355,6 @@
             </div>
             {% endif %}
             
-            <!-- Pricing Information Card -->
             <div class="card info-card">
                 <div class="card-header bg-success text-white">
                     <h5 class="card-title"><i class="fas fa-dollar-sign me-2"></i>Pricing Information</h5>
@@ -384,53 +380,11 @@
                                 <span class="detail-label">Total Amount:</span>
                                 <span class="detail-value">₦{{ purchase.total_amount|floatformat:2 }}</span>
                             </div>
-                            <div class="detail-row">
-                                <span class="detail-label">Trade-in Value:</span>
-                                <span class="detail-value">₦{{ purchase.trade_in_value|floatformat:2|default:"0.00" }}</span>
-                            </div>
-                            <div class="detail-row">
-                                <span class="detail-label">Net Amount:</span>
-                                <span class="detail-value">₦{{ purchase.net_amount|floatformat:2 }}</span>
-                            </div>
                         </div>
                     </div>
                 </div>
             </div>
             
-            <!-- Trade-in Information Card -->
-            {% if purchase.trade_in %}
-            <div class="card info-card">
-                <div class="card-header bg-warning text-dark">
-                    <h5 class="card-title"><i class="fas fa-exchange-alt me-2"></i>Trade-in Information</h5>
-                </div>
-                <div class="card-body">
-                    <div class="row">
-                        <div class="col-md-6">
-                            <div class="detail-row">
-                                <span class="detail-label">Trade-in Car:</span>
-                                <span class="detail-value">{{ purchase.trade_in.make }} {{ purchase.trade_in.model }} ({{ purchase.trade_in.year }})</span>
-                            </div>
-                            <div class="detail-row">
-                                <span class="detail-label">VIN:</span>
-                                <span class="detail-value">{{ purchase.trade_in.vin|default:"N/A" }}</span>
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="detail-row">
-                                <span class="detail-label">Trade-in Value:</span>
-                                <span class="detail-value">₦{{ purchase.trade_in_value|floatformat:2 }}</span>
-                            </div>
-                            <div class="detail-row">
-                                <span class="detail-label">Trade-in Date:</span>
-                                <span class="detail-value">{{ purchase.purchase_datetime|date:"F d, Y" }}</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            {% endif %}
-            
-            <!-- Warranty Information Card -->
             {% if purchase.warranty_expiry %}
             <div class="card info-card">
                 <div class="card-header bg-info text-white">
@@ -467,7 +421,6 @@
             </div>
             {% endif %}
             
-            <!-- Delivery Information Card -->
             {% if purchase.delivery_address %}
             <div class="card info-card">
                 <div class="card-header bg-secondary text-white">
@@ -490,7 +443,6 @@
         </div>
         
         <div class="col-lg-4">
-            <!-- Status Information Card -->
             <div class="card info-card">
                 <div class="card-header bg-dark text-white">
                     <h5 class="card-title"><i class="fas fa-info-circle me-2"></i>Status Information</h5>
@@ -510,7 +462,6 @@
                         </div>
                     </div>
                     
-                    <!-- Only show edit button to superusers -->
                     {% if request.user.is_superuser %}
                     <a href="{% url 'car_rental:update_purchase' purchase.id %}" class="btn btn-action btn-warning w-100">
                         <i class="fas fa-edit me-2"></i> Update Purchase
@@ -519,7 +470,6 @@
                 </div>
             </div>
             
-            <!-- Actions Card -->
             <div class="card info-card">
                 <div class="card-header bg-info text-white">
                     <h5 class="card-title"><i class="fas fa-tasks me-2"></i>Actions</h5>

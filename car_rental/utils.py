@@ -158,6 +158,41 @@ def send_purchase_confirmation_email(purchase):
         logging.error(f"Error sending purchase confirmation email: {e}")
         return False
 
+def send_purchase_cancellation_email(purchase):
+    """
+    Sends a polite cancellation notice to users who missed out on buying a car.
+    """
+    # Import locally if SiteInfo isn't already imported at the top
+    from .models import SiteInfo 
+    
+    site_info = SiteInfo.objects.first() or SiteInfo()
+    
+    context = {
+        'purchase': purchase,
+        'site_info': site_info,
+        'customer_name': purchase.customer.name,
+        'car_name': f"{purchase.car.year} {purchase.car.make} {purchase.car.model}",
+    }
+
+    try:
+        # SEND TO CUSTOMER
+        customer_html = render_to_string('emails/purchase_cancellation.html', context)
+        customer_plain = strip_tags(customer_html)
+        customer_subject = f"Update regarding your inquiry for the {purchase.car.make} {purchase.car.model}"
+        
+        send_mail(
+            customer_subject, 
+            customer_plain, 
+            site_info.email or settings.DEFAULT_FROM_EMAIL, 
+            [purchase.customer.email], 
+            html_message=customer_html
+        )
+        return True
+    except Exception as e:
+        import logging
+        logging.error(f"Error sending purchase cancellation email: {e}")
+        return False
+
 def send_service_confirmation_email(booking):
     """
     Send service confirmation email to customer AND management.

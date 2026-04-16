@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; margin: 0; padding: 0; }
+        .container { max-width: 600px; margin: 20px auto; padding: 20px; border: 1px solid #e0e0e0; border-radius: 8px; background-color: #ffffff; }
+        .header { background-color: #f8f9fa; padding: 20px; text-align: center; border-bottom: 3px solid #d4af37; border-radius: 8px 8px 0 0; }
+        .header h2 { margin: 0; color: #212529; }
+        .content { padding: 30px 20px; }
+        .footer { text-align: center; font-size: 0.85em; color: #777; margin-top: 30px; padding-top: 20px; border-top: 1px solid #eee; }
+        .btn { display: inline-block; padding: 12px 25px; background-color: #d4af37; color: #ffffff !important; text-decoration: none; border-radius: 5px; font-weight: bold; margin-top: 10px; }
+        .highlight { font-weight: bold; color: #212529; }
+    </style>
+</head>
+<body style="background-color: #f4f4f4; padding: 20px;">
+    <div class="container">
+        <div class="header">
+            <h2>Vehicle Availability Update</h2>
+        </div>
+        
+        <div class="content">
+            <p>Dear {{ customer_name }},</p>
+            
+            <p>We are writing to update you on your pending purchase request (ID: <span class="highlight">#{{ purchase.id }}</span>) for the <span class="highlight">{{ car_name }}</span>.</p>
+            
+            <p>Because we operate on a strict <span class="highlight">First-to-Pay policy</span>, vehicles remain on the market until a transaction is fully secured. We regret to inform you that another buyer has just finalized their payment for this specific vehicle, and it is now officially sold.</p>
+            
+            <p>As a result, your pending request has been cancelled. We know this is disappointing news, but our inventory updates frequently!</p>
+            
+            <p>We would love to help you find an alternative vehicle that meets your needs. Please browse our current showroom:</p>
+            
+            <p style="text-align: center; margin: 35px 0;">
+                <a href="http://127.0.0.1:8000/sale-cars/" class="btn">View Available Cars</a>
+            </p>
+            
+            <p>If you'd like us to keep an eye out for a similar model, reply directly to this email or message us on WhatsApp.</p>
+            
+            <p>Best regards,<br>The {% if site_info.company_name %}{{ site_info.company_name }}{% else %}Sales{% endif %} Team</p>
+        </div>
+        
+        <div class="footer">
+            <p>This is an automated message. Please do not reply directly to this email unless you need support.</p>
+        </div>
+    </div>
+</body>
+</html>

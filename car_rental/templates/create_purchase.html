@@ -130,21 +130,7 @@
         color: #dc3545;
     }
     
-    .financial-group {
-        background-color: #f8f9fa;
-        border-radius: 10px;
-        padding: 1.25rem;
-        margin-bottom: 1.5rem;
-    }
-    
-    .trade-in-section {
-        background-color: #f8f9fa;
-        border-radius: 10px;
-        padding: 1.25rem;
-        margin-bottom: 1.5rem;
-    }
-    
-    .delivery-section {
+    .financial-group, .warranty-section, .delivery-section {
         background-color: #f8f9fa;
         border-radius: 10px;
         padding: 1.25rem;
@@ -323,36 +309,24 @@
                     </div>
                 </div>
                 
-                <h4 class="section-title">Trade-in & Delivery</h4>
-                <div class="trade-in-section">
+                <h4 class="section-title">Warranty & Delivery</h4>
+                <div class="warranty-section">
                     <div class="row">
-                        <div class="col-md-4 mb-3">
-                            <label for="{{ form.trade_in.id_for_label }}" class="form-label">Trade-in Vehicle</label>
-                            {{ form.trade_in.as_widget|add_class:"form-select" }}
-                            {% if form.trade_in.errors %}
-                                <div class="text-danger small mt-1">
-                                    {% for error in form.trade_in.errors %}{{ error }}{% endfor %}
-                                </div>
-                            {% endif %}
-                        </div>
-                        <div class="col-md-4 mb-3">
-                            <label for="{{ form.trade_in_value.id_for_label }}" class="form-label">Trade-in Value</label>
-                            <div class="input-group">
-                                <span class="input-group-text">₦</span>
-                                {{ form.trade_in_value.as_widget|add_class:"form-control" }}
-                            </div>
-                            {% if form.trade_in_value.errors %}
-                                <div class="text-danger small mt-1">
-                                    {% for error in form.trade_in_value.errors %}{{ error }}{% endfor %}
-                                </div>
-                            {% endif %}
-                        </div>
-                        <div class="col-md-4 mb-3">
+                        <div class="col-md-6 mb-3">
                             <label for="{{ form.warranty_expiry.id_for_label }}" class="form-label">Warranty Expiry Date</label>
                             {{ form.warranty_expiry.as_widget|add_class:"form-control" }}
                             {% if form.warranty_expiry.errors %}
                                 <div class="text-danger small mt-1">
                                     {% for error in form.warranty_expiry.errors %}{{ error }}{% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="{{ form.warranty_terms.id_for_label }}" class="form-label">Warranty Terms</label>
+                            {{ form.warranty_terms.as_widget|add_class:"form-control" }}
+                            {% if form.warranty_terms.errors %}
+                                <div class="text-danger small mt-1">
+                                    {% for error in form.warranty_terms.errors %}{{ error }}{% endfor %}
                                 </div>
                             {% endif %}
                         </div>

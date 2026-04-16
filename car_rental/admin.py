@@ -48,7 +48,7 @@ class CarAdmin(admin.ModelAdmin):
 class CustomerAdmin(admin.ModelAdmin):
     list_display = ('name', 'email', 'phone', 'has_valid_license', 'created_at', 'rental_count', 'purchase_count', 'service_count')
     search_fields = ('name', 'email', 'drivers_license')
-    list_filter = ('created_at',)  # REMOVED 'has_valid_license' FROM HERE
+    list_filter = ('created_at',)  
     readonly_fields = ('created_at',)
     
     def has_valid_license(self, obj):
@@ -133,14 +133,14 @@ class PurchaseAdmin(admin.ModelAdmin):
     list_filter = ('status', 'payment_status', 'purchase_datetime')
     search_fields = ('customer__name', 'car__make', 'car__model', 'car__vin')
     date_hierarchy = 'purchase_datetime'
-    readonly_fields = ('net_amount',)
+    readonly_fields = ('total_amount',) # Replaced net_amount with total_amount
     
     fieldsets = (
         ('Purchase Information', {
             'fields': ('customer', 'car', 'purchase_datetime', 'delivery_datetime', 'actual_delivery_datetime')
         }),
         ('Pricing', {
-            'fields': ('purchase_price', 'taxes', 'fees', 'total_amount', 'net_amount')
+            'fields': ('purchase_price', 'taxes', 'fees', 'total_amount')
         }),
         ('Status', {
             'fields': ('status', 'payment_status')
@@ -151,18 +151,15 @@ class PurchaseAdmin(admin.ModelAdmin):
         ('Warranty', {
             'fields': ('warranty_expiry', 'warranty_terms')
         }),
-        ('Trade-in', {
-            'fields': ('trade_in', 'trade_in_value')
-        }),
         ('Delivery', {
             'fields': ('delivery_address', 'delivery_notes')
         }),
     )
     
     def get_queryset(self, request):
-        return super().get_queryset(request).select_related('customer', 'car', 'employee', 'trade_in')
+        # Removed 'trade_in' from select_related since it no longer exists
+        return super().get_queryset(request).select_related('customer', 'car', 'employee')
 
-# --- In admin.py ---
 
 @admin.register(SiteInfo)
 class SiteInfoAdmin(admin.ModelAdmin):
@@ -178,7 +175,6 @@ class SiteInfoAdmin(admin.ModelAdmin):
             'fields': ('monday_hours', 'tuesday_hours', 'wednesday_hours', 'thursday_hours', 
                       'friday_hours', 'saturday_hours', 'sunday_hours')
         }),
-        # Changed 'Social Media' section to only include Instagram and WhatsApp (which is under Contact Info)
         ('Social Links', {
             'fields': ('instagram_url',)
         }),
@@ -235,7 +231,6 @@ class UserProfileAdmin(admin.ModelAdmin):
     def get_queryset(self, request):
         return super().get_queryset(request).select_related('user')
 
-# Automotive Service Admins
 
 @admin.register(ServiceBooking)
 class ServiceBookingAdmin(admin.ModelAdmin):

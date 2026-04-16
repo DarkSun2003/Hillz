@@ -1555,22 +1555,33 @@ class CustomerBanDeleteView(LoginRequiredMixin, UserPassesTestMixin, View):
         
         return redirect('car_rental:customer_detail', pk=customer.pk)
 
+
 # --- RENTAL MANAGEMENT VIEWS ---
 
-class RentalDetailView(UserPassesTestMixin, DetailView):
+class RentalDetailView(LoginRequiredMixin, DetailView):
     model = Rental
     template_name = 'rental_detail.html'
     context_object_name = 'rental'
     
-    def test_func(self):
-        return self.request.user.is_staff
-    
     def get_queryset(self):
-        return super().get_queryset().select_related('customer', 'car', 'employee')
-    
+        # 1. Staff and Superusers can see EVERY rental in the database
+        if self.request.user.is_staff or self.request.user.is_superuser:
+            return Rental.objects.all().select_related('customer', 'car', 'employee')
+            
+        # 2. Regular customers can ONLY see rentals attached to their specific account
+        try:
+            customer = self.request.user.customer_account
+            return Rental.objects.filter(customer=customer).select_related('car', 'employee')
+        except AttributeError:
+            # If a user somehow logs in without a customer profile, return nothing (404)
+            return Rental.objects.none()
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['site_info'] = SiteInfo.objects.first()
+        
+        # Add a flag to let the template know if this is a staff member looking at it
+        context['can_edit'] = self.request.user.is_staff
         
         # Generate WhatsApp URL for pending rentals
         if self.object.status == 'pending':
@@ -1587,10 +1598,10 @@ class RentalDetailView(UserPassesTestMixin, DetailView):
             if site_info and site_info.whatsapp_phone:
                 whatsapp_number = ''.join(filter(str.isdigit, site_info.whatsapp_phone))
                 context['whatsapp_url'] = f"https://wa.me/{whatsapp_number}?text={quote(message)}"
-        
+                
         return context
 
-@method_decorator(staff_member_required, name='dispatch')
+@method_decorator(user_passes_test(lambda u: u.is_staff), name='dispatch')
 class RentalListView(ListView):
     model = Rental
     template_name = 'admin_rental_list.html'
@@ -2048,22 +2059,6 @@ class WhatsAppPurchaseSuccessView(View):
         }
         
         return render(request, 'whatsapp_purchase_success.html', context)
-
-@require_POST
-@login_required
-@user_passes_test(is_staff_user)
-def update_purchase_status(request, purchase_id):
-    purchase = get_object_or_404(Purchase, pk=purchase_id)
-    new_status = request.POST.get('status')
-    
-    if new_status in dict(Purchase.STATUS_CHOICES):
-        purchase.status = new_status
-        purchase.save()
-        messages.success(request, f'Purchase status updated to {new_status}.')
-    else:
-        messages.error(request, 'Invalid status.')
-    
-    return redirect('car_rental:purchase_detail', pk=purchase.pk)
 
 from django.contrib.contenttypes.models import ContentType
 #Rating views
