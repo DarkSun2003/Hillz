@@ -1,177 +1,242 @@
 {% extends 'base.html' %}
 {% load static %}
 
-{% block title %}Service Booking #{{ booking.id }} - {{ site_info.company_name }}{% endblock %}
+{% block title %}Service Booking #{{ booking.id }} - {% if site_info %}{{ site_info.company_name }}{% else %}Hillz Exquisite{% endif %}{% endblock %}
+
+{% block extra_css %}
+<style>
+    .invoice-wrapper { padding: 3rem 0; }
+    
+    .invoice-card {
+        background-color: var(--secondary-color);
+        border: 1px solid rgba(255,255,255,0.05);
+        border-radius: 16px;
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+        overflow: hidden;
+        margin-bottom: 2rem;
+    }
+    
+    .invoice-header {
+        background: linear-gradient(45deg, rgba(0,0,0,0.8), rgba(184, 115, 51, 0.2));
+        border-bottom: 1px solid rgba(255,255,255,0.05);
+        padding: 2rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 1rem;
+    }
+
+    .section-title {
+        color: var(--dark-color);
+        font-family: var(--font-family-playfair);
+        font-size: 1.2rem;
+        margin-bottom: 1.5rem;
+        padding-bottom: 0.5rem;
+        border-bottom: 1px solid rgba(255,255,255,0.05);
+    }
+
+    .detail-row {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 0.75rem;
+        font-size: 0.95rem;
+    }
+
+    .detail-label { color: var(--gray-color); }
+    .detail-value { color: var(--text-color); font-weight: 500; text-align: right; }
+
+    .status-badge {
+        padding: 0.6em 1.2em;
+        border-radius: 50px;
+        font-size: 0.85rem;
+        font-weight: 600;
+        letter-spacing: 0.5px;
+        text-transform: uppercase;
+        display: inline-block;
+        text-align: center;
+        width: 100%;
+    }
+
+    /* Form Overrides inside details */
+    .form-select, .form-control, textarea {
+        background-color: rgba(255,255,255,0.03);
+        border: 1px solid rgba(255,255,255,0.1);
+        color: var(--text-color);
+        border-radius: 8px;
+    }
+    .form-select:focus, .form-control:focus, textarea:focus {
+        background-color: rgba(0,0,0,0.8);
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 0.25rem rgba(184, 115, 51, 0.25);
+        color: var(--text-color);
+    }
+    
+    .btn-action {
+        border-radius: 50px;
+        padding: 0.7rem 1.5rem;
+        font-weight: 600;
+        transition: var(--transition);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+</style>
+{% endblock %}
 
 {% block content %}
-<div class="container-fluid">
+<div class="container invoice-wrapper">
     <div class="d-flex justify-content-between align-items-center mb-4">
-        <h1 class="h3">Service Booking #{{ booking.id }}</h1>
-        <div>
-            <a href="{% url 'car_rental:service_booking_update' booking.pk %}" class="btn btn-primary">
-                <i class="fas fa-edit me-2"></i>Edit Booking
-            </a>
-            <a href="{% url 'car_rental:service_booking_list' %}" class="btn btn-outline-secondary">
-                <i class="fas fa-arrow-left me-2"></i>Back to List
-            </a>
-        </div>
+        <a href="{% url 'car_rental:service_booking_list' %}" class="text-decoration-none" style="color: var(--gray-color); transition: 0.3s;" onmouseover="this.style.color='var(--primary-color)';" onmouseout="this.style.color='var(--gray-color)';">
+            <i class="fas fa-arrow-left me-2"></i> Back to Log
+        </a>
     </div>
-    
-    <div class="row">
+
+    <div class="row g-4">
         <div class="col-lg-8">
-            <!-- Booking Details -->
-            <div class="card mb-4">
-                <div class="card-header">
-                    <h5 class="mb-0">Booking Details</h5>
+            <div class="invoice-card">
+                <div class="invoice-header">
+                    <div>
+                        <h3 class="mb-1" style="color: var(--dark-color); font-family: var(--font-family-playfair);">Service Booking #{{ booking.id }}</h3>
+                        <div style="color: var(--gray-color);">Logged: {{ booking.created_at|date:"F d, Y, g:i A" }}</div>
+                    </div>
+                    <div>
+                        <span class="badge" style="background-color: rgba(184, 115, 51, 0.1); color: var(--primary-color); border: 1px solid rgba(184, 115, 51, 0.3); padding: 0.6em 1.2em;">
+                            {{ booking.get_service_type_display|upper }}
+                        </span>
+                    </div>
                 </div>
-                <div class="card-body">
-                    <div class="row">
+
+                <div class="card-body p-4 p-md-5">
+                    <div class="row g-5">
                         <div class="col-md-6">
-                            <p><strong>Service Type:</strong> 
-                                <span class="badge bg-{% if booking.service_type == 'diagnostic' %}primary{% elif booking.service_type == 'repair' %}success{% elif booking.service_type == 'upgrade' %}warning{% else %}info{% endif %}">
-                                    {{ booking.get_service_type_display }}
-                                </span>
-                            </p>
-                            <p><strong>Status:</strong> 
-                                <span class="badge bg-{% if booking.status == 'pending' %}secondary{% elif booking.status == 'confirmed' %}info{% elif booking.status == 'in_progress' %}warning{% elif booking.status == 'completed' %}success{% else %}danger{% endif %}">
-                                    {{ booking.get_status_display }}
-                                </span>
-                            </p>
-                            <p><strong>Preferred Date:</strong> {{ booking.preferred_date|date:"F d, Y" }}</p>
-                            <p><strong>Created:</strong> {{ booking.created_at|date:"F d, Y, g:i A" }}</p>
-                            <p><strong>Updated:</strong> {{ booking.updated_at|date:"F d, Y, g:i A" }}</p>
+                            <h4 class="section-title">Client Details</h4>
+                            <div class="detail-row">
+                                <span class="detail-label">Name</span>
+                                <span class="detail-value">{{ booking.name }}</span>
+                            </div>
+                            <div class="detail-row">
+                                <span class="detail-label">Email</span>
+                                <span class="detail-value">{{ booking.email }}</span>
+                            </div>
+                            <div class="detail-row">
+                                <span class="detail-label">Phone</span>
+                                <span class="detail-value">{{ booking.phone }}</span>
+                            </div>
                         </div>
+
                         <div class="col-md-6">
-                            <p><strong>WhatsApp Sent:</strong> 
-                                {% if booking.whatsapp_sent %}
-                                    <span class="badge bg-success">Yes</span>
-                                {% else %}
-                                    <span class="badge bg-danger">No</span>
-                                {% endif %}
-                            </p>
-                            <p><strong>Created By:</strong> {{ booking.created_by.username|default:"System" }}</p>
-                            <p><strong>Updated By:</strong> {{ booking.updated_by.username|default:"System" }}</p>
+                            <h4 class="section-title">Vehicle & Timeline</h4>
+                            <div class="detail-row">
+                                <span class="detail-label">Vehicle</span>
+                                <span class="detail-value">{{ booking.car_year }} {{ booking.car_make }} {{ booking.car_model }}</span>
+                            </div>
+                            <div class="detail-row">
+                                <span class="detail-label">Preferred Date</span>
+                                <span class="detail-value" style="color: var(--primary-color); font-weight: 600;">{{ booking.preferred_date|date:"F d, Y" }}</span>
+                            </div>
+                            <div class="detail-row">
+                                <span class="detail-label">Last Updated</span>
+                                <span class="detail-value">{{ booking.updated_at|date:"M d, Y" }}</span>
+                            </div>
                         </div>
+                    </div>
+
+                    <h4 class="section-title mt-5">Client Diagnostic Notes</h4>
+                    <div class="p-4" style="background-color: var(--dark-bg); border-left: 4px solid var(--primary-color); border-radius: 0 12px 12px 0;">
+                        <p style="color: var(--text-color); margin: 0; line-height: 1.6;">{{ booking.description|linebreaksbr }}</p>
+                    </div>
+                    
+                    {% if booking.notes %}
+                    <h4 class="section-title mt-5">Internal Administrative Notes</h4>
+                    <div class="p-4" style="background-color: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.05); border-radius: 12px;">
+                        <p style="color: var(--gray-color); margin: 0; line-height: 1.6; font-style: italic;">{{ booking.notes|linebreaksbr }}</p>
+                    </div>
+                    {% endif %}
+                    
+                    <div class="mt-4 pt-3 text-end" style="border-top: 1px solid rgba(255,255,255,0.05);">
+                        <small style="color: var(--gray-color);">Processed by: {{ booking.created_by.username|default:"System" }}</small>
                     </div>
                 </div>
             </div>
-            
-            <!-- Customer Information -->
-            <div class="card mb-4">
-                <div class="card-header">
-                    <h5 class="mb-0">Customer Information</h5>
-                </div>
-                <div class="card-body">
-                    <div class="row">
-                        <div class="col-md-6">
-                            <p><strong>Name:</strong> {{ booking.name }}</p>
-                            <p><strong>Email:</strong> {{ booking.email }}</p>
-                            <p><strong>Phone:</strong> {{ booking.phone }}</p>
-                        </div>
-                        <div class="col-md-6">
-                            <p><strong>Car Make:</strong> {{ booking.car_make }}</p>
-                            <p><strong>Car Model:</strong> {{ booking.car_model }}</p>
-                            <p><strong>Car Year:</strong> {{ booking.car_year }}</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- Service Description -->
-            <div class="card mb-4">
-                <div class="card-header">
-                    <h5 class="mb-0">Service Description</h5>
-                </div>
-                <div class="card-body">
-                    <p>{{ booking.description|linebreaks }}</p>
-                </div>
-            </div>
-            
-            <!-- Notes -->
-            {% if booking.notes %}
-            <div class="card mb-4">
-                <div class="card-header">
-                    <h5 class="mb-0">Notes</h5>
-                </div>
-                <div class="card-body">
-                    <p>{{ booking.notes|linebreaks }}</p>
-                </div>
-            </div>
-            {% endif %}
         </div>
-        
+
         <div class="col-lg-4">
-            <!-- Quick Actions -->
-            <div class="card mb-4">
-                <div class="card-header">
-                    <h5 class="mb-0">Quick Actions</h5>
-                </div>
-                <div class="card-body">
-                    <div class="d-grid gap-2">
-                        {% with clean_phone=booking.phone|cut:'+'|cut:' '|cut:'-' %}
-                        {% with service_type=booking.get_service_type_display %}
-                        {% with message="Hello " %}
-                        {% with message=message|add:booking.name %}
-                        {% with message=message|add:", regarding your " %}
-                        {% with message=message|add:service_type %}
-                        {% with message=message|add:" booking." %}
-                        <a href="https://wa.me/{{ clean_phone }}?text={{ message|urlencode }}" 
-                           class="btn btn-success" target="_blank">
-                            <i class="fab fa-whatsapp me-2"></i>Contact Customer
-                        </a>
-                        {% endwith %}{% endwith %}{% endwith %}{% endwith %}{% endwith %}{% endwith %}{% endwith %}
-                        
-                        <a href="mailto:{{ booking.email }}?subject=Regarding your {{ booking.get_service_type_display }} booking" 
-                           class="btn btn-primary">
-                            <i class="fas fa-envelope me-2"></i>Send Email
-                        </a>
-                        <button class="btn btn-outline-secondary" onclick="window.print()">
-                            <i class="fas fa-print me-2"></i>Print Details
-                        </button>
+            <div class="invoice-card p-4">
+                <h4 class="section-title mb-4"><i class="fas fa-info-circle me-2" style="color: var(--primary-color);"></i>Status Monitor</h4>
+                
+                <div class="mb-3">
+                    <div class="status-badge {% if booking.status == 'pending' %}bg-warning text-dark{% elif booking.status == 'confirmed' %}bg-info text-dark{% elif booking.status == 'in_progress' %}bg-primary{% elif booking.status == 'completed' %}bg-success{% else %}bg-danger{% endif %}">
+                        {{ booking.get_status_display }}
                     </div>
                 </div>
-            </div>
-            
-            <!-- Status Update -->
-            <div class="card mb-4">
-                <div class="card-header">
-                    <h5 class="mb-0">Update Status</h5>
-                </div>
-                <div class="card-body">
-                    <form method="post" action="{% url 'car_rental:update_service_booking_status' booking.pk %}">
-                        {% csrf_token %}
-                        <div class="mb-3">
-                            <label for="status" class="form-label">New Status</label>
-                            <select name="status" id="status" class="form-select" required>
-                                {% for value, label in booking.STATUS_CHOICES %}
-                                    <option value="{{ value }}" {% if booking.status == value %}selected{% endif %}>{{ label }}</option>
-                                {% endfor %}
-                            </select>
-                        </div>
-                        <div class="mb-3">
-                            <label for="notes" class="form-label">Notes</label>
-                            <textarea name="notes" id="notes" class="form-control" rows="3">{{ booking.notes }}</textarea>
-                        </div>
-                        <button type="submit" class="btn btn-primary w-100">Update Status</button>
-                    </form>
+                
+                <div class="d-flex align-items-center justify-content-between p-3 mt-3" style="background-color: var(--dark-bg); border-radius: 8px; border: 1px solid rgba(255,255,255,0.05);">
+                    <span style="color: var(--gray-color); font-size: 0.85rem; text-transform: uppercase;">WhatsApp Notified</span>
+                    {% if booking.whatsapp_sent %}
+                        <span style="color: #4ade80;"><i class="fas fa-check-circle me-1"></i> Yes</span>
+                    {% else %}
+                        <span style="color: #ff6b6b;"><i class="fas fa-times-circle me-1"></i> No</span>
+                    {% endif %}
                 </div>
             </div>
             
-            <!-- Send WhatsApp Notification -->
+            <div class="invoice-card p-4">
+                <h4 class="section-title mb-4"><i class="fas fa-tasks me-2" style="color: var(--primary-color);"></i>Quick Actions</h4>
+                <div class="d-grid gap-3">
+                    {% with clean_phone=booking.phone|cut:'+'|cut:' '|cut:'-' %}
+                    {% with service_type=booking.get_service_type_display %}
+                    {% with message="Hello " %}
+                    {% with message=message|add:booking.name %}
+                    {% with message=message|add:", regarding your " %}
+                    {% with message=message|add:service_type %}
+                    {% with message=message|add:" booking." %}
+                    <a href="https://wa.me/{{ clean_phone }}?text={{ message|urlencode }}" target="_blank" class="btn btn-action" style="background-color: rgba(37, 211, 102, 0.1); color: #25d366; border: 1px solid rgba(37, 211, 102, 0.3);">
+                        <i class="fab fa-whatsapp me-2"></i> Contact Customer
+                    </a>
+                    {% endwith %}{% endwith %}{% endwith %}{% endwith %}{% endwith %}{% endwith %}{% endwith %}
+                    
+                    <a href="mailto:{{ booking.email }}?subject=Regarding your {{ booking.get_service_type_display }} booking" class="btn btn-action" style="background-color: transparent; border: 1px solid var(--primary-color); color: var(--primary-color);">
+                        <i class="fas fa-envelope me-2"></i> Send Email
+                    </a>
+                    
+                    <button class="btn btn-action" style="background-color: transparent; border: 1px solid var(--gray-color); color: var(--text-color);" onclick="window.print()">
+                        <i class="fas fa-print me-2"></i> Print Manifest
+                    </button>
+                    
+                    <a href="{% url 'car_rental:service_booking_update' booking.pk %}" class="btn btn-action btn-primary mt-2">
+                        <i class="fas fa-edit me-2"></i> Full Edit
+                    </a>
+                </div>
+            </div>
+            
+            <div class="invoice-card p-4">
+                <h4 class="section-title mb-4"><i class="fas fa-sync-alt me-2" style="color: var(--primary-color);"></i>Update Status</h4>
+                <form method="post" action="{% url 'car_rental:update_service_booking_status' booking.pk %}">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <select name="status" id="status" class="form-select" required>
+                            {% for value, label in booking.STATUS_CHOICES %}
+                                <option value="{{ value }}" {% if booking.status == value %}selected{% endif %}>{{ label }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <textarea name="notes" id="notes" class="form-control" rows="3" placeholder="Append internal notes...">{{ booking.notes }}</textarea>
+                    </div>
+                    <button type="submit" class="btn btn-action btn-primary w-100">Commit Status</button>
+                </form>
+            </div>
+            
             {% if not booking.whatsapp_sent %}
-            <div class="card mb-4">
-                <div class="card-header">
-                    <h5 class="mb-0">Send WhatsApp Notification</h5>
-                </div>
-                <div class="card-body">
-                    <p>Mark that WhatsApp notification has been sent to the customer.</p>
-                    <form method="post" action="{% url 'car_rental:mark_whatsapp_sent' booking.pk %}">
-                        {% csrf_token %}
-                        <button type="submit" class="btn btn-success w-100">
-                            <i class="fab fa-whatsapp me-2"></i>Mark as Sent
-                        </button>
-                    </form>
-                </div>
+            <div class="invoice-card p-4 text-center">
+                <p style="color: var(--gray-color); font-size: 0.9rem; margin-bottom: 1rem;">Manually mark the WhatsApp notification as sent to clear warnings.</p>
+                <form method="post" action="{% url 'car_rental:mark_whatsapp_sent' booking.pk %}">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-action w-100" style="background-color: #25d366; color: #000; border: none;">
+                        <i class="fas fa-check-circle me-2"></i> Mark Notified
+                    </button>
+                </form>
             </div>
             {% endif %}
         </div>

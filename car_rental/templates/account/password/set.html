@@ -1,41 +1,142 @@
 {% extends 'base.html' %}
 {% load i18n %}
 
-{% block title %}Set Password - {{ site_info.company_name }}{% endblock %}
+{% block title %}Set Password - {% if site_info %}{{ site_info.company_name }}{% else %}Hillz Exquisite{% endif %}{% endblock %}
+
+{% block extra_css %}
+<style>
+    .auth-wrapper {
+        min-height: 75vh;
+        display: flex;
+        align-items: center;
+        padding: 3rem 0;
+    }
+    
+    .auth-card {
+        background-color: var(--secondary-color);
+        border: 1px solid rgba(255,255,255,0.05);
+        border-radius: 16px;
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+        overflow: hidden;
+        width: 100%;
+    }
+    
+    .auth-header {
+        text-align: center;
+        padding: 2.5rem 2rem 1.5rem;
+    }
+    
+    .auth-header h3 {
+        color: var(--dark-color);
+        font-family: var(--font-family-playfair);
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+    }
+    
+    .auth-header p {
+        color: var(--gray-color);
+        font-size: 0.95rem;
+    }
+
+    .form-label {
+        color: var(--text-color);
+        font-weight: 500;
+        font-size: 0.85rem;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        margin-bottom: 0.5rem;
+        display: block;
+    }
+    
+    .form-control {
+        background-color: var(--dark-bg);
+        border: 1px solid rgba(255,255,255,0.1);
+        color: var(--text-color);
+        padding: 0.9rem 1rem;
+        border-radius: 8px;
+        width: 100%;
+        transition: var(--transition);
+    }
+    
+    .form-control:focus {
+        background-color: rgba(0,0,0,0.8);
+        border-color: var(--primary-color);
+        outline: none;
+        box-shadow: 0 0 0 0.25rem rgba(184, 115, 51, 0.25);
+    }
+    
+    .btn-outline-custom {
+        background-color: transparent;
+        border: 1px solid var(--gray-color);
+        color: var(--text-color);
+        transition: var(--transition);
+    }
+
+    .btn-outline-custom:hover {
+        background-color: rgba(255,255,255,0.05);
+        color: var(--dark-color);
+        border-color: var(--primary-color);
+    }
+    
+    .info-notice {
+        background-color: rgba(255,255,255,0.02);
+        border: 1px solid rgba(255,255,255,0.05);
+        border-radius: 8px;
+        padding: 1.2rem;
+        color: var(--gray-color);
+        font-size: 0.9rem;
+        margin-bottom: 2rem;
+        text-align: center;
+    }
+</style>
+{% endblock %}
 
 {% block content %}
-<div class="container my-5">
-    <div class="row justify-content-center">
+<div class="container auth-wrapper">
+    <div class="row justify-content-center w-100">
         <div class="col-md-6 col-lg-5">
-            <div class="card shadow">
-                <div class="card-header bg-success text-white text-center">
-                    <h4 class="mb-0"><i class="fas fa-lock me-2"></i>Set Your Password</h4>
+            <div class="auth-card">
+                <div class="auth-header">
+                    <div class="mb-3">
+                        <div class="d-inline-flex align-items-center justify-content-center rounded-circle" style="width: 60px; height: 60px; background-color: rgba(184, 115, 51, 0.1); border: 1px solid rgba(184, 115, 51, 0.3);">
+                            <i class="fas fa-lock fa-2x" style="color: var(--primary-color);"></i>
+                        </div>
+                    </div>
+                    <h3>Establish Password</h3>
+                    <p>Secure your local executive account</p>
                 </div>
-                <div class="card-body p-4">
-                    <p class="text-center mb-4">
-                        You used a social login to create your account. Please set a password for your email address to secure your account.
-                    </p>
+                
+                <div class="card-body px-4 px-md-5 pb-5">
+                    <div class="info-notice">
+                        <i class="fas fa-info-circle me-2" style="color: var(--primary-color);"></i>
+                        You utilized a social login to establish your profile. Please define a password below to secure local access.
+                    </div>
+                    
+                    {% if form.errors or messages %}
+                        <div class="alert alert-danger" style="background-color: rgba(255, 107, 107, 0.1); border: 1px solid rgba(255, 107, 107, 0.2); color: #ff6b6b; border-radius: 8px; font-size: 0.9rem;">
+                            <i class="fas fa-exclamation-circle me-2"></i> Please ensure all fields are correct.
+                        </div>
+                    {% endif %}
                     
                     <form method="post" action="{% url 'account_set_password' %}" class="needs-validation" novalidate>
                         {% csrf_token %}
                         
-                        <!-- New Password Fields -->
-                        <div class="mb-3">
+                        <div class="mb-4">
                             <label for="id_password1" class="form-label">New Password</label>
-                            <input type="password" name="password1" required id="id_password1" class="form-control" autocomplete="new-password">
+                            <input type="password" name="password1" required id="id_password1" class="form-control" autocomplete="new-password" placeholder="Establish new password">
                         </div>
                         
-                        <div class="mb-3">
-                            <label for="id_password2" class="form-label">Confirm New Password</label>
-                            <input type="password" name="password2" required id="id_password2" class="form-control" autocomplete="new-password">
+                        <div class="mb-5">
+                            <label for="id_password2" class="form-label">Confirm Password</label>
+                            <input type="password" name="password2" required id="id_password2" class="form-control" autocomplete="new-password" placeholder="Verify new password">
                         </div>
                         
-                        <div class="d-grid gap-2">
-                            <button type="submit" class="btn btn-success">
-                                <i class="fas fa-save me-2"></i>Set Password
+                        <div class="d-grid gap-3">
+                            <button type="submit" class="btn btn-primary btn-lg py-3 fw-bold" style="letter-spacing: 1px;">
+                                <i class="fas fa-shield-alt me-2"></i> ESTABLISH PASSWORD
                             </button>
-                            <a href="{% url 'account_email' %}" class="btn btn-secondary">
-                                <i class="fas fa-arrow-left me-2"></i>Back to Profile
+                            <a href="{% url 'car_rental:profile' %}" class="btn btn-outline-custom btn-lg py-3 fw-bold">
+                                Cancel
                             </a>
                         </div>
                     </form>
@@ -44,6 +145,7 @@
         </div>
     </div>
 </div>
+{% endblock %}
 
 {% block extra_js %}
 <script>
