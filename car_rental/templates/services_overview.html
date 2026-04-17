@@ -1,96 +1,148 @@
 {% extends 'base.html' %}
 {% load static %}
 
-{% block title %}Our Services - {{ site_info.company_name }}{% endblock %}
+{% block title %}Automotive Services - {% if site_info %}{{ site_info.company_name }}{% else %}Hillz Exquisite{% endif %}{% endblock %}
+
+{% block extra_css %}
+<style>
+    .hero-section {
+        background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.9)), url('https://images.unsplash.com/photo-1619642751034-765dfdf7c58e?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80');
+        background-size: cover;
+        background-position: center;
+        background-attachment: fixed;
+        padding: 8rem 0;
+        margin-bottom: 4rem;
+        text-align: center;
+        border-bottom: 2px solid var(--primary-color);
+    }
+
+    .hero-section h1 {
+        font-family: var(--font-family-playfair);
+        color: #fff;
+        font-size: 3.5rem;
+        font-weight: 700;
+        margin-bottom: 1rem;
+    }
+
+    .hero-section p {
+        color: var(--primary-color);
+        font-size: 1.2rem;
+        letter-spacing: 2px;
+        text-transform: uppercase;
+    }
+
+    .service-card {
+        background-color: var(--secondary-color);
+        border: 1px solid rgba(255,255,255,0.05);
+        border-radius: 16px;
+        padding: 3rem 2rem;
+        height: 100%;
+        text-align: center;
+        transition: var(--transition);
+        box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+    }
+
+    .service-card:hover {
+        transform: translateY(-10px);
+        border-color: var(--primary-color);
+        box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+    }
+
+    .service-icon {
+        width: 90px;
+        height: 90px;
+        background-color: rgba(184, 115, 51, 0.1);
+        color: var(--primary-color);
+        border-radius: 50%;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 2.5rem;
+        margin-bottom: 2rem;
+        transition: var(--transition);
+    }
+
+    .service-card:hover .service-icon {
+        background-color: var(--primary-color);
+        color: var(--dark-bg);
+    }
+
+    .service-title {
+        font-family: var(--font-family-playfair);
+        color: var(--dark-color);
+        font-size: 1.5rem;
+        font-weight: 700;
+        margin-bottom: 1rem;
+    }
+
+    .service-desc {
+        color: var(--gray-color);
+        margin-bottom: 2rem;
+        line-height: 1.6;
+    }
+
+    .btn-outline-custom {
+        border: 2px solid var(--primary-color);
+        color: var(--primary-color);
+        background: transparent;
+        padding: 0.8rem 2rem;
+        border-radius: 50px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        transition: var(--transition);
+    }
+
+    .btn-outline-custom:hover {
+        background-color: var(--primary-color);
+        color: var(--dark-bg);
+    }
+</style>
+{% endblock %}
 
 {% block content %}
-<div class="container my-5">
-    <div class="text-center mb-5">
-        <h1 class="display-4">Our Services</h1>
-        <p class="lead">We offer a comprehensive range of automotive services to meet your needs.</p>
+<section class="hero-section">
+    <div class="container">
+        <h1>Masterclass Servicing</h1>
+        <p>Preserve, Enhance, and Command</p>
     </div>
-    
+</section>
+
+<div class="container mb-5 pb-5">
     <div class="row g-4">
-        <!-- Diagnostic Service -->
-        <div class="col-md-6 col-lg-3">
-            <div class="card h-100 shadow-sm">
-                <div class="card-body text-center">
-                    <div class="mb-3">
-                        <i class="fas fa-stethoscope text-primary" style="font-size: 3rem;"></i>
-                    </div>
-                    <h5 class="card-title">Diagnostic Service</h5>
-                    <p class="card-text">Comprehensive vehicle diagnostics to identify issues accurately.</p>
-                    <a href="{% url 'car_rental:book_diagnostic' %}" class="btn btn-outline-primary">Book Now</a>
-                </div>
+        <div class="col-lg-6">
+            <div class="service-card">
+                <div class="service-icon"><i class="fas fa-laptop-medical"></i></div>
+                <h3 class="service-title">Advanced Diagnostics</h3>
+                <p class="service-desc">State-of-the-art telemetry and electronic assessments to identify complex mechanical or software anomalies with absolute precision.</p>
+                <a href="{% url 'car_rental:book_diagnostic' %}" class="btn btn-outline-custom">Schedule Diagnostic</a>
             </div>
         </div>
-        
-        <!-- Repair Service -->
-        <div class="col-md-6 col-lg-3">
-            <div class="card h-100 shadow-sm">
-                <div class="card-body text-center">
-                    <div class="mb-3">
-                        <i class="fas fa-tools text-success" style="font-size: 3rem;"></i>
-                    </div>
-                    <h5 class="card-title">Repair Service</h5>
-                    <p class="card-text">Expert repairs for all vehicle makes and models.</p>
-                    <a href="{% url 'car_rental:book_repair' %}" class="btn btn-outline-success">Book Now</a>
-                </div>
+
+        <div class="col-lg-6">
+            <div class="service-card">
+                <div class="service-icon"><i class="fas fa-wrench"></i></div>
+                <h3 class="service-title">Executive Repairs</h3>
+                <p class="service-desc">Factory-certified technicians executing flawless repairs using solely authentic OEM components to restore your vehicle to peak condition.</p>
+                <a href="{% url 'car_rental:book_repair' %}" class="btn btn-outline-custom">Request Repair</a>
             </div>
         </div>
-        
-        <!-- Upgrade Service -->
-        <div class="col-md-6 col-lg-3">
-            <div class="card h-100 shadow-sm">
-                <div class="card-body text-center">
-                    <div class="mb-3">
-                        <i class="fas fa-rocket text-warning" style="font-size: 3rem;"></i>
-                    </div>
-                    <h5 class="card-title">Upgrade Service</h5>
-                    <p class="card-text">Enhance your vehicle's performance and appearance.</p>
-                    <a href="{% url 'car_rental:book_upgrade' %}" class="btn btn-outline-warning">Book Now</a>
-                </div>
+
+        <div class="col-lg-6">
+            <div class="service-card">
+                <div class="service-icon"><i class="fas fa-rocket"></i></div>
+                <h3 class="service-title">Performance Upgrades</h3>
+                <p class="service-desc">Bespoke tuning, aesthetic modifications, and performance enhancements designed to elevate your driving experience beyond factory limits.</p>
+                <a href="{% url 'car_rental:book_upgrade' %}" class="btn btn-outline-custom">Commission Upgrade</a>
             </div>
         </div>
-        
-        <!-- Consultation Service -->
-        <div class="col-md-6 col-lg-3">
-            <div class="card h-100 shadow-sm">
-                <div class="card-body text-center">
-                    <div class="mb-3">
-                        <i class="fas fa-comments text-info" style="font-size: 3rem;"></i>
-                    </div>
-                    <h5 class="card-title">Consultation Service</h5>
-                    <p class="card-text">Professional advice for your automotive needs.</p>
-                    <a href="{% url 'car_rental:book_consultation' %}" class="btn btn-outline-info">Book Now</a>
-                </div>
-            </div>
-        </div>
-    </div>
-    
-    <div class="text-center mt-5">
-        <h2>How It Works</h2>
-        <div class="row mt-4">
-            <div class="col-md-4">
-                <div class="mb-3">
-                    <i class="fas fa-edit text-primary" style="font-size: 2rem;"></i>
-                </div>
-                <h4>1. Book Online</h4>
-                <p>Fill out our simple booking form with your details.</p>
-            </div>
-            <div class="col-md-4">
-                <div class="mb-3">
-                    <i class="fab fa-whatsapp text-success" style="font-size: 2rem;"></i>
-                </div>
-                <h4>2. WhatsApp Confirmation</h4>
-                <p>We'll send you a WhatsApp message to confirm your booking.</p>
-            </div>
-            <div class="col-md-4">
-                <div class="mb-3">
-                    <i class="fas fa-wrench text-warning" style="font-size: 2rem;"></i>
-                </div>
-                <h4>3. Service Appointment</h4>
-                <p>Visit us at your scheduled time for your service.</p>
+
+        <div class="col-lg-6">
+            <div class="service-card">
+                <div class="service-icon"><i class="fas fa-user-tie"></i></div>
+                <h3 class="service-title">Expert Consultation</h3>
+                <p class="service-desc">Private advisory sessions regarding vehicle acquisition strategy, fleet management, and long-term asset preservation.</p>
+                <a href="{% url 'car_rental:book_consultation' %}" class="btn btn-outline-custom">Book Consultation</a>
             </div>
         </div>
     </div>

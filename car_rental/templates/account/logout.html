@@ -1,0 +1,84 @@
+{% extends 'base.html' %}
+{% load i18n %}
+
+{% block title %}Sign Out - {% if site_info %}{{ site_info.company_name }}{% else %}Hillz Exquisite{% endif %}{% endblock %}
+
+{% block extra_css %}
+<style>
+    .auth-wrapper {
+        min-height: 60vh;
+        display: flex;
+        align-items: center;
+        padding: 3rem 0;
+    }
+    
+    .auth-card {
+        background-color: var(--secondary-color);
+        border: 1px solid rgba(255,255,255,0.05);
+        border-radius: 16px;
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+        overflow: hidden;
+        text-align: center;
+        padding: 4rem 2rem;
+    }
+    
+    .auth-card h3 {
+        color: var(--dark-color);
+        font-family: var(--font-family-playfair);
+        font-weight: 700;
+        margin-bottom: 1rem;
+    }
+    
+    .auth-card p {
+        color: var(--gray-color);
+        font-size: 1.1rem;
+        margin-bottom: 2.5rem;
+    }
+
+    .btn-outline-custom {
+        background-color: transparent;
+        border: 1px solid var(--gray-color);
+        color: var(--text-color);
+    }
+
+    .btn-outline-custom:hover {
+        background-color: rgba(255,255,255,0.05);
+        color: var(--dark-color);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container auth-wrapper">
+    <div class="row justify-content-center w-100">
+        <div class="col-md-6 col-lg-5">
+            <div class="auth-card">
+                <div class="mb-4">
+                    <div class="d-inline-flex align-items-center justify-content-center rounded-circle" style="width: 80px; height: 80px; background-color: rgba(184, 115, 51, 0.1); border: 1px solid rgba(184, 115, 51, 0.3);">
+                        <i class="fas fa-sign-out-alt fa-3x" style="color: var(--primary-color);"></i>
+                    </div>
+                </div>
+                
+                <h3>End Session</h3>
+                <p>Are you sure you wish to sign out of the executive portal?</p>
+                
+                <form method="post" action="{% url 'account_logout' %}">
+                    {% csrf_token %}
+                    {% if redirect_field_value %}
+                        <input type="hidden" name="{{ redirect_field_name }}" value="{{ redirect_field_value }}"/>
+                    {% endif %}
+                    
+                    <div class="d-grid gap-3">
+                        <button type="submit" class="btn btn-primary btn-lg py-3 fw-bold">
+                            CONFIRM SIGN OUT
+                        </button>
+                        <button type="button" class="btn btn-outline-custom btn-lg py-3" onclick="window.history.back();">
+                            Cancel & Return
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

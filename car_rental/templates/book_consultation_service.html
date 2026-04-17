@@ -2,203 +2,196 @@
 {% load static %}
 {% load custom_filters %}
 
-{% block title %}Book Consultation Service - {% if site_info %}{{ site_info.company_name }}{% else %}Hillz Exquisite{% endif %}{% endblock %}
+{% block title %}Book Consultation - {% if site_info %}{{ site_info.company_name }}{% else %}Hillz Exquisite{% endif %}{% endblock %}
+
+{% block extra_css %}
+<style>
+    .booking-card {
+        background-color: var(--secondary-color);
+        border: 1px solid rgba(255,255,255,0.05);
+        border-radius: 16px;
+        box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+    }
+    
+    .form-control {
+        background-color: var(--dark-bg);
+        border: 1px solid rgba(255,255,255,0.1);
+        color: var(--text-color);
+        padding: 0.9rem 1rem;
+        border-radius: 8px;
+        transition: var(--transition);
+    }
+
+    .form-control:focus {
+        background-color: rgba(0,0,0,0.8);
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 0.25rem rgba(184, 115, 51, 0.25);
+        color: var(--text-color);
+    }
+    
+    .form-control::placeholder {
+        color: var(--gray-color);
+    }
+
+    .service-benefit {
+        display: flex;
+        align-items: flex-start;
+        margin-bottom: 1.5rem;
+    }
+
+    .benefit-icon {
+        color: var(--primary-color);
+        font-size: 1.5rem;
+        margin-right: 1.2rem;
+        background-color: rgba(184, 115, 51, 0.1);
+        width: 45px;
+        height: 45px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 10px;
+        flex-shrink: 0;
+    }
+
+    .section-title {
+        color: var(--dark-color);
+        font-family: var(--font-family-playfair);
+        font-size: 1.3rem;
+        margin-bottom: 1.5rem;
+        padding-bottom: 0.5rem;
+        border-bottom: 1px solid rgba(255,255,255,0.05);
+    }
+</style>
+{% endblock %}
 
 {% block content %}
-<div class="container my-5">
-    <div class="row justify-content-center">
-        <div class="col-lg-8">
-            <div class="card shadow-lg border-0">
-                <div class="card-header bg-success text-white py-3">
-                    <h4 class="mb-0">
-                        <i class="fas fa-comments me-2"></i>Book Consultation Service
-                    </h4>
+<div class="container my-5 py-4">
+    <nav aria-label="breadcrumb" class="mb-5">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'car_rental:home' %}" style="color: var(--gray-color); text-decoration: none;">Home</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'car_rental:services_overview' %}" style="color: var(--gray-color); text-decoration: none;">Services</a></li>
+            <li class="breadcrumb-item active" style="color: var(--primary-color);" aria-current="page">Consultation</li>
+        </ol>
+    </nav>
+
+    <div class="row g-5">
+        <div class="col-lg-5">
+            <div class="position-sticky" style="top: 100px;">
+                <h1 class="display-4 fw-bold mb-4" style="color: var(--dark-color); font-family: var(--font-family-playfair);">
+                    Expert<br><span style="color: var(--primary-color);">Consultation.</span>
+                </h1>
+                <p class="lead mb-5" style="color: var(--gray-color);">Speak directly with our executive automotive advisors to chart the optimal path for your vehicle's maintenance, valuation, or future upgrades.</p>
+                
+                <h5 class="mb-4" style="color: var(--dark-color);">What's Included:</h5>
+                
+                <div class="service-benefit">
+                    <div class="benefit-icon"><i class="fas fa-comments-dollar"></i></div>
+                    <div>
+                        <h6 style="color: var(--text-color); font-weight: 600;">Valuation & Market Analysis</h6>
+                        <p style="color: var(--gray-color); font-size: 0.9rem; margin:0;">Expert advice on maintaining and maximizing your vehicle's resale value.</p>
+                    </div>
                 </div>
-                <div class="card-body p-4">
-                    {% if messages %}
-                        {% for message in messages %}
-                            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
-                                {{ message }}
-                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                            </div>
-                        {% endfor %}
-                    {% endif %}
-                    
-                    {% if form.errors %}
-                        <div class="alert alert-danger">
-                            <h5>Please correct the following errors:</h5>
-                            <ul class="mb-0">
-                                {% for field in form %}
-                                    {% for error in field.errors %}
-                                        <li>{{ field.label }}: {{ error }}</li>
-                                    {% endfor %}
-                                {% endfor %}
-                                {% for error in form.non_field_errors %}
-                                    <li>{{ error }}</li>
-                                {% endfor %}
-                            </ul>
+                
+                <div class="service-benefit">
+                    <div class="benefit-icon"><i class="fas fa-clipboard-check"></i></div>
+                    <div>
+                        <h6 style="color: var(--text-color); font-weight: 600;">Custom Maintenance Plans</h6>
+                        <p style="color: var(--gray-color); font-size: 0.9rem; margin:0;">Tailored long-term schedules to ensure peak mechanical reliability.</p>
+                    </div>
+                </div>
+                
+                <div class="service-benefit">
+                    <div class="benefit-icon"><i class="fas fa-map-signs"></i></div>
+                    <div>
+                        <h6 style="color: var(--text-color); font-weight: 600;">Upgrade Roadmapping</h6>
+                        <p style="color: var(--gray-color); font-size: 0.9rem; margin:0;">Strategic planning and budgeting for high-end vehicle modifications.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-7">
+            <div class="booking-card p-4 p-md-5">
+                {% if messages %}
+                    {% for message in messages %}
+                        <div class="alert alert-{{ message.tags }} d-flex align-items-center mb-4" role="alert" style="background-color: rgba(184, 115, 51, 0.1); color: var(--primary-color); border: 1px solid var(--primary-color);">
+                            <i class="fas {% if message.tags == 'success' %}fa-check-circle{% else %}fa-info-circle{% endif %} me-2"></i>
+                            <div>{{ message }}</div>
                         </div>
-                    {% endif %}
+                    {% endfor %}
+                {% endif %}
+                
+                <form method="post" id="consultationForm" novalidate>
+                    {% csrf_token %}
+                    {{ form.service_type }}
                     
+                    <h4 class="section-title">Client Details</h4>
+                    <div class="row g-3 mb-4">
+                        <div class="col-md-6">
+                            <label for="{{ form.name.id_for_label }}" class="form-label" style="color: var(--text-color);">Full Name</label>
+                            {{ form.name }}
+                        </div>
+                        <div class="col-md-6">
+                            <label for="{{ form.email.id_for_label }}" class="form-label" style="color: var(--text-color);">Email Address</label>
+                            {{ form.email }}
+                        </div>
+                        <div class="col-md-6">
+                            <label for="{{ form.phone.id_for_label }}" class="form-label" style="color: var(--text-color);">Phone Number</label>
+                            {{ form.phone }}
+                        </div>
+                        <div class="col-md-6">
+                            <label for="{{ form.preferred_date.id_for_label }}" class="form-label" style="color: var(--text-color);">Preferred Date</label>
+                            {{ form.preferred_date }}
+                        </div>
+                    </div>
+                    
+                    <h4 class="section-title">Vehicle Context</h4>
+                    <div class="row g-3 mb-4">
+                        <div class="col-md-4">
+                            <label for="{{ form.car_make.id_for_label }}" class="form-label" style="color: var(--text-color);">Make</label>
+                            {{ form.car_make }}
+                        </div>
+                        <div class="col-md-4">
+                            <label for="{{ form.car_model.id_for_label }}" class="form-label" style="color: var(--text-color);">Model</label>
+                            {{ form.car_model }}
+                        </div>
+                        <div class="col-md-4">
+                            <label for="{{ form.car_year.id_for_label }}" class="form-label" style="color: var(--text-color);">Year</label>
+                            {{ form.car_year }}
+                        </div>
+                    </div>
+                    
+                    <h4 class="section-title">Consultation Agenda</h4>
                     <div class="mb-4">
-                        <h5 class="text-success">Expert Automotive Consultation</h5>
-                        <p class="text-muted">Get professional advice from our automotive experts. Whether you're looking for maintenance tips, upgrade recommendations, or general vehicle guidance, our consultation service provides personalized solutions for your specific needs.</p>
+                        <label for="{{ form.description.id_for_label }}" class="form-label" style="color: var(--text-color);">Topics to Discuss</label>
+                        {{ form.description }}
+                        <small class="form-text mt-2" style="color: var(--gray-color);">Briefly outline your goals for this session (e.g., market valuation, upgrade possibilities).</small>
                     </div>
                     
-                    <div class="row mb-4">
-                        <div class="col-md-6">
-                            <div class="consultation-feature">
-                                <div class="feature-icon">
-                                    <i class="fas fa-user-tie text-success"></i>
-                                </div>
-                                <h6>Expert Advice</h6>
-                                <p class="small text-muted">One-on-one consultation with certified automotive specialists</p>
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="consultation-feature">
-                                <div class="feature-icon">
-                                    <i class="fas fa-clipboard-list text-success"></i>
-                                </div>
-                                <h6>Personalized Plans</h6>
-                                <p class="small text-muted">Customized service and maintenance recommendations</p>
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="consultation-feature">
-                                <div class="feature-icon">
-                                    <i class="fas fa-dollar-sign text-success"></i>
-                                </div>
-                                <h6>Budget Guidance</h6>
-                                <p class="small text-muted">Cost-effective solutions tailored to your budget</p>
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="consultation-feature">
-                                <div class="feature-icon">
-                                    <i class="fas fa-tools text-success"></i>
-                                </div>
-                                <h6>Maintenance Planning</h6>
-                                <p class="small text-muted">Long-term maintenance schedules and planning</p>
-                            </div>
+                    <div class="form-group mt-4">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="termsAgree" required style="background-color: var(--dark-bg); border-color: rgba(255,255,255,0.2);">
+                            <label class="form-check-label" for="termsAgree" style="color: var(--gray-color);">
+                                I agree to the <a href="{% url 'car_rental:terms_of_service' %}" style="color: var(--primary-color);">Terms of Service</a>
+                            </label>
                         </div>
                     </div>
-                    
-                    <form method="post" id="consultationForm">
-                        {% csrf_token %}
-                        
-                        {{ form.non_field_errors }}
-                        
-                        <div class="row">
-                            <div class="col-md-6">
-                                <div class="form-group mb-3">
-                                    <label for="{{ form.name.id_for_label }}" class="form-label">Full Name</label>
-                                    {{ form.name }}
-                                    {% if form.name.errors %}
-                                        <div class="text-danger">{{ form.name.errors }}</div>
-                                    {% endif %}
-                                </div>
+
+                    <div class="d-grid mt-5">
+                        <button type="submit" class="btn btn-primary btn-lg py-3" id="submitBtn">
+                            <span id="btnText">Request Consultation <i class="fas fa-arrow-right ms-2"></i></span>
+                            <div class="spinner-border spinner-border-sm ms-2" id="btnSpinner" role="status" style="display: none;">
+                                <span class="visually-hidden">Loading...</span>
                             </div>
-                            <div class="col-md-6">
-                                <div class="form-group mb-3">
-                                    <label for="{{ form.email.id_for_label }}" class="form-label">Email Address</label>
-                                    {{ form.email }}
-                                    {% if form.email.errors %}
-                                        <div class="text-danger">{{ form.email.errors }}</div>
-                                    {% endif %}
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div class="row">
-                            <div class="col-md-6">
-                                <div class="form-group mb-3">
-                                    <label for="{{ form.phone.id_for_label }}" class="form-label">Phone Number</label>
-                                    {{ form.phone }}
-                                    {% if form.phone.errors %}
-                                        <div class="text-danger">{{ form.phone.errors }}</div>
-                                    {% endif %}
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="form-group mb-3">
-                                    <label for="{{ form.preferred_date.id_for_label }}" class="form-label">Preferred Date</label>
-                                    {{ form.preferred_date }}
-                                    {% if form.preferred_date.errors %}
-                                        <div class="text-danger">{{ form.preferred_date.errors }}</div>
-                                    {% endif %}
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div class="row">
-                            <div class="col-md-4">
-                                <div class="form-group mb-3">
-                                    <label for="{{ form.car_make.id_for_label }}" class="form-label">Car Make</label>
-                                    {{ form.car_make }}
-                                    {% if form.car_make.errors %}
-                                        <div class="text-danger">{{ form.car_make.errors }}</div>
-                                    {% endif %}
-                                </div>
-                            </div>
-                            <div class="col-md-4">
-                                <div class="form-group mb-3">
-                                    <label for="{{ form.car_model.id_for_label }}" class="form-label">Car Model</label>
-                                    {{ form.car_model }}
-                                    {% if form.car_model.errors %}
-                                        <div class="text-danger">{{ form.car_model.errors }}</div>
-                                    {% endif %}
-                                </div>
-                            </div>
-                            <div class="col-md-4">
-                                <div class="form-group mb-3">
-                                    <label for="{{ form.car_year.id_for_label }}" class="form-label">Year</label>
-                                    {{ form.car_year }}
-                                    {% if form.car_year.errors %}
-                                        <div class="text-danger">{{ form.car_year.errors }}</div>
-                                    {% endif %}
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div class="form-group mb-3">
-                            <label for="{{ form.description.id_for_label }}" class="form-label">Consultation Details</label>
-                            {{ form.description }}
-                            {% if form.description.errors %}
-                                <div class="text-danger">{{ form.description.errors }}</div>
-                            {% endif %}
-                            <small class="form-text text-muted">Please describe what you'd like to discuss during the consultation (e.g., maintenance advice, upgrade options, performance concerns, etc.).</small>
-                        </div>
-                        
-                        <!-- Hidden field for service type -->
-                        <input type="hidden" name="service_type" value="consultation">
-                        
-                        <div class="form-group mt-4">
-                            <div class="form-check">
-                                <input class="form-check-input" type="checkbox" id="termsAgree" required>
-                                <label class="form-check-label" for="termsAgree">
-                                    I agree to the <a href="{% url 'car_rental:terms_of_service' %}" target="_blank">Terms of Service</a> and <a href="{% url 'car_rental:privacy_policy' %}" target="_blank">Privacy Policy</a>
-                                </label>
-                            </div>
-                        </div>
-                        
-                        <div class="form-group mt-4">
-                            <button type="submit" class="btn btn-success w-100" id="submitBtn">
-                                <i class="fas fa-paper-plane me-2"></i>
-                                <span id="btnText">Submit Consultation Request</span>
-                                <div class="spinner-border spinner-border-sm ms-2" id="btnSpinner" role="status" style="display: none;">
-                                    <span class="visually-hidden">Loading...</span>
-                                </div>
-                            </button>
-                        </div>
-                    </form>
-                    
-                    <div class="whatsapp-notice mt-4">
-                        <div class="d-flex align-items-center">
-                            <i class="fab fa-whatsapp text-success me-3 fa-2x"></i>
-                            <div>
-                                <strong>Important:</strong> After submitting this form, you'll be redirected to WhatsApp to complete your booking.
-                            </div>
+                        </button>
+                    </div>
+                </form>
+
+                <div class="mt-4 p-3 rounded" style="background-color: rgba(37, 211, 102, 0.1); border: 1px solid rgba(37, 211, 102, 0.3);">
+                    <div class="d-flex align-items-center">
+                        <i class="fab fa-whatsapp me-3 fa-2x" style="color: #25D366;"></i>
+                        <div style="color: var(--text-color); font-size: 0.9rem;">
+                            <strong>Notice:</strong> After submitting, you'll be redirected to WhatsApp to confirm your appointment time.
                         </div>
                     </div>
                 </div>
@@ -207,19 +200,14 @@
     </div>
 </div>
 
-{% endblock %}
-
-{% block extra_js %}
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        // Set minimum date to today
         const dateInput = document.getElementById('{{ form.preferred_date.id_for_label }}');
         if (dateInput) {
             const today = new Date().toISOString().split('T')[0];
             dateInput.setAttribute('min', today);
         }
         
-        // Form submission
         const form = document.getElementById('consultationForm');
         if (form) {
             form.addEventListener('submit', function(event) {
@@ -227,7 +215,6 @@
                 const btnText = document.getElementById('btnText');
                 const btnSpinner = document.getElementById('btnSpinner');
                 
-                // Show loading state
                 btnText.textContent = 'Processing...';
                 btnSpinner.style.display = 'inline-block';
                 submitBtn.disabled = true;
@@ -235,35 +222,4 @@
         }
     });
 </script>
-
-<style>
-    .consultation-feature {
-        text-align: center;
-        padding: 1rem;
-        transition: transform 0.3s ease;
-    }
-    
-    .consultation-feature:hover {
-        transform: translateY(-5px);
-    }
-    
-    .feature-icon {
-        width: 60px;
-        height: 60px;
-        border-radius: 50%;
-        background-color: rgba(40, 167, 69, 0.1);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        margin: 0 auto 1rem;
-        font-size: 1.5rem;
-    }
-    
-    .whatsapp-notice {
-        background-color: rgba(37, 211, 102, 0.1);
-        border: 1px solid rgba(37, 211, 102, 0.3);
-        border-radius: 8px;
-        padding: 1rem;
-    }
-</style>
 {% endblock %}

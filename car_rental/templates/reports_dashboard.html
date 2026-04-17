@@ -1,324 +1,279 @@
 {% extends 'base.html' %}
 
-{% block title %}Reports Dashboard - {{ site_info.company_name }}{% endblock %}
+{% block title %}Reports Dashboard - {% if site_info %}{{ site_info.company_name }}{% else %}Hillz Exquisite{% endif %}{% endblock %}
+
+{% block extra_css %}
+<style>
+    .dashboard-wrapper { padding: 3rem 0; }
+    
+    .card {
+        background-color: var(--secondary-color);
+        border: 1px solid rgba(255,255,255,0.05);
+        border-radius: 16px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    }
+    
+    .card-header {
+        background-color: rgba(0,0,0,0.2);
+        border-bottom: 1px solid rgba(255,255,255,0.05);
+        padding: 1.25rem 1.5rem;
+    }
+    
+    .card-header h6 {
+        color: var(--primary-color) !important;
+        font-family: var(--font-family-playfair);
+        font-weight: 700;
+        font-size: 1.1rem;
+        margin: 0;
+    }
+
+    /* Stat Cards */
+    .stat-card {
+        background-color: var(--dark-bg);
+        border: 1px solid rgba(255,255,255,0.05);
+        border-radius: 12px;
+        padding: 1.5rem;
+        height: 100%;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .stat-card::before {
+        content: '';
+        position: absolute;
+        top: 0; left: 0; width: 4px; height: 100%;
+    }
+    
+    .stat-card.border-primary::before { background-color: var(--primary-color); }
+    .stat-card.border-success::before { background-color: #4ade80; }
+    .stat-card.border-info::before { background-color: #0dcaf0; }
+    .stat-card.border-warning::before { background-color: #fbbf24; }
+
+    .stat-card-title {
+        font-size: 0.75rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        margin-bottom: 0.5rem;
+    }
+    
+    .stat-card-value {
+        font-size: 1.8rem;
+        font-weight: 700;
+        color: var(--dark-color);
+        font-family: var(--font-family-playfair);
+        margin-bottom: 0;
+    }
+    
+    .stat-card-icon {
+        font-size: 2.5rem;
+        opacity: 0.2;
+        position: absolute;
+        right: 1.5rem;
+        top: 50%;
+        transform: translateY(-50%);
+    }
+
+    /* Dark Theme Tables */
+    .table-custom {
+        --bs-table-bg: transparent;
+        --bs-table-color: var(--text-color);
+        color: var(--text-color) !important;
+        margin-bottom: 0;
+    }
+    
+    .table-custom th {
+        background-color: var(--dark-bg);
+        color: var(--gray-color) !important; 
+        font-weight: 600;
+        text-transform: uppercase;
+        font-size: 0.8rem;
+        letter-spacing: 1px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        padding: 1rem;
+    }
+    
+    .table-custom td {
+        padding: 1rem;
+        border-bottom: 1px solid rgba(255,255,255,0.05);
+        vertical-align: middle;
+        color: var(--text-color) !important; 
+    }
+    
+    .table-custom tbody tr:hover { background-color: rgba(255, 255, 255, 0.02); }
+    .table-custom tbody tr:last-child td { border-bottom: none; }
+    
+    .badge { font-weight: 600; letter-spacing: 0.5px; padding: 0.4em 0.8em; }
+</style>
+{% endblock %}
 
 {% block content %}
-<div class="container-fluid my-5">
-    <h1 class="fw-bold text-dark mb-4"><i class="fas fa-chart-bar me-2"></i> Reports Dashboard</h1>
+<div class="container-fluid dashboard-wrapper px-4">
+    <h1 class="fw-bold mb-4" style="color: var(--dark-color); font-family: var(--font-family-playfair);">
+        <i class="fas fa-chart-line me-3" style="color: var(--primary-color);"></i> Executive Analytics
+    </h1>
     
     {% if error %}
-        <div class="alert alert-danger">
+        <div class="alert alert-danger" style="background-color: rgba(255, 107, 107, 0.1); border: 1px solid #ff6b6b; color: #ff6b6b;">
             {{ error }}
         </div>
     {% else %}
-        <!-- Summary Cards -->
-        <div class="row mb-4">
-            <div class="col-xl-3 col-md-6 mb-4">
-                <div class="card border-left-primary shadow h-100 py-2">
-                    <div class="card-body">
-                        <div class="row no-gutters align-items-center">
-                            <div class="col mr-2">
-                                <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
-                                    Rentals This Month
-                                </div>
-                                <div class="h5 mb-0 font-weight-bold text-gray-800">
-                                    {{ rentals_this_month.count }}
-                                </div>
-                                <div class="text-xs text-gray-500">
-                                    {% if rental_count_growth > 0 %}
-                                        <i class="fas fa-arrow-up"></i> {{ rental_count_growth|floatformat:1 }}%
-                                    {% else %}
-                                        <i class="fas fa-arrow-down"></i> {{ rental_count_growth|floatformat:1 }}%
-                                    {% endif %}
-                                    from last month
-                                </div>
-                            </div>
-                            <div class="col-auto">
-                                <i class="fas fa-car fa-2x text-gray-300"></i>
-                            </div>
-                        </div>
+        <div class="row g-4 mb-4">
+            <div class="col-xl-3 col-md-6">
+                <div class="stat-card border-primary">
+                    <div class="stat-card-title" style="color: var(--primary-color);">Rentals This Month</div>
+                    <div class="stat-card-value">{{ rentals_this_month.count }}</div>
+                    <div class="small mt-2" style="color: var(--gray-color);">
+                        {% if rental_count_growth > 0 %}<span style="color: #4ade80;"><i class="fas fa-arrow-up"></i> {{ rental_count_growth|floatformat:1 }}%</span>
+                        {% else %}<span style="color: #ff6b6b;"><i class="fas fa-arrow-down"></i> {{ rental_count_growth|floatformat:1 }}%</span>{% endif %}
+                        vs last month
                     </div>
+                    <i class="fas fa-key stat-card-icon" style="color: var(--primary-color);"></i>
                 </div>
             </div>
             
-            <div class="col-xl-3 col-md-6 mb-4">
-                <div class="card border-left-success shadow h-100 py-2">
-                    <div class="card-body">
-                        <div class="row no-gutters align-items-center">
-                            <div class="col mr-2">
-                                <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
-                                    Purchases This Month
-                                </div>
-                                <div class="h5 mb-0 font-weight-bold text-gray-800">
-                                    {{ purchases_this_month.count }}
-                                </div>
-                                <div class="text-xs text-gray-500">
-                                    {% if purchase_count_growth > 0 %}
-                                        <i class="fas fa-arrow-up"></i> {{ purchase_count_growth|floatformat:1 }}%
-                                    {% else %}
-                                        <i class="fas fa-arrow-down"></i> {{ purchase_count_growth|floatformat:1 }}%
-                                    {% endif %}
-                                    from last month
-                                </div>
-                            </div>
-                            <div class="col-auto">
-                                <i class="fas fa-shopping-cart fa-2x text-gray-300"></i>
-                            </div>
-                        </div>
+            <div class="col-xl-3 col-md-6">
+                <div class="stat-card border-success">
+                    <div class="stat-card-title" style="color: #4ade80;">Purchases This Month</div>
+                    <div class="stat-card-value">{{ purchases_this_month.count }}</div>
+                    <div class="small mt-2" style="color: var(--gray-color);">
+                        {% if purchase_count_growth > 0 %}<span style="color: #4ade80;"><i class="fas fa-arrow-up"></i> {{ purchase_count_growth|floatformat:1 }}%</span>
+                        {% else %}<span style="color: #ff6b6b;"><i class="fas fa-arrow-down"></i> {{ purchase_count_growth|floatformat:1 }}%</span>{% endif %}
+                        vs last month
                     </div>
+                    <i class="fas fa-shopping-cart stat-card-icon" style="color: #4ade80;"></i>
                 </div>
             </div>
             
-            <div class="col-xl-3 col-md-6 mb-4">
-                <div class="card border-left-info shadow h-100 py-2">
-                    <div class="card-body">
-                        <div class="row no-gutters align-items-center">
-                            <div class="col mr-2">
-                                <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
-                                    Service Bookings This Month
-                                </div>
-                                <div class="h5 mb-0 font-weight-bold text-gray-800">
-                                    {{ service_bookings_this_month.count }}
-                                </div>
-                                <div class="text-xs text-gray-500">
-                                    {% if service_booking_growth > 0 %}
-                                        <i class="fas fa-arrow-up"></i> {{ service_booking_growth|floatformat:1 }}%
-                                    {% else %}
-                                        <i class="fas fa-arrow-down"></i> {{ service_booking_growth|floatformat:1 }}%
-                                    {% endif %}
-                                    from last month
-                                </div>
-                            </div>
-                            <div class="col-auto">
-                                <i class="fas fa-tools fa-2x text-gray-300"></i>
-                            </div>
-                        </div>
+            <div class="col-xl-3 col-md-6">
+                <div class="stat-card border-info">
+                    <div class="stat-card-title" style="color: #0dcaf0;">Service Bookings</div>
+                    <div class="stat-card-value">{{ service_bookings_this_month.count }}</div>
+                    <div class="small mt-2" style="color: var(--gray-color);">
+                        {% if service_booking_growth > 0 %}<span style="color: #4ade80;"><i class="fas fa-arrow-up"></i> {{ service_booking_growth|floatformat:1 }}%</span>
+                        {% else %}<span style="color: #ff6b6b;"><i class="fas fa-arrow-down"></i> {{ service_booking_growth|floatformat:1 }}%</span>{% endif %}
+                        vs last month
                     </div>
+                    <i class="fas fa-tools stat-card-icon" style="color: #0dcaf0;"></i>
                 </div>
             </div>
             
-            <div class="col-xl-3 col-md-6 mb-4">
-                <div class="card border-left-warning shadow h-100 py-2">
-                    <div class="card-body">
-                        <div class="row no-gutters align-items-center">
-                            <div class="col mr-2">
-                                <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
-                                    Total Revenue
-                                </div>
-                                <div class="h5 mb-0 font-weight-bold text-gray-800">
-                                    ₦{{ total_revenue_this_month|floatformat:2 }}
-                                </div>
-                                <div class="text-xs text-gray-500">
-                                    {% if total_revenue_growth > 0 %}
-                                        <i class="fas fa-arrow-up"></i> {{ total_revenue_growth|floatformat:1 }}%
-                                    {% else %}
-                                        <i class="fas fa-arrow-down"></i> {{ total_revenue_growth|floatformat:1 }}%
-                                    {% endif %}
-                                    from last month
-                                </div>
-                            </div>
-                            <div class="col-auto">
-                                <i class="fas fa-dollar-sign fa-2x text-gray-300"></i>
-                            </div>
-                        </div>
+            <div class="col-xl-3 col-md-6">
+                <div class="stat-card border-warning">
+                    <div class="stat-card-title" style="color: #fbbf24;">Gross Revenue</div>
+                    <div class="stat-card-value" style="font-size: 1.5rem;">₦{{ total_revenue_this_month|floatformat:0 }}</div>
+                    <div class="small mt-2" style="color: var(--gray-color);">
+                        {% if total_revenue_growth > 0 %}<span style="color: #4ade80;"><i class="fas fa-arrow-up"></i> {{ total_revenue_growth|floatformat:1 }}%</span>
+                        {% else %}<span style="color: #ff6b6b;"><i class="fas fa-arrow-down"></i> {{ total_revenue_growth|floatformat:1 }}%</span>{% endif %}
+                        vs last month
                     </div>
+                    <i class="fas fa-chart-line stat-card-icon" style="color: #fbbf24;"></i>
                 </div>
             </div>
         </div>
         
-        <!-- Charts Row -->
-        <div class="row">
+        <div class="row g-4 mb-4">
             <div class="col-xl-8 col-lg-7">
-                <div class="card shadow mb-4">
-                    <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-                        <h6 class="m-0 font-weight-bold text-primary">Revenue Overview</h6>
-                    </div>
-                    <div class="card-body">
-                        <div class="chart-area">
-                            <canvas id="revenueChart"></canvas>
-                        </div>
+                <div class="card h-100">
+                    <div class="card-header"><h6>Revenue Overview</h6></div>
+                    <div class="card-body p-4">
+                        <canvas id="revenueChart" style="min-height: 300px;"></canvas>
                     </div>
                 </div>
             </div>
             
             <div class="col-xl-4 col-lg-5">
-                <div class="card shadow mb-4">
-                    <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-                        <h6 class="m-0 font-weight-bold text-primary">Revenue Sources</h6>
-                    </div>
-                    <div class="card-body">
-                        <div class="chart-pie pt-4">
-                            <canvas id="revenueSourcesChart"></canvas>
-                        </div>
+                <div class="card h-100">
+                    <div class="card-header"><h6>Revenue Sources</h6></div>
+                    <div class="card-body p-4 d-flex align-items-center justify-content-center">
+                        <canvas id="revenueSourcesChart" style="max-height: 300px;"></canvas>
                     </div>
                 </div>
             </div>
         </div>
         
-        <!-- Service Bookings by Type -->
-        <div class="row mt-4">
-            <div class="col-lg-6 mb-4">
-                <div class="card shadow mb-4">
-                    <div class="card-header py-3">
-                        <h6 class="m-0 font-weight-bold text-primary">Service Bookings by Type</h6>
-                    </div>
-                    <div class="card-body">
-                        <div class="chart-bar">
-                            <canvas id="serviceBookingsChart"></canvas>
-                        </div>
+        <div class="row g-4">
+            <div class="col-lg-6">
+                <div class="card h-100">
+                    <div class="card-header"><h6>Top Performing Rentals</h6></div>
+                    <div class="table-responsive">
+                        <table class="table table-custom">
+                            <thead>
+                                <tr><th>Vehicle</th><th>Volume</th><th>Revenue</th></tr>
+                            </thead>
+                            <tbody>
+                                {% for car in top_rented_cars %}
+                                <tr>
+                                    <td class="fw-bold">{{ car.year }} {{ car.make }} {{ car.model }}</td>
+                                    <td>{{ car.rental_count }}</td>
+                                    <td style="color: var(--primary-color); font-weight: 600;">₦{{ car.rental_revenue|floatformat:0 }}</td>
+                                </tr>
+                                {% empty %}
+                                <tr><td colspan="3" class="text-center text-muted py-4">No data available</td></tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
                     </div>
                 </div>
             </div>
             
-            <div class="col-lg-6 mb-4">
-                <div class="card shadow mb-4">
-                    <div class="card-header py-3">
-                        <h6 class="m-0 font-weight-bold text-primary">Service Status Distribution</h6>
-                    </div>
-                    <div class="card-body">
-                        <div class="chart-doughnut">
-                            <canvas id="serviceStatusChart"></canvas>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        
-        <!-- Top Cars Tables -->
-        <div class="row">
-            <div class="col-lg-6 mb-4">
-                <div class="card shadow mb-4">
-                    <div class="card-header py-3">
-                        <h6 class="m-0 font-weight-bold text-primary">Top Rented Cars</h6>
-                    </div>
-                    <div class="card-body">
-                        <div class="table-responsive">
-                            <table class="table table-bordered" width="100%" cellspacing="0">
-                                <thead>
-                                    <tr>
-                                        <th>Car</th>
-                                        <th>Rental Count</th>
-                                        <th>Revenue</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {% for car in top_rented_cars %}
-                                    <tr>
-                                        <td>{{ car.make }} {{ car.model }} ({{ car.year }})</td>
-                                        <td>{{ car.rental_count }}</td>
-                                        <td>₦{{ car.rental_revenue|floatformat:2 }}</td>
-                                    </tr>
-                                    {% empty %}
-                                    <tr>
-                                        <td colspan="3" class="text-center">No data available</td>
-                                    </tr>
-                                    {% endfor %}
-                                </tbody>
-                            </table>
-                        </div>
+            <div class="col-lg-6">
+                <div class="card h-100">
+                    <div class="card-header"><h6>Top Selling Inventory</h6></div>
+                    <div class="table-responsive">
+                        <table class="table table-custom">
+                            <thead>
+                                <tr><th>Vehicle</th><th>Volume</th><th>Revenue</th></tr>
+                            </thead>
+                            <tbody>
+                                {% for car in top_purchased_cars %}
+                                <tr>
+                                    <td class="fw-bold">{{ car.year }} {{ car.make }} {{ car.model }}</td>
+                                    <td>{{ car.purchase_count }}</td>
+                                    <td style="color: var(--primary-color); font-weight: 600;">₦{{ car.purchase_revenue|floatformat:0 }}</td>
+                                </tr>
+                                {% empty %}
+                                <tr><td colspan="3" class="text-center text-muted py-4">No data available</td></tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
                     </div>
                 </div>
             </div>
             
-            <div class="col-lg-6 mb-4">
-                <div class="card shadow mb-4">
-                    <div class="card-header py-3">
-                        <h6 class="m-0 font-weight-bold text-primary">Top Purchased Cars</h6>
-                    </div>
-                    <div class="card-body">
-                        <div class="table-responsive">
-                            <table class="table table-bordered" width="100%" cellspacing="0">
-                                <thead>
-                                    <tr>
-                                        <th>Car</th>
-                                        <th>Purchase Count</th>
-                                        <th>Revenue</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {% for car in top_purchased_cars %}
-                                    <tr>
-                                        <td>{{ car.make }} {{ car.model }} ({{ car.year }})</td>
-                                        <td>{{ car.purchase_count }}</td>
-                                        <td>₦{{ car.purchase_revenue|floatformat:2 }}</td>
-                                    </tr>
-                                    {% empty %}
-                                        <tr>
-                                            <td colspan="3" class="text-center">No data available</td>
-                                        </tr>
-                                    {% endfor %}
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        
-        <!-- Recent Activity -->
-        <div class="row">
-            <div class="col-lg-12 mb-4">
-                <div class="card shadow mb-4">
-                    <div class="card-header py-3">
-                        <h6 class="m-0 font-weight-bold text-primary">Recent Activity</h6>
-                    </div>
-                    <div class="card-body">
-                        <div class="table-responsive">
-                            <table class="table table-bordered" width="100%" cellspacing="0">
-                                <thead>
-                                    <tr>
-                                        <th>Date</th>
-                                        <th>Type</th>
-                                        <th>Customer</th>
-                                        <th>Vehicle/Service</th>
-                                        <th>Amount</th>
-                                        <th>Status</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {% for activity in recent_activities %}
-                                    <tr>
-                                        <td>{{ activity.date|date:"M d, Y H:i" }}</td>
-                                        <td>
-                                            {% if activity.type == 'rental' %}
-                                                <span class="badge bg-primary">Rental</span>
-                                            {% elif activity.type == 'purchase' %}
-                                                <span class="badge bg-success">Purchase</span>
-                                            {% elif activity.type == 'service' %}
-                                                <span class="badge bg-info">Service</span>
-                                            {% endif %}
-                                        </td>
-                                        <td>{{ activity.customer_name }}</td>
-                                        <td>{{ activity.item_name }}</td>
-                                        <td>
-                                            {% if activity.amount %}
-                                                ₦{{ activity.amount|floatformat:2 }}
-                                            {% else %}
-                                                -
-                                            {% endif %}
-                                        </td>
-                                        <td>
-                                            {% if activity.status == 'completed' %}
-                                                <span class="badge bg-success">Completed</span>
-                                            {% elif activity.status == 'pending' %}
-                                                <span class="badge bg-warning text-dark">Pending</span>
-                                            {% elif activity.status == 'active' %}
-                                                <span class="badge bg-info">Active</span>
-                                            {% elif activity.status == 'cancelled' %}
-                                                <span class="badge bg-danger">Cancelled</span>
-                                            {% else %}
-                                                <span class="badge bg-secondary">{{ activity.status|title }}</span>
-                                            {% endif %}
-                                        </td>
-                                    </tr>
-                                    {% empty %}
-                                    <tr>
-                                        <td colspan="6" class="text-center">No recent activity</td>
-                                    </tr>
-                                    {% endfor %}
-                                </tbody>
-                            </table>
-                        </div>
+            <div class="col-12 mt-4">
+                <div class="card">
+                    <div class="card-header"><h6>Live Transaction Feed</h6></div>
+                    <div class="table-responsive">
+                        <table class="table table-custom">
+                            <thead>
+                                <tr><th>Timestamp</th><th>Type</th><th>Client</th><th>Details</th><th>Value</th><th>Status</th></tr>
+                            </thead>
+                            <tbody>
+                                {% for activity in recent_activities %}
+                                <tr>
+                                    <td style="color: var(--gray-color);">{{ activity.date|date:"M d, Y H:i" }}</td>
+                                    <td>
+                                        {% if activity.type == 'rental' %}<span class="badge" style="background-color: rgba(13, 202, 240, 0.1); color: #0dcaf0;">Rental</span>
+                                        {% elif activity.type == 'purchase' %}<span class="badge" style="background-color: rgba(74, 222, 128, 0.1); color: #4ade80;">Purchase</span>
+                                        {% elif activity.type == 'service' %}<span class="badge" style="background-color: rgba(184, 115, 51, 0.1); color: var(--primary-color);">Service</span>{% endif %}
+                                    </td>
+                                    <td class="fw-bold">{{ activity.customer_name }}</td>
+                                    <td>{{ activity.item_name }}</td>
+                                    <td style="color: var(--primary-color); font-weight: 600;">{% if activity.amount %}₦{{ activity.amount|floatformat:0 }}{% else %}-{% endif %}</td>
+                                    <td>
+                                        {% if activity.status == 'completed' %}<span class="badge bg-success">Completed</span>
+                                        {% elif activity.status == 'pending' %}<span class="badge bg-warning text-dark">Pending</span>
+                                        {% elif activity.status == 'active' %}<span class="badge bg-info text-dark">Active</span>
+                                        {% elif activity.status == 'cancelled' %}<span class="badge bg-danger">Cancelled</span>
+                                        {% else %}<span class="badge bg-secondary">{{ activity.status|title }}</span>{% endif %}
+                                    </td>
+                                </tr>
+                                {% empty %}
+                                <tr><td colspan="6" class="text-center text-muted py-4">No recent activity detected</td></tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
                     </div>
                 </div>
             </div>
@@ -331,125 +286,54 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
     document.addEventListener('DOMContentLoaded', function() {
+        // Chart.js Dark Theme Defaults
+        Chart.defaults.color = '#8e8e93';
+        Chart.defaults.borderColor = 'rgba(255, 255, 255, 0.05)';
+        
         // Revenue Overview Chart
         var ctx1 = document.getElementById('revenueChart').getContext('2d');
-        var revenueChart = new Chart(ctx1, {
+        new Chart(ctx1, {
             type: 'bar',
             data: {
                 labels: ['Rental Revenue', 'Purchase Revenue', 'Service Revenue'],
                 datasets: [{
                     label: 'This Month',
-                    data: [
-                        {{ rental_revenue_this_month|default:0 }}, 
-                        {{ purchase_revenue_this_month|default:0 }},
-                        {{ service_revenue_this_month|default:0 }}
-                    ],
-                    backgroundColor: 'rgba(54, 162, 235, 0.8)',
+                    data: [{{ rental_revenue_this_month|default:0 }}, {{ purchase_revenue_this_month|default:0 }}, {{ service_revenue_this_month|default:0 }}],
+                    backgroundColor: '#b87333', // Copper
+                    borderRadius: 4
                 }, {
                     label: 'Last Month',
-                    data: [
-                        {{ rental_revenue_last_month|default:0 }}, 
-                        {{ purchase_revenue_last_month|default:0 }},
-                        {{ service_revenue_last_month|default:0 }}
-                    ],
-                    backgroundColor: 'rgba(255, 99, 132, 0.8)',
+                    data: [{{ rental_revenue_last_month|default:0 }}, {{ purchase_revenue_last_month|default:0 }}, {{ service_revenue_last_month|default:0 }}],
+                    backgroundColor: 'rgba(255,255,255,0.1)',
+                    borderRadius: 4
                 }]
             },
             options: {
                 responsive: true,
-                scales: {
-                    y: {
-                        beginAtZero: true
-                    }
-                }
+                maintainAspectRatio: false,
+                plugins: { legend: { labels: { color: '#d1d1d1' } } },
+                scales: { y: { beginAtZero: true, grid: { color: 'rgba(255,255,255,0.05)' } }, x: { grid: { display: false } } }
             }
         });
         
-        // Revenue Sources Chart
+        // Revenue Sources Doughnut
         var ctx2 = document.getElementById('revenueSourcesChart').getContext('2d');
-        var revenueSourcesChart = new Chart(ctx2, {
+        new Chart(ctx2, {
             type: 'doughnut',
             data: {
-                labels: ['Rental Revenue', 'Purchase Revenue', 'Service Revenue'],
+                labels: ['Rentals', 'Purchases', 'Services'],
                 datasets: [{
-                    data: [
-                        {{ rental_revenue_this_month|default:0 }}, 
-                        {{ purchase_revenue_this_month|default:0 }},
-                        {{ service_revenue_this_month|default:0 }}
-                    ],
-                    backgroundColor: [
-                        'rgba(54, 162, 235, 0.8)',
-                        'rgba(255, 99, 132, 0.8)',
-                        'rgba(255, 206, 86, 0.8)'
-                    ],
+                    data: [{{ rental_revenue_this_month|default:0 }}, {{ purchase_revenue_this_month|default:0 }}, {{ service_revenue_this_month|default:0 }}],
+                    backgroundColor: ['#0dcaf0', '#4ade80', '#b87333'],
+                    borderWidth: 0,
+                    hoverOffset: 4
                 }]
             },
             options: {
                 responsive: true,
-            }
-        });
-        
-        // Service Bookings by Type Chart
-        var ctx3 = document.getElementById('serviceBookingsChart').getContext('2d');
-        var serviceBookingsChart = new Chart(ctx3, {
-            type: 'bar',
-            data: {
-                labels: ['Diagnostic', 'Repair', 'Upgrade', 'Consultation'],
-                datasets: [{
-                    label: 'This Month',
-                    data: [
-                        {{ diagnostic_count_this_month|default:0 }},
-                        {{ repair_count_this_month|default:0 }},
-                        {{ upgrade_count_this_month|default:0 }},
-                        {{ consultation_count_this_month|default:0 }}
-                    ],
-                    backgroundColor: 'rgba(75, 192, 192, 0.8)',
-                }, {
-                    label: 'Last Month',
-                    data: [
-                        {{ diagnostic_count_last_month|default:0 }},
-                        {{ repair_count_last_month|default:0 }},
-                        {{ upgrade_count_last_month|default:0 }},
-                        {{ consultation_count_last_month|default:0 }}
-                    ],
-                    backgroundColor: 'rgba(153, 102, 255, 0.8)',
-                }]
-            },
-            options: {
-                responsive: true,
-                scales: {
-                    y: {
-                        beginAtZero: true
-                    }
-                }
-            }
-        });
-        
-        // Service Status Distribution Chart
-        var ctx4 = document.getElementById('serviceStatusChart').getContext('2d');
-        var serviceStatusChart = new Chart(ctx4, {
-            type: 'doughnut',
-            data: {
-                labels: ['Pending', 'Confirmed', 'In Progress', 'Completed', 'Cancelled'],
-                datasets: [{
-                    data: [
-                        {{ pending_services_count|default:0 }},
-                        {{ confirmed_services_count|default:0 }},
-                        {{ in_progress_services_count|default:0 }},
-                        {{ completed_services_count|default:0 }},
-                        {{ cancelled_services_count|default:0 }}
-                    ],
-                    backgroundColor: [
-                        'rgba(255, 206, 86, 0.8)',
-                        'rgba(54, 162, 235, 0.8)',
-                        'rgba(255, 159, 64, 0.8)',
-                        'rgba(75, 192, 192, 0.8)',
-                        'rgba(255, 99, 132, 0.8)'
-                    ],
-                }]
-            },
-            options: {
-                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { position: 'bottom', labels: { color: '#d1d1d1', padding: 20 } } },
+                cutout: '75%'
             }
         });
     });

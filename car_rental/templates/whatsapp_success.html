@@ -1,59 +1,81 @@
-<!-- whatsapp_success.html -->
 {% extends 'base.html' %}
 {% load static %}
 
-{% block title %}Booking Successful - {{ site_info.company_name }}{% endblock %}
+{% block title %}Booking Successful - {% if site_info %}{{ site_info.company_name }}{% else %}Hillz Exquisite{% endif %}{% endblock %}
+
+{% block extra_css %}
+<style>
+    .generic-success-container { padding: 5rem 0; min-height: 70vh; display: flex; align-items: center; }
+    
+    .generic-success-card {
+        background-color: var(--secondary-color);
+        border: 1px solid rgba(255,255,255,0.05);
+        border-radius: 16px;
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+        padding: 4rem 3rem;
+        text-align: center;
+        width: 100%;
+    }
+
+    .info-box {
+        background-color: var(--dark-bg);
+        border: 1px solid rgba(255,255,255,0.05);
+        border-radius: 12px;
+        padding: 1.5rem;
+        margin: 2rem 0;
+        text-align: left;
+    }
+</style>
+{% endblock %}
 
 {% block content %}
-<div class="container my-5">
-    <div class="row justify-content-center">
+<div class="container generic-success-container">
+    <div class="row justify-content-center w-100">
         <div class="col-lg-6">
-            <div class="card shadow-lg border-0">
-                <div class="card-body text-center p-5">
-                    <div class="mb-4">
-                        <i class="fas fa-check-circle text-success" style="font-size: 4rem;"></i>
-                    </div>
-                    <h2 class="mb-3">Booking Successful!</h2>
-                    <p class="lead mb-4">
-                        Your {{ service_type|title }} service booking has been submitted successfully.
-                    </p>
-                    
-                    {% if booking %}
-                    <div class="alert alert-info mb-4">
-                        <h5>Booking Details</h5>
-                        <p><strong>Booking ID:</strong> #{{ booking.id }}</p>
-                        <p><strong>Name:</strong> {{ booking.name }}</p>
-                        <p><strong>Service:</strong> {{ booking.get_service_type_display }}</p>
-                        <p><strong>Preferred Date:</strong> {{ booking.preferred_date }}</p>
-                    </div>
-                    {% endif %}
-                    
-                    {% if redirect_url %}
-                    <div class="d-grid mb-3">
-                        <a href="{{ redirect_url }}" class="btn btn-success btn-lg" target="_blank">
-                            <i class="fab fa-whatsapp me-2"></i>Continue on WhatsApp
-                        </a>
-                    </div>
-                    <p class="text-muted small">Click the button above to continue your conversation on WhatsApp</p>
-                    {% endif %}
-                    
-                    <div class="mt-4">
-                        <a href="{% url 'car_rental:services_overview' %}" class="btn btn-outline-primary">
-                            <i class="fas fa-arrow-left me-2"></i>Back to Services
-                        </a>
-                    </div>
+            <div class="generic-success-card">
+                <div class="mb-4">
+                    <i class="fas fa-check-circle" style="font-size: 4.5rem; color: #4ade80;"></i>
+                </div>
+                <h2 style="color: var(--dark-color); font-family: var(--font-family-playfair); font-weight: 700; margin-bottom: 1rem;">Booking Registered</h2>
+                <p style="color: var(--gray-color); font-size: 1.1rem;">
+                    Your {{ service_type|title }} request has been successfully transmitted to our executive team.
+                </p>
+                
+                {% if booking %}
+                <div class="info-box">
+                    <div style="color: var(--text-color); font-size: 0.95rem; margin-bottom: 0.5rem;"><strong style="color: var(--gray-color); display: inline-block; width: 100px;">Booking ID:</strong> #{{ booking.id }}</div>
+                    <div style="color: var(--text-color); font-size: 0.95rem; margin-bottom: 0.5rem;"><strong style="color: var(--gray-color); display: inline-block; width: 100px;">Client:</strong> {{ booking.name }}</div>
+                    <div style="color: var(--text-color); font-size: 0.95rem; margin-bottom: 0.5rem;"><strong style="color: var(--gray-color); display: inline-block; width: 100px;">Service:</strong> {{ booking.get_service_type_display }}</div>
+                    <div style="color: var(--text-color); font-size: 0.95rem;"><strong style="color: var(--gray-color); display: inline-block; width: 100px;">Date:</strong> {{ booking.preferred_date }}</div>
+                </div>
+                {% endif %}
+                
+                {% if redirect_url %}
+                <div class="mt-4">
+                    <a href="{{ redirect_url }}" class="btn" style="background-color: #25d366; color: #000; font-weight: 700; border-radius: 50px; padding: 1rem 2rem; width: 100%; margin-bottom: 1rem;" target="_blank">
+                        <i class="fab fa-whatsapp me-2"></i> Proceed to WhatsApp
+                    </a>
+                    <p style="color: var(--gray-color); font-size: 0.85rem;">Automatically redirecting in 3 seconds...</p>
+                </div>
+                {% endif %}
+                
+                <div class="mt-4 pt-4" style="border-top: 1px solid rgba(255,255,255,0.05);">
+                    <a href="{% url 'car_rental:services_overview' %}" style="color: var(--primary-color); text-decoration: none; font-weight: 600;">
+                        <i class="fas fa-arrow-left me-2"></i> Return to Services Menu
+                    </a>
                 </div>
             </div>
         </div>
     </div>
 </div>
+{% endblock %}
 
+{% block extra_js %}
 <script>
-    // Auto-redirect to WhatsApp after 3 seconds
     document.addEventListener('DOMContentLoaded', function() {
         {% if redirect_url %}
         setTimeout(function() {
-            window.open('{{ redirect_url }}', '_blank');
+            window.location.href = '{{ redirect_url }}';
         }, 3000);
         {% endif %}
     });

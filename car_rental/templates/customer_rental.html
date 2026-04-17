@@ -4,40 +4,42 @@
 {% block title %}Book Rental - {{ car.make }} {{ car.model }}{% endblock %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+<link rel="stylesheet" type="text/css" href="https://npmcdn.com/flatpickr/dist/themes/dark.css">
 <style>
-    :root {
-        --primary-gold: #d4af37;
-        --dark-bg: #212529;
-    }
-
     .rental-container { max-width: 900px; margin: 40px auto; padding: 0 15px; }
     
     .rental-card { 
-        background: #fff; 
-        border-radius: 15px; 
-        box-shadow: 0 10px 40px rgba(0,0,0,0.05); 
-        border: none; 
+        background-color: var(--secondary-color); 
+        border-radius: 16px; 
+        box-shadow: 0 20px 40px rgba(0,0,0,0.4); 
+        border: 1px solid rgba(255,255,255,0.05); 
         overflow: hidden; 
     }
 
     .card-header { 
-        background: linear-gradient(45deg, var(--primary-gold), #f5d76e); 
-        padding: 20px; 
-        color: var(--dark-bg); 
+        background-color: rgba(0,0,0,0.2); 
+        padding: 2rem; 
         text-align: center; 
-        border: none;
+        border-bottom: 1px solid rgba(255,255,255,0.05);
+    }
+    
+    .card-header h3 {
+        color: var(--dark-color);
+        font-family: var(--font-family-playfair);
     }
 
     .car-summary-box {
-        background: #f8f9fa;
+        background-color: var(--dark-bg);
         border-radius: 12px;
         padding: 20px;
         margin-bottom: 25px;
         display: flex;
         align-items: center;
         gap: 20px;
-        border-left: 6px solid var(--primary-gold);
+        border-left: 4px solid var(--primary-color);
+        border-top: 1px solid rgba(255,255,255,0.02);
+        border-right: 1px solid rgba(255,255,255,0.02);
+        border-bottom: 1px solid rgba(255,255,255,0.02);
     }
 
     .car-summary-img {
@@ -48,54 +50,69 @@
     }
 
     .price-badge {
-        background: #e7f3ff;
-        color: #0056b3;
+        background-color: rgba(184, 115, 51, 0.1);
+        color: var(--primary-color);
         padding: 15px;
         border-radius: 10px;
         font-weight: 600;
         margin-bottom: 20px;
-        border: 1px solid #cce5ff;
+        border: 1px solid rgba(184, 115, 51, 0.2);
     }
 
     .whatsapp-notice {
-        background: #e6fcf5;
-        border: 1px solid #c3fae8;
+        background-color: rgba(37, 211, 102, 0.1);
+        border: 1px solid rgba(37, 211, 102, 0.3);
         padding: 15px;
         border-radius: 10px;
         display: flex;
         align-items: center;
         gap: 15px;
         margin-bottom: 25px;
+        color: var(--text-color);
     }
 
-    .whatsapp-notice i { color: #40c057; font-size: 1.5rem; }
+    .whatsapp-notice i { color: #25d366; font-size: 1.5rem; }
 
-    .form-label { font-weight: 600; color: #495057; margin-bottom: 8px; }
+    .form-label { font-weight: 500; color: var(--text-color); margin-bottom: 8px; }
+    
+    .form-control, .form-select {
+        background-color: var(--dark-bg);
+        border: 1px solid rgba(255,255,255,0.1);
+        color: var(--text-color);
+        padding: 0.9rem 1rem;
+        border-radius: 8px;
+        transition: var(--transition);
+    }
+
+    .form-control:focus, .form-select:focus {
+        background-color: rgba(0,0,0,0.8);
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 0.25rem rgba(184, 115, 51, 0.25);
+        color: var(--text-color);
+    }
     
     .btn-submit {
-        background: linear-gradient(45deg, var(--primary-gold), #b8941f);
-        color: white;
+        background-color: var(--primary-color);
+        color: var(--dark-bg);
         border: none;
         padding: 14px;
         border-radius: 50px;
         font-weight: 700;
         width: 100%;
-        transition: 0.3s;
-        box-shadow: 0 4px 15px rgba(212, 175, 55, 0.3);
+        transition: var(--transition);
     }
 
     .btn-submit:hover {
         transform: translateY(-2px);
-        box-shadow: 0 6px 20px rgba(212, 175, 55, 0.4);
-        color: white;
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+        background-color: #a0632a;
+        color: var(--dark-bg);
     }
 
-    /* Flatpickr Customization: Styling the 'Disabled' dates */
+    /* Flatpickr Customization for disabled dates in dark theme */
     .flatpickr-day.disabled {
-        color: #dee2e6 !important;
-        background: #f8f9fa !important;
+        color: rgba(255,255,255,0.1) !important;
         text-decoration: line-through;
-        cursor: not-allowed !important;
     }
 
     .spinner-border-sm { display: none; }
@@ -109,12 +126,12 @@
             <h3 class="mb-0 fw-bold">Finalize Your Rental Booking</h3>
         </div>
 
-        <div class="card-body p-4">
+        <div class="card-body p-4 p-md-5">
             {% if messages %}
                 {% for message in messages %}
-                    <div class="alert alert-{{ message.tags }} alert-dismissible fade show">
+                    <div class="alert alert-{{ message.tags }} alert-dismissible fade show" style="background-color: rgba(184, 115, 51, 0.1); border: 1px solid var(--primary-color); color: var(--primary-color);">
                         {{ message }}
-                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert"></button>
                     </div>
                 {% endfor %}
             {% endif %}
@@ -122,11 +139,13 @@
             <div class="car-summary-box">
                 {% if car.image %}
                     <img src="{{ car.image.url }}" class="car-summary-img" alt="{{ car.model }}">
+                {% else %}
+                    <img src="https://images.unsplash.com/photo-1552519507-da3b142c6e3d?ixlib=rb-4.0.3" class="car-summary-img" alt="Car Image">
                 {% endif %}
                 <div>
-                    <h4 class="mb-1 fw-bold">{{ car.year }} {{ car.make }} {{ car.model }}</h4>
-                    <p class="text-muted mb-0">{{ car.get_transmission_display }} • {{ car.get_engine_type_display }}</p>
-                    <span class="text-dark fw-bold">₦{{ car.get_rent_price|floatformat:2 }} / Day</span>
+                    <h4 class="mb-1 fw-bold" style="color: var(--dark-color);">{{ car.year }} {{ car.make }} {{ car.model }}</h4>
+                    <p class="mb-1" style="color: var(--gray-color);">{{ car.get_transmission_display }} • {{ car.get_engine_type_display }}</p>
+                    <span class="fw-bold" style="color: var(--primary-color);">₦{{ car.get_rent_price|floatformat:2 }} / Day</span>
                 </div>
             </div>
 
@@ -137,7 +156,7 @@
             <div class="whatsapp-notice">
                 <i class="fab fa-whatsapp"></i>
                 <div>
-                    <strong>Pay-First Policy:</strong> Your booking is only secured once payment is confirmed via WhatsApp. Open dates remain available to others until then.
+                    <strong style="color: #25d366;">Pay-First Policy:</strong> Your booking is only secured once payment is confirmed via WhatsApp. Open dates remain available to others until then.
                 </div>
             </div>
 
@@ -145,7 +164,7 @@
                 {% csrf_token %}
                 
                 {% if form.errors %}
-                    <div class="alert alert-danger">
+                    <div class="alert alert-danger" style="background-color: rgba(255, 107, 107, 0.1); border-color: #ff6b6b; color: #ff6b6b;">
                         <ul class="mb-0">
                             {% for field in form %}{% for error in field.errors %}<li>{{ error }}</li>{% endfor %}{% endfor %}
                             {% for error in form.non_field_errors %}<li>{{ error }}</li>{% endfor %}
@@ -153,10 +172,12 @@
                     </div>
                 {% endif %}
 
-                <div class="alert alert-light border d-flex align-items-center mb-4" style="background-color: #f8f9fa;">
-                    <i class="fas fa-info-circle text-muted me-3" style="font-size: 1.5rem;"></i>
-                    <div>
-                        <strong>Calendar Availability:</strong> Dates that appear <span class="text-muted text-decoration-line-through">greyed out</span> are already booked and cannot be selected.
+                <div class="alert mb-4" style="background-color: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.05); color: var(--gray-color);">
+                    <div class="d-flex align-items-center">
+                        <i class="fas fa-info-circle me-3" style="font-size: 1.5rem; color: var(--primary-color);"></i>
+                        <div>
+                            <strong style="color: var(--text-color);">Calendar Availability:</strong> Dates that appear <span style="text-decoration: line-through; opacity: 0.5;">greyed out</span> are already booked and cannot be selected.
+                        </div>
                     </div>
                 </div>
 
@@ -184,8 +205,8 @@
                 </div>
 
                 <div class="mt-5 d-flex gap-3">
-                    <a href="{% url 'car_rental:car_detail' car.pk %}" class="btn btn-outline-secondary px-5 rounded-pill">Cancel</a>
-                    <button type="submit" class="btn btn-submit" id="main-submit-btn">
+                    <a href="{% url 'car_rental:car_detail' car.pk %}" class="btn px-5 rounded-pill" style="border: 1px solid var(--gray-color); color: var(--text-color);">Cancel</a>
+                    <button type="submit" class="btn btn-submit flex-grow-1" id="main-submit-btn">
                         <span id="btn-label">Book & Message on WhatsApp</span>
                         <div class="spinner-border spinner-border-sm ms-2" id="btn-loader"></div>
                     </button>
@@ -203,7 +224,6 @@
         const dailyRate = parseFloat("{{ car.get_rent_price }}");
         const priceText = document.getElementById('estimation-text');
         
-        // Data Injection: Only paid/active rentals are passed here
         const confirmedBookings = {{ booked_dates_json|safe }};
 
         const fpBaseConfig = {
@@ -215,17 +235,14 @@
             onClose: () => calculateTotal()
         };
 
-        // Pickup Date Initialization
         const pickupPicker = flatpickr("#id_rental_datetime", {
             ...fpBaseConfig,
             onChange: function(selectedDates, dateStr) {
-                // Ensure the return date is at least after the pickup
                 returnPicker.set('minDate', dateStr);
                 calculateTotal();
             }
         });
 
-        // Return Date Initialization
         const returnPicker = flatpickr("#id_return_datetime", fpBaseConfig);
 
         function calculateTotal() {
@@ -234,21 +251,21 @@
 
             if (start && end) {
                 const diffTime = Math.abs(end - start);
-                // Math.ceil ensures partial days are rounded up to the next full day for billing
                 const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) || 1;
                 const grandTotal = diffDays * dailyRate;
 
-                priceText.innerHTML = `<strong>Total: ₦${grandTotal.toLocaleString()}</strong> (${diffDays} Day${diffDays > 1 ? 's' : ''} at ₦${dailyRate.toFixed(2)}/day)`;
+                priceText.innerHTML = `<strong>Total: ₦${grandTotal.toLocaleString()}</strong> <span style="color: var(--text-color);">(${diffDays} Day${diffDays > 1 ? 's' : ''} at ₦${dailyRate.toFixed(2)}/day)</span>`;
             }
         }
 
-        // Submission UI Feedback
         const bookingForm = document.getElementById('rental-booking-form');
-        bookingForm.addEventListener('submit', () => {
-            document.getElementById('main-submit-btn').disabled = true;
-            document.getElementById('btn-label').textContent = 'Opening WhatsApp...';
-            document.getElementById('btn-loader').style.display = 'inline-block';
-        });
+        if (bookingForm) {
+            bookingForm.addEventListener('submit', () => {
+                document.getElementById('main-submit-btn').disabled = true;
+                document.getElementById('btn-label').textContent = 'Opening WhatsApp...';
+                document.getElementById('btn-loader').style.display = 'inline-block';
+            });
+        }
     });
 </script>
 {% endblock %}

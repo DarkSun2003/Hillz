@@ -1758,7 +1758,33 @@ class RentalListView(ListView):
     model = Rental
     template_name = 'admin_rental_list.html'
     context_object_name = 'rentals'
-    ordering = ['-rental_datetime']
+    paginate_by = 20
+
+    def get_queryset(self):
+        queryset = Rental.objects.all().select_related('customer', 'car', 'employee')
+        
+        # 1. Filter by Status
+        status = self.request.GET.get('status')
+        if status:
+            queryset = queryset.filter(status=status)
+            
+        # 2. Search Query (Customer Name, Car Make/Model/VIN)
+        q = self.request.GET.get('q')
+        if q:
+            queryset = queryset.filter(
+                Q(customer__name__icontains=q) |
+                Q(car__make__icontains=q) |
+                Q(car__model__icontains=q) |
+                Q(car__vin__icontains=q)
+            )
+        return queryset.order_by('-rental_datetime')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['site_info'] = SiteInfo.objects.first()
+        # Pass status choices for the filter dropdown
+        context['status_choices'] = Rental.STATUS_CHOICES
+        return context
 
 class ReturnRentalView(UserPassesTestMixin, UpdateView):
     model = Rental
@@ -1771,6 +1797,14 @@ class ReturnRentalView(UserPassesTestMixin, UpdateView):
     
     def form_valid(self, form):
         rental = form.save()
+        
+        # --- AUTO-UPDATE CAR STATUS LOGIC ---
+        # Automatically make the car available again when returned
+        car = rental.car
+        car.status = 'available'
+        car.save()
+        # ------------------------------------
+        
         messages.success(self.request, f'Car returned successfully! Late fee: ₦{rental.late_fee}')
         return super().form_valid(form)
     
@@ -1932,13 +1966,21 @@ def update_rental_status(request, pk):
     rental = get_object_or_404(Rental, pk=pk)
     
     # --- EMAIL INTEGRATION: Send email for STATUS changes ---
-    # We only send an email if the 'status' field is being updated, not 'payment_status'.
     if 'status' in request.POST:
         new_status = request.POST.get('status')
         if new_status in dict(rental.STATUS_CHOICES):
             old_status = rental.status
             rental.status = new_status
             rental.save()
+            
+            # --- AUTO-UPDATE CAR STATUS LOGIC ---
+            # If the rental is finished or voided, free the car
+            if new_status in ['completed', 'cancelled']:
+                car = rental.car
+                car.status = 'available'
+                car.save()
+            # ------------------------------------
+            
             messages.success(request, f'Rental status updated to {rental.get_status_display()}.')
             
             send_status_update_email(
@@ -1947,10 +1989,8 @@ def update_rental_status(request, pk):
                 item_title=f"{rental.car.year} {rental.car.make} {rental.car.model}",
                 new_status=rental.get_status_display()
             )
-    # --------------------------------------------------------------------
     
     # --- EMAIL INTEGRATION: Send email for PAYMENT status changes ---
-    # You can choose to send an email for payment updates too, or comment it out.
     if 'payment_status' in request.POST:
         new_payment_status = request.POST.get('payment_status')
         if new_payment_status in dict(rental.PAYMENT_STATUS_CHOICES):
@@ -1961,10 +2001,10 @@ def update_rental_status(request, pk):
             # Uncomment the lines below if you also want an email for payment updates
             send_status_update_email(
                 customer=rental.customer,
-                 item_type='rental payment',
-                 item_title=f"Payment for {rental.car.make} {rental.car.model}",
-                 new_status=rental.get_payment_status_display()
-             )
+                item_type='rental payment',
+                item_title=f"Payment for {rental.car.make} {rental.car.model}",
+                new_status=rental.get_payment_status_display()
+            )
     
     return redirect('car_rental:rental_detail', pk=rental.pk)
 
@@ -2104,6 +2144,40 @@ class PurchaseDetailView(DetailView):
         # Add a flag to indicate if the current user can edit this purchase
         context['can_edit'] = self.request.user.is_superuser
         
+        return context
+
+class PurchasesListView(UserPassesTestMixin, ListView):
+    model = Purchase
+    template_name = 'admin/purchases_list.html' # or 'purchases_list.html' based on your folder structure
+    context_object_name = 'purchases'
+    paginate_by = 20
+    
+    def test_func(self):
+        return self.request.user.is_staff
+    
+    def get_queryset(self):
+        queryset = Purchase.objects.all().select_related('customer', 'car', 'employee')
+        
+        # 1. Filter by Status
+        status = self.request.GET.get('status')
+        if status:
+            queryset = queryset.filter(status=status)
+            
+        # 2. Search Query (Customer Name, Car Make/Model/VIN)
+        q = self.request.GET.get('q')
+        if q:
+            queryset = queryset.filter(
+                Q(customer__name__icontains=q) |
+                Q(car__make__icontains=q) |
+                Q(car__model__icontains=q) |
+                Q(car__vin__icontains=q)
+            )
+        return queryset.order_by('-purchase_datetime')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['site_info'] = SiteInfo.objects.first()
+        context['status_choices'] = Purchase.STATUS_CHOICES
         return context
 
 class UpdatePurchaseView(UserPassesTestMixin, UpdateView):

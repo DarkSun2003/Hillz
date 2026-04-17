@@ -1,128 +1,276 @@
 {% extends 'base.html' %}
 {% load static %}
-{% load cloudinary %}
 {% load custom_filters %}
 
 {% block title %}Cars for Sale - {% if site_info %}{{ site_info.company_name }}{% else %}Hillz Exquisite{% endif %}{% endblock %}
 
+{% block extra_css %}
+<style>
+    .hero-section {
+        background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.8)), url('{% static "images/cars-for-sale-hero.jpg" %}');
+        background-size: cover;
+        background-position: center;
+        background-attachment: fixed;
+        padding: 8rem 0;
+        margin-bottom: 3rem;
+        position: relative;
+        border-bottom: 2px solid var(--primary-color);
+    }
+    
+    .hero-content {
+        position: relative;
+        z-index: 2;
+    }
+    
+    .hero-section h1 {
+        font-family: var(--font-family-playfair);
+        color: var(--dark-color);
+        font-size: 3.5rem;
+        font-weight: 700;
+        margin-bottom: 1rem;
+    }
+    
+    .hero-section .lead {
+        color: var(--text-color);
+        font-size: 1.25rem;
+    }
+    
+    .search-card {
+        background-color: var(--secondary-color);
+        border: 1px solid rgba(255,255,255,0.05);
+        border-radius: 16px;
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+        margin-bottom: 3rem;
+    }
+
+    .search-card .form-control, .search-card .form-select {
+        background-color: var(--dark-bg);
+        border: 1px solid rgba(255,255,255,0.1);
+        color: var(--text-color);
+    }
+
+    .search-card .form-control:focus, .search-card .form-select:focus {
+        border-color: var(--primary-color);
+        box-shadow: none;
+    }
+
+    .search-card .input-group-text {
+        background-color: var(--dark-bg);
+        border: 1px solid rgba(255,255,255,0.1);
+        color: var(--gray-color);
+        border-right: none;
+    }
+    
+    .car-card {
+        background-color: var(--secondary-color);
+        border-radius: 16px;
+        overflow: hidden;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        border: 1px solid rgba(255,255,255,0.05);
+        transition: var(--transition);
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+    }
+    
+    .car-card:hover {
+        transform: translateY(-10px);
+        border-color: rgba(184, 115, 51, 0.3);
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+    }
+    
+    .car-image-container {
+        position: relative;
+        height: 220px;
+        overflow: hidden;
+        background-color: var(--dark-bg);
+    }
+    
+    .car-image-container img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 0.5s ease;
+    }
+    
+    .car-card:hover .car-image-container img {
+        transform: scale(1.05);
+    }
+    
+    .car-badges {
+        position: absolute;
+        top: 15px;
+        right: 15px;
+        display: flex;
+        flex-direction: column;
+        gap: 5px;
+        z-index: 2;
+    }
+    
+    .car-card .card-body {
+        flex-grow: 1;
+        display: flex;
+        flex-direction: column;
+        padding: 1.5rem;
+        position: relative;
+        z-index: 2;
+    }
+    
+    .car-card .card-title {
+        font-family: var(--font-family-playfair);
+        color: var(--dark-color);
+        font-size: 1.3rem;
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+    }
+
+    .car-specs {
+        display: flex;
+        gap: 15px;
+        color: var(--gray-color);
+        font-size: 0.85rem;
+        margin-bottom: 1rem;
+        padding-bottom: 1rem;
+        border-bottom: 1px solid rgba(255,255,255,0.05);
+    }
+    
+    .price-badge {
+        color: var(--primary-color);
+        font-weight: 700;
+        font-size: 1.4rem;
+        font-family: var(--font-family-playfair);
+        line-height: 1;
+    }
+    
+    .btn-outline-primary {
+        border: 1px solid var(--primary-color);
+        color: var(--primary-color);
+        background: transparent;
+    }
+    
+    .btn-outline-primary:hover {
+        background-color: var(--primary-color);
+        color: var(--dark-bg);
+    }
+    
+    .no-cars-alert {
+        border-radius: 16px;
+        border: 1px solid rgba(255,255,255,0.05);
+        padding: 4rem 2rem;
+        text-align: center;
+        background-color: var(--secondary-color);
+    }
+    
+    .pagination .page-link {
+        background-color: var(--dark-bg);
+        border: 1px solid rgba(255,255,255,0.05);
+        color: var(--text-color);
+        margin: 0 4px;
+        border-radius: 8px;
+    }
+    
+    .pagination .page-item.active .page-link {
+        background-color: var(--primary-color);
+        border-color: var(--primary-color);
+        color: var(--dark-bg);
+    }
+
+    .pagination .page-link:hover:not(.active) {
+        background-color: rgba(184, 115, 51, 0.1);
+        color: var(--primary-color);
+    }
+</style>
+{% endblock %}
+
 {% block content %}
-<!-- Hero Section -->
-<section class="page-hero" style="background: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.8)), url('{% static 'images/cars-for-sale-hero.jpg' %}'); background-size: cover; background-position: center;">
+<section class="hero-section">
     <div class="container">
-        <div class="row align-items-center min-vh-50">
+        <div class="row align-items-center hero-content">
             <div class="col-lg-8">
-                <h1 class="display-4 fw-bold text-white mb-3">Cars for Sale</h1>
-                <p class="lead text-white-50 mb-4">Find your dream car from our premium collection</p>
-                <nav aria-label="breadcrumb">
-                    <ol class="breadcrumb">
-                        <li class="breadcrumb-item"><a href="{% url 'car_rental:home' %}" class="text-white-50">Home</a></li>
-                        <li class="breadcrumb-item active text-warning" aria-current="page">Cars for Sale</li>
-                    </ol>
-                </nav>
+                <h1>Acquire Excellence</h1>
+                <p class="lead mb-4">Find your ultimate automotive masterpiece from our exclusive collection.</p>
             </div>
         </div>
     </div>
 </section>
 
 <div class="container my-5">
-    <!-- Search and Filter Section -->
-    <div class="row mb-4">
-        <div class="col-12">
-            <div class="card shadow-sm">
-                <div class="card-body">
-                    <form method="get" action="{% url 'car_rental:sale_cars' %}">
-                        <div class="row g-3">
-                            <div class="col-md-6">
-                                <div class="input-group">
-                                    <span class="input-group-text"><i class="fas fa-search"></i></span>
-                                    <input type="text" class="form-control" placeholder="Search by make, model, or VIN..." name="q" value="{{ request.GET.q }}">
-                                </div>
-                            </div>
-                            <div class="col-md-4">
-                                <select class="form-select" name="type">
-                                    <option value="">All Car Types</option>
-                                    {% for type, display in car_types %}
-                                        <option value="{{ type }}" {% if request.GET.type == type %}selected{% endif %}>{{ display }}</option>
-                                    {% endfor %}
-                                </select>
-                            </div>
-                            <div class="col-md-2">
-                                <button type="submit" class="btn btn-primary w-100">
-                                    <i class="fas fa-filter me-2"></i>Filter
-                                </button>
-                            </div>
+    <div class="search-card card">
+        <div class="card-body p-4">
+            <form method="get" action="{% url 'car_rental:sale_cars' %}">
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="fas fa-search"></i></span>
+                            <input type="text" class="form-control border-start-0" placeholder="Search by make, model, or VIN..." name="q" value="{{ request.GET.q }}">
                         </div>
-                    </form>
+                    </div>
+                    <div class="col-md-4">
+                        <select class="form-select" name="type">
+                            <option value="">All Classifications</option>
+                            {% for type, display in car_types %}
+                                <option value="{{ type }}" {% if request.GET.type == type %}selected{% endif %}>{{ display }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <button type="submit" class="btn btn-primary w-100 fw-bold" style="letter-spacing: 1px;">
+                            <i class="fas fa-filter me-2"></i>FILTER
+                        </button>
+                    </div>
                 </div>
-            </div>
+            </form>
         </div>
     </div>
 
-    <!-- Cars Grid -->
-    <div class="row">
+    <div class="row g-4">
         {% for car in cars %}
-            <div class="col-md-4 mb-4">
-                <div class="card h-100 car-card">
+            <div class="col-md-6 col-lg-4">
+                <div class="car-card">
                     <div class="car-image-container">
-                        <!-- Try multiple approaches to display the image -->
                         {% if car.image %}
-                            <!-- Approach 1: Try direct Cloudinary URL -->
-                            <img src="{{ car.image.url }}" class="card-img-top" alt="{{ car.make }} {{ car.model }}" 
-                                 onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1552519507-da3b142c6e3d?ixlib=rb-4.0.3';">
+                            <img src="{{ car.image.url }}" alt="{{ car.make }} {{ car.model }}" onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1552519507-da3b142c6e3d?ixlib=rb-4.0.3';">
                         {% else %}
-                            <!-- Fallback image -->
-                            <img src="https://images.unsplash.com/photo-1552519507-da3b142c6e3d?ixlib=rb-4.0.3" class="card-img-top" alt="{{ car.make }} {{ car.model }}">
+                            <img src="https://images.unsplash.com/photo-1552519507-da3b142c6e3d?ixlib=rb-4.0.3" alt="{{ car.make }} {{ car.model }}">
                         {% endif %}
                         
-                        <!-- Badges overlay on image -->
                         <div class="car-badges">
                             {% if car.featured %}
-                            <span class="badge bg-warning text-dark">Featured</span>
+                                <span class="badge" style="background-color: var(--primary-color); color: var(--dark-bg); font-weight: 700;">FEATURED</span>
                             {% endif %}
-                            {% if car.status == 'available' %}
-                            <span class="badge bg-success">Available</span>
-                            {% elif car.status == 'rented' %}
-                            <span class="badge bg-danger">Rented</span>
-                            {% endif %}
+                            <span class="badge" style="background-color: rgba(0,0,0,0.7); border: 1px solid rgba(255,255,255,0.2);">{{ car.get_car_type_display }}</span>
                         </div>
                     </div>
                     
-                    <div class="card-body d-flex flex-column">
-                        <div class="d-flex justify-content-between align-items-start mb-2">
-                            <h5 class="card-title">{{ car.year }} {{ car.make }} {{ car.model }}</h5>
-                            {% if car.featured %}
-                                <span class="badge bg-warning">Featured</span>
-                            {% endif %}
+                    <div class="card-body">
+                        <h5 class="card-title">{{ car.year }} {{ car.make }} {{ car.model }}</h5>
+                        
+                        <div class="car-specs">
+                            <span><i class="fas fa-tachometer-alt me-1" style="color: var(--primary-color);"></i> {{ car.mileage }} mi</span>
+                            <span><i class="fas fa-cogs me-1" style="color: var(--primary-color);"></i> {{ car.get_transmission_display }}</span>
                         </div>
                         
-                        <div class="mb-3">
-                            <span class="badge bg-secondary me-2">{{ car.get_car_type_display }}</span>
-                            <span class="badge bg-info me-2">{{ car.get_transmission_display }}</span>
-                            <span class="badge bg-dark">{{ car.get_engine_type_display }}</span>
-                        </div>
-                        
-                        <p class="card-text text-muted">{{ car.description|truncatewords:15 }}</p>
+                        <p class="card-text mb-4" style="color: var(--gray-color); font-size: 0.9rem;">{{ car.description|truncatewords:15 }}</p>
                         
                         <div class="mt-auto">
-                            <div class="d-flex justify-content-between align-items-center mb-3">
+                            <div class="d-flex justify-content-between align-items-end mb-4">
                                 <div>
-                                    <div class="text-muted small">Sale Price</div>
-                                    <div class="h5 text-primary mb-0">₦{{ car.get_sale_price|floatformat:2 }}</div>
+                                    <div class="price-badge">₦{{ car.get_sale_price|floatformat:2 }}</div>
                                 </div>
                                 {% if car.sale_price and car.default_price and car.sale_price < car.default_price %}
                                     <div class="text-end">
-                                        <div class="text-muted small text-decoration-line-through">₦{{ car.default_price|floatformat:2 }}</div>
-                                        <div class="text-success small">Save ₦{{ car.default_price|subtract:car.sale_price|floatformat:2 }}</div>
+                                        <div style="color: var(--gray-color); font-size: 0.85rem; text-decoration: line-through;">₦{{ car.default_price|floatformat:2 }}</div>
+                                        <div style="color: #4ade80; font-size: 0.85rem; font-weight: 600;">Save ₦{{ car.default_price|subtract:car.sale_price|floatformat:0 }}</div>
                                     </div>
                                 {% endif %}
                             </div>
                             
                             <div class="d-grid gap-2">
-                                <a href="{% url 'car_rental:car_detail' car.pk %}" class="btn btn-outline-primary btn-sm">
-                                    <i class="fas fa-eye me-2"></i>View Details
+                                <a href="{% url 'car_rental:car_detail' car.pk %}" class="btn btn-outline-primary py-2 fw-bold">
+                                    View Full Details
                                 </a>
-                                <a href="{% url 'car_rental:customer_purchase' car.id %}" class="btn btn-primary btn-sm">
-                                    <i class="fas fa-shopping-cart me-2"></i>Buy Now
+                                <a href="{% url 'car_rental:customer_purchase' car.id %}" class="btn btn-primary py-2 fw-bold">
+                                    Initiate Acquisition
                                 </a>
                             </div>
                         </div>
@@ -131,22 +279,23 @@
             </div>
         {% empty %}
             <div class="col-12">
-                <div class="alert alert-info text-center">
-                    <i class="fas fa-info-circle me-2"></i>
-                    No cars available for sale at the moment. Please check back later.
+                <div class="no-cars-alert">
+                    <i class="fas fa-car-slash fa-3x mb-3" style="color: rgba(255,255,255,0.1);"></i>
+                    <h4 style="color: var(--dark-color); font-family: var(--font-family-playfair);">Showroom Empty</h4>
+                    <p style="color: var(--gray-color);">No vehicles are currently available for purchase matching those parameters.</p>
+                    <a href="{% url 'car_rental:sale_cars' %}" class="btn btn-outline-primary mt-3 px-4 py-2">Clear Filters</a>
                 </div>
             </div>
         {% endfor %}
     </div>
 
-    <!-- Pagination -->
     {% if is_paginated %}
-        <nav aria-label="Page navigation">
+        <nav aria-label="Page navigation" class="mt-5">
             <ul class="pagination justify-content-center">
                 {% if page_obj.has_previous %}
                     <li class="page-item">
                         <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if current_query %}&{{ current_query }}{% endif %}" aria-label="Previous">
-                            <span aria-hidden="true">&laquo;</span>
+                            <i class="fas fa-chevron-left"></i>
                         </a>
                     </li>
                 {% endif %}
@@ -162,7 +311,7 @@
                 {% if page_obj.has_next %}
                     <li class="page-item">
                         <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if current_query %}&{{ current_query }}{% endif %}" aria-label="Next">
-                            <span aria-hidden="true">&raquo;</span>
+                            <i class="fas fa-chevron-right"></i>
                         </a>
                     </li>
                 {% endif %}
@@ -170,93 +319,4 @@
         </nav>
     {% endif %}
 </div>
-
-<style>
-    .car-card {
-        transition: all 0.3s ease;
-        overflow: hidden;
-    }
-    
-    .car-card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
-    }
-    
-    .car-image-container {
-        position: relative;
-        height: 200px;
-        overflow: hidden;
-        background-color: #f8f9fa;
-    }
-    
-    .car-image-container img {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-        transition: transform 0.3s ease;
-    }
-    
-    .car-card:hover .car-image-container img {
-        transform: scale(1.05);
-    }
-    
-    .car-badges {
-        position: absolute;
-        top: 10px;
-        right: 10px;
-        display: flex;
-        flex-direction: column;
-        gap: 5px;
-        z-index: 2;
-    }
-    
-    .page-hero {
-        position: relative;
-        padding: 80px 0;
-        margin-bottom: 50px;
-    }
-    
-    .page-hero::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        background: linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.6));
-        z-index: 1;
-    }
-    
-    .page-hero .container {
-        position: relative;
-        z-index: 2;
-    }
-    
-    .min-vh-50 {
-        min-height: 50vh;
-    }
-</style>
-
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        // Add loading animation to images
-        const images = document.querySelectorAll('.car-image-container img');
-        
-        images.forEach(img => {
-            img.addEventListener('load', function() {
-                this.style.opacity = '1';
-            });
-            
-            img.addEventListener('error', function() {
-                // If image fails to load, use a placeholder
-                this.src = 'https://images.unsplash.com/photo-1552519507-da3b142c6e3d?ixlib=rb-4.0.3';
-                this.style.opacity = '1';
-            });
-            
-            // Set initial opacity for smooth loading
-            img.style.opacity = '0';
-            img.style.transition = 'opacity 0.3s ease';
-        });
-    });
-</script>
 {% endblock %}

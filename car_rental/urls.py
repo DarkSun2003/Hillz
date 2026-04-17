@@ -76,6 +76,7 @@ urlpatterns = [
     path('purchases/<int:pk>/update/', views.UpdatePurchaseView.as_view(), name='update_purchase'),
     path('purchase/success/', views.PurchaseSuccessView.as_view(), name='purchase_success'),
     path('whatsapp-purchase-success/', views.WhatsAppPurchaseSuccessView.as_view(), name='whatsapp_purchase_success'),
+    path('purchases/', views.PurchasesListView.as_view(), name='purchases'),
     
     # Rating URLs
     path('rate/rental/<int:rental_id>/', views.SubmitRentalRatingView.as_view(), name='submit_rental_rating'),

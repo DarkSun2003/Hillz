@@ -1,201 +1,119 @@
 {% extends 'base.html' %}
 {% load static %}
 
-{% block title %}Purchase Details - {% if purchase.car %}{{ purchase.car.make }} {{ purchase.car.model }} - {% endif %}{{ site_info.company_name }}{% endblock %}
+{% block title %}Purchase Details - {% if purchase.car %}{{ purchase.car.make }} {{ purchase.car.model }} - {% endif %}{% if site_info %}{{ site_info.company_name }}{% else %}Hillz Exquisite{% endif %}{% endblock %}
 
 {% block extra_css %}
 <style>
-    .page-header {
-        background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
-        border-radius: 15px;
-        padding: 2rem;
-        margin-bottom: 2rem;
-        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
-    }
+    .invoice-wrapper { padding: 3rem 0; }
     
-    .page-header h1 {
-        font-weight: 700;
-        color: #2c3e50;
-        margin-bottom: 0.5rem;
-    }
-    
-    .page-header p {
-        color: #6c757d;
-        font-size: 1.1rem;
-    }
-    
-    .info-card {
-        border-radius: 15px;
-        box-shadow: 0 5px 25px rgba(0, 0, 0, 0.07);
-        border: none;
+    .invoice-card {
+        background-color: var(--secondary-color);
+        border: 1px solid rgba(255,255,255,0.05);
+        border-radius: 16px;
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
         overflow: hidden;
+        margin-bottom: 2rem;
+    }
+    
+    .invoice-header {
+        background: linear-gradient(45deg, rgba(0,0,0,0.8), rgba(184, 115, 51, 0.2));
+        border-bottom: 1px solid rgba(255,255,255,0.05);
+        padding: 2rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 1rem;
+    }
+
+    .section-title {
+        color: var(--dark-color);
+        font-family: var(--font-family-playfair);
+        font-size: 1.2rem;
         margin-bottom: 1.5rem;
-        transition: transform 0.3s ease;
+        padding-bottom: 0.5rem;
+        border-bottom: 1px solid rgba(255,255,255,0.05);
     }
-    
-    .info-card:hover {
-        transform: translateY(-5px);
-    }
-    
-    .info-card .card-header {
-        padding: 1rem 1.25rem;
-        border: none;
-    }
-    
-    .info-card .card-body {
-        padding: 1.5rem;
-    }
-    
-    .info-card .card-title {
-        font-weight: 700;
-        margin-bottom: 0;
-    }
-    
-    .info-card .card-header.bg-dark {
-        background: linear-gradient(45deg, #2c3e50, #34495e) !important;
-    }
-    
-    .info-card .card-header.bg-primary {
-        background: linear-gradient(45deg, #007bff, #0056b3) !important;
-    }
-    
-    .info-card .card-header.bg-success {
-        background: linear-gradient(45deg, #28a745, #1e7e34) !important;
-    }
-    
-    .info-card .card-header.bg-warning {
-        background: linear-gradient(45deg, #ffc107, #e0a800) !important;
-    }
-    
-    .info-card .card-header.bg-info {
-        background: linear-gradient(45deg, #17a2b8, #138496) !important;
-    }
-    
-    .info-card .card-header.bg-secondary {
-        background: linear-gradient(45deg, #6c757d, #5a6268) !important;
-    }
-    
+
     .detail-row {
         display: flex;
         justify-content: space-between;
-        padding: 0.75rem 0;
-        border-bottom: 1px solid #f1f3f4;
+        margin-bottom: 0.75rem;
+        font-size: 0.95rem;
     }
-    
-    .detail-row:last-child {
-        border-bottom: none;
+
+    .detail-label { color: var(--gray-color); }
+    .detail-value { color: var(--text-color); font-weight: 500; text-align: right; }
+
+    .car-image {
+        width: 100%;
+        height: 200px;
+        object-fit: cover;
+        border-radius: 12px;
+        border: 1px solid rgba(255,255,255,0.05);
+        margin-bottom: 1.5rem;
     }
-    
-    .detail-label {
-        font-weight: 600;
-        color: #6c757d;
+
+    .total-box {
+        background-color: var(--dark-bg);
+        border: 1px solid rgba(184, 115, 51, 0.2);
+        border-radius: 12px;
+        padding: 1.5rem;
+        text-align: center;
+        margin-top: 1rem;
     }
-    
-    .detail-value {
-        font-weight: 500;
-        color: #2c3e50;
-    }
-    
+
     .status-badge {
-        display: inline-block;
-        padding: 0.5rem 1rem;
+        padding: 0.5em 1em;
         border-radius: 50px;
+        font-size: 0.85rem;
         font-weight: 600;
-        text-transform: uppercase;
         letter-spacing: 0.5px;
+        text-transform: uppercase;
+        display: inline-block;
         width: 100%;
         text-align: center;
-        margin-bottom: 1rem;
     }
     
-    .status-badge.pending {
-        background-color: #fff3cd;
-        color: #856404;
-    }
-    
-    .status-badge.processing {
-        background-color: #d1ecf1;
-        color: #0c5460;
-    }
-    
-    .status-badge.shipped {
-        background-color: #d1ecf1;
-        color: #0c5460;
-    }
-    
-    .status-badge.delivered {
-        background-color: #d4edda;
-        color: #155724;
-    }
-    
-    .status-badge.cancelled {
-        background-color: #f8d7da;
-        color: #721c24;
-    }
-    
-    .status-badge.paid {
-        background-color: #d4edda;
-        color: #155724;
-    }
-    
-    .status-badge.financed {
-        background-color: #d1ecf1;
-        color: #0c5460;
-    }
-    
-    .btn-action {
-        border-radius: 50px;
-        padding: 0.75rem 1.25rem;
-        font-weight: 600;
-        transition: all 0.3s ease;
-        margin-bottom: 0.75rem;
+    .status-badge.pending { background-color: rgba(251, 191, 36, 0.1); color: #fbbf24; border: 1px solid rgba(251, 191, 36, 0.2); }
+    .status-badge.processing, .status-badge.shipped { background-color: rgba(13, 202, 240, 0.1); color: #0dcaf0; border: 1px solid rgba(13, 202, 240, 0.2); }
+    .status-badge.delivered, .status-badge.paid { background-color: rgba(74, 222, 128, 0.1); color: #4ade80; border: 1px solid rgba(74, 222, 128, 0.2); }
+    .status-badge.cancelled { background-color: rgba(255, 107, 107, 0.1); color: #ff6b6b; border: 1px solid rgba(255, 107, 107, 0.2); }
+
+    .btn-action { 
+        border-radius: 50px; 
+        padding: 0.6rem 1.5rem; 
+        font-weight: 600; 
+        transition: var(--transition); 
+        text-decoration: none;
         display: flex;
-        align-items: center;
         justify-content: center;
+        align-items: center;
+        margin-bottom: 0.75rem;
     }
-    
-    .btn-action:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-    }
-    
-    .btn-warning {
-        background: linear-gradient(45deg, #ffc107, #e0a800);
+
+    .btn-warning-custom {
+        background-color: var(--primary-color);
+        color: var(--dark-bg);
         border: none;
-        color: #212529;
     }
-    
-    .btn-warning:hover {
-        background: linear-gradient(45deg, #e0a800, #d39e00);
-        color: #212529;
+
+    .btn-warning-custom:hover {
+        background-color: #a0632a;
+        color: var(--dark-bg);
     }
-    
-    .btn-outline-secondary {
-        border: 2px solid #6c757d;
-        color: #6c757d;
+
+    .btn-outline-custom {
+        border: 1px solid var(--gray-color);
+        color: var(--text-color);
+        background-color: transparent;
     }
-    
-    .btn-outline-secondary:hover {
-        background-color: #6c757d;
-        color: white;
-    }
-    
-    .btn-outline-success {
-        border: 2px solid #28a745;
-        color: #28a745;
-    }
-    
-    .btn-outline-success:hover {
-        background-color: #28a745;
-        color: white;
-    }
-    
-    .no-vehicle {
-        background-color: #f8f9fa;
-        border-radius: 10px;
-        padding: 1rem;
-        color: #6c757d;
-        font-style: italic;
+
+    .btn-outline-custom:hover {
+        border-color: var(--primary-color);
+        color: var(--primary-color);
+        background-color: rgba(184, 115, 51, 0.05);
     }
     
     .warranty-status {
@@ -206,201 +124,132 @@
         font-size: 0.85rem;
     }
     
-    .warranty-status.valid {
-        background-color: #d4edda;
-        color: #155724;
-    }
-    
-    .warranty-status.expired {
-        background-color: #f8d7da;
-        color: #721c24;
-    }
-    
-    .icon-badge {
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        width: 40px;
-        height: 40px;
-        border-radius: 50%;
-        background-color: #f8f9fa;
-        color: #007bff;
-        margin-right: 1rem;
-        font-size: 1.2rem;
-    }
-    
-    @media (max-width: 768px) {
-        .page-header {
-            padding: 1.5rem;
-        }
-        
-        .page-header h1 {
-            font-size: 1.5rem;
-        }
-        
-        .detail-row {
-            flex-direction: column;
-        }
-        
-        .detail-value {
-            margin-top: 0.25rem;
-        }
-    }
+    .warranty-status.valid { background-color: rgba(74, 222, 128, 0.1); color: #4ade80; border: 1px solid rgba(74, 222, 128, 0.2); }
+    .warranty-status.expired { background-color: rgba(255, 107, 107, 0.1); color: #ff6b6b; border: 1px solid rgba(255, 107, 107, 0.2); }
 </style>
 {% endblock %}
 
 {% block content %}
-<div class="container my-5">
-    <div class="page-header">
-        <div class="d-flex align-items-center">
-            <div class="icon-badge">
-                <i class="fas fa-shopping-cart"></i>
-            </div>
-            <div>
-                <h1>Purchase Details</h1>
-                <p>View detailed information about this purchase</p>
-            </div>
-        </div>
+<div class="container invoice-wrapper">
+    <div class="mb-4">
+        <a href="javascript:history.back()" class="text-decoration-none" style="color: var(--gray-color); transition: 0.3s;" onmouseover="this.style.color='var(--primary-color)';" onmouseout="this.style.color='var(--gray-color)';">
+            <i class="fas fa-arrow-left me-2"></i> Back
+        </a>
     </div>
-    
-    <div class="row">
+
+    <div class="row g-4">
         <div class="col-lg-8">
-            <div class="card info-card">
-                <div class="card-header bg-dark text-white">
-                    <h5 class="card-title"><i class="fas fa-receipt me-2"></i>Purchase Information</h5>
+            <div class="invoice-card">
+                <div class="invoice-header">
+                    <div>
+                        <h3 class="mb-1" style="color: var(--dark-color); font-family: var(--font-family-playfair);">Acquisition Invoice #{{ purchase.id }}</h3>
+                        <div style="color: var(--gray-color);">Initiated: {{ purchase.purchase_datetime|date:"M d, Y" }}</div>
+                    </div>
                 </div>
-                <div class="card-body">
-                    <div class="row">
+
+                <div class="card-body p-4 p-md-5">
+                    <div class="row g-5">
                         <div class="col-md-6">
+                            <h4 class="section-title">Client Details</h4>
                             <div class="detail-row">
-                                <span class="detail-label">Customer:</span>
+                                <span class="detail-label">Name</span>
                                 <span class="detail-value">{{ purchase.customer.name }}</span>
                             </div>
                             <div class="detail-row">
-                                <span class="detail-label">Email:</span>
+                                <span class="detail-label">Email</span>
                                 <span class="detail-value">{{ purchase.customer.email }}</span>
                             </div>
                             <div class="detail-row">
-                                <span class="detail-label">Phone:</span>
+                                <span class="detail-label">Phone</span>
                                 <span class="detail-value">{{ purchase.customer.phone|default:"N/A" }}</span>
                             </div>
                         </div>
+
                         <div class="col-md-6">
+                            <h4 class="section-title">Logistics Timeline</h4>
                             <div class="detail-row">
-                                <span class="detail-label">Purchase Date:</span>
+                                <span class="detail-label">Initiated</span>
                                 <span class="detail-value">{{ purchase.purchase_datetime|date:"F d, Y" }}</span>
                             </div>
                             <div class="detail-row">
-                                <span class="detail-label">Expected Delivery:</span>
+                                <span class="detail-label">Expected Delivery</span>
                                 <span class="detail-value">{{ purchase.delivery_datetime|date:"F d, Y"|default:"N/A" }}</span>
                             </div>
                             <div class="detail-row">
-                                <span class="detail-label">Actual Delivery:</span>
+                                <span class="detail-label">Actual Delivery</span>
                                 <span class="detail-value">{{ purchase.actual_delivery_datetime|date:"F d, Y"|default:"N/A" }}</span>
                             </div>
                         </div>
                     </div>
-                </div>
-            </div>
-            
-            {% if purchase.car %}
-            <div class="card info-card">
-                <div class="card-header bg-primary text-white">
-                    <h5 class="card-title"><i class="fas fa-car me-2"></i>Vehicle Information</h5>
-                </div>
-                <div class="card-body">
-                    <div class="row">
-                        <div class="col-md-6">
-                            <div class="detail-row">
-                                <span class="detail-label">Make:</span>
-                                <span class="detail-value">{{ purchase.car.make }}</span>
+
+                    <h4 class="section-title mt-5">Vehicle Allocated</h4>
+                    {% if purchase.car %}
+                        {% if purchase.car.image %}
+                            <img src="{{ purchase.car.image.url }}" alt="{{ purchase.car.make }}" class="car-image">
+                        {% endif %}
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="detail-row">
+                                    <span class="detail-label">Make & Model</span>
+                                    <span class="detail-value">{{ purchase.car.make }} {{ purchase.car.model }}</span>
+                                </div>
+                                <div class="detail-row">
+                                    <span class="detail-label">Year</span>
+                                    <span class="detail-value">{{ purchase.car.year }}</span>
+                                </div>
                             </div>
-                            <div class="detail-row">
-                                <span class="detail-label">Model:</span>
-                                <span class="detail-value">{{ purchase.car.model }}</span>
-                            </div>
-                            <div class="detail-row">
-                                <span class="detail-label">Year:</span>
-                                <span class="detail-value">{{ purchase.car.year }}</span>
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="detail-row">
-                                <span class="detail-label">VIN:</span>
-                                <span class="detail-value">{{ purchase.car.vin|default:"N/A" }}</span>
-                            </div>
-                            <div class="detail-row">
-                                <span class="detail-label">Mileage:</span>
-                                <span class="detail-value">{{ purchase.car.mileage }} miles</span>
-                            </div>
-                            <div class="detail-row">
-                                <span class="detail-label">Color:</span>
-                                <span class="detail-value">{{ purchase.car.color|default:"N/A" }}</span>
+                            <div class="col-md-6">
+                                <div class="detail-row">
+                                    <span class="detail-label">VIN</span>
+                                    <span class="detail-value" style="font-family: monospace;">{{ purchase.car.vin|default:"N/A" }}</span>
+                                </div>
+                                <div class="detail-row">
+                                    <span class="detail-label">Mileage</span>
+                                    <span class="detail-value">{{ purchase.car.mileage }} miles</span>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                </div>
-            </div>
-            {% else %}
-            <div class="card info-card">
-                <div class="card-header bg-primary text-white">
-                    <h5 class="card-title"><i class="fas fa-car me-2"></i>Vehicle Information</h5>
-                </div>
-                <div class="card-body">
-                    <div class="no-vehicle">
-                        <i class="fas fa-exclamation-triangle me-2"></i>
-                        Vehicle information is no longer available as the car has been removed from our system.
-                    </div>
-                </div>
-            </div>
-            {% endif %}
-            
-            <div class="card info-card">
-                <div class="card-header bg-success text-white">
-                    <h5 class="card-title"><i class="fas fa-dollar-sign me-2"></i>Pricing Information</h5>
-                </div>
-                <div class="card-body">
+                    {% else %}
+                        <div class="alert text-center" style="background-color: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: var(--gray-color);">
+                            <i class="fas fa-exclamation-triangle me-2"></i> Vehicle information is no longer available in the active database.
+                        </div>
+                    {% endif %}
+
+                    <h4 class="section-title mt-5">Financial Ledger</h4>
                     <div class="row">
-                        <div class="col-md-6">
+                        <div class="col-md-6 offset-md-6">
                             <div class="detail-row">
-                                <span class="detail-label">Purchase Price:</span>
+                                <span class="detail-label">Base Price</span>
                                 <span class="detail-value">₦{{ purchase.purchase_price|floatformat:2 }}</span>
                             </div>
                             <div class="detail-row">
-                                <span class="detail-label">Taxes:</span>
+                                <span class="detail-label">Taxes</span>
                                 <span class="detail-value">₦{{ purchase.taxes|floatformat:2 }}</span>
                             </div>
                             <div class="detail-row">
-                                <span class="detail-label">Fees:</span>
+                                <span class="detail-label">Administrative Fees</span>
                                 <span class="detail-value">₦{{ purchase.fees|floatformat:2 }}</span>
                             </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="detail-row">
-                                <span class="detail-label">Total Amount:</span>
-                                <span class="detail-value">₦{{ purchase.total_amount|floatformat:2 }}</span>
+                            <div class="total-box mt-3">
+                                <div style="color: var(--gray-color); text-transform: uppercase; letter-spacing: 1px; font-size: 0.85rem; margin-bottom: 0.5rem;">Gross Total</div>
+                                <div style="color: var(--primary-color); font-size: 2rem; font-family: var(--font-family-playfair); font-weight: 700; line-height: 1;">
+                                    ₦{{ purchase.total_amount|floatformat:2 }}
+                                </div>
                             </div>
                         </div>
                     </div>
-                </div>
-            </div>
-            
-            {% if purchase.warranty_expiry %}
-            <div class="card info-card">
-                <div class="card-header bg-info text-white">
-                    <h5 class="card-title"><i class="fas fa-shield-alt me-2"></i>Warranty Information</h5>
-                </div>
-                <div class="card-body">
-                    <div class="row">
+
+                    {% if purchase.warranty_expiry or purchase.delivery_address %}
+                    <div class="row g-5 mt-3">
+                        {% if purchase.warranty_expiry %}
                         <div class="col-md-6">
+                            <h4 class="section-title">Warranty Coverage</h4>
                             <div class="detail-row">
-                                <span class="detail-label">Warranty Expiry:</span>
+                                <span class="detail-label">Expiration Date</span>
                                 <span class="detail-value">{{ purchase.warranty_expiry|date:"F d, Y" }}</span>
                             </div>
-                        </div>
-                        <div class="col-md-6">
                             <div class="detail-row">
-                                <span class="detail-label">Warranty Status:</span>
+                                <span class="detail-label">Status</span>
                                 <span class="detail-value">
                                     {% if purchase.warranty_expiry > today %}
                                         <span class="warranty-status valid">Valid</span>
@@ -409,88 +258,80 @@
                                     {% endif %}
                                 </span>
                             </div>
+                            {% if purchase.warranty_terms %}
+                                <div class="mt-3">
+                                    <span class="detail-label d-block mb-1">Terms</span>
+                                    <p style="color: var(--text-color); font-size: 0.9rem;">{{ purchase.warranty_terms }}</p>
+                                </div>
+                            {% endif %}
                         </div>
-                    </div>
-                    {% if purchase.warranty_terms %}
-                    <div class="mt-3">
-                        <h6>Warranty Terms:</h6>
-                        <p class="mb-0">{{ purchase.warranty_terms }}</p>
-                    </div>
-                    {% endif %}
-                </div>
-            </div>
-            {% endif %}
-            
-            {% if purchase.delivery_address %}
-            <div class="card info-card">
-                <div class="card-header bg-secondary text-white">
-                    <h5 class="card-title"><i class="fas fa-truck me-2"></i>Delivery Information</h5>
-                </div>
-                <div class="card-body">
-                    <div class="mb-3">
-                        <h6>Delivery Address:</h6>
-                        <p class="mb-0">{{ purchase.delivery_address }}</p>
-                    </div>
-                    {% if purchase.delivery_notes %}
-                    <div>
-                        <h6>Delivery Notes:</h6>
-                        <p class="mb-0">{{ purchase.delivery_notes }}</p>
-                    </div>
-                    {% endif %}
-                </div>
-            </div>
-            {% endif %}
-        </div>
-        
-        <div class="col-lg-4">
-            <div class="card info-card">
-                <div class="card-header bg-dark text-white">
-                    <h5 class="card-title"><i class="fas fa-info-circle me-2"></i>Status Information</h5>
-                </div>
-                <div class="card-body">
-                    <div class="mb-3">
-                        <label class="form-label fw-bold">Purchase Status</label>
-                        <div class="status-badge {{ purchase.status }}">
-                            {{ purchase.get_status_display }}
-                        </div>
-                    </div>
-                    
-                    <div class="mb-3">
-                        <label class="form-label fw-bold">Payment Status</label>
-                        <div class="status-badge {{ purchase.payment_status }}">
-                            {{ purchase.get_payment_status_display }}
-                        </div>
-                    </div>
-                    
-                    {% if request.user.is_superuser %}
-                    <a href="{% url 'car_rental:update_purchase' purchase.id %}" class="btn btn-action btn-warning w-100">
-                        <i class="fas fa-edit me-2"></i> Update Purchase
-                    </a>
-                    {% endif %}
-                </div>
-            </div>
-            
-            <div class="card info-card">
-                <div class="card-header bg-info text-white">
-                    <h5 class="card-title"><i class="fas fa-tasks me-2"></i>Actions</h5>
-                </div>
-                <div class="card-body">
-                    <div class="d-grid gap-2">
-                        <a href="{% url 'car_rental:customers' %}" class="btn btn-action btn-outline-secondary">
-                            <i class="fas fa-users me-2"></i> View All Customers
-                        </a>
-                        
-                        {% if purchase.customer.phone %}
-                        <a href="https://wa.me/{{ purchase.customer.phone|cut:'+'|cut:' ' }}" target="_blank" class="btn btn-action btn-outline-success">
-                            <i class="fab fa-whatsapp me-2"></i> Contact Customer
-                        </a>
                         {% endif %}
-                        
-                        <a href="{% url 'car_rental:home' %}" class="btn btn-action btn-outline-primary">
-                            <i class="fas fa-home me-2"></i> Back to Home
-                        </a>
+
+                        {% if purchase.delivery_address %}
+                        <div class="col-md-6">
+                            <h4 class="section-title">Logistics Details</h4>
+                            <div class="mb-3">
+                                <span class="detail-label d-block mb-1">Destination</span>
+                                <p style="color: var(--text-color); font-size: 0.95rem;">{{ purchase.delivery_address }}</p>
+                            </div>
+                            {% if purchase.delivery_notes %}
+                            <div>
+                                <span class="detail-label d-block mb-1">Concierge Notes</span>
+                                <p style="color: var(--text-color); font-size: 0.95rem;">{{ purchase.delivery_notes }}</p>
+                            </div>
+                            {% endif %}
+                        </div>
+                        {% endif %}
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <div class="invoice-card p-4">
+                <h4 class="section-title mb-4"><i class="fas fa-info-circle me-2" style="color: var(--primary-color);"></i>Status Monitor</h4>
+                
+                <div class="mb-4">
+                    <label style="color: var(--gray-color); text-transform: uppercase; font-size: 0.8rem; margin-bottom: 0.5rem; display: block;">Logistics Status</label>
+                    <div class="status-badge {{ purchase.status }}">
+                        {{ purchase.get_status_display }}
                     </div>
                 </div>
+                
+                <div class="mb-4">
+                    <label style="color: var(--gray-color); text-transform: uppercase; font-size: 0.8rem; margin-bottom: 0.5rem; display: block;">Financial Status</label>
+                    <div class="status-badge {{ purchase.payment_status }}">
+                        {{ purchase.get_payment_status_display }}
+                    </div>
+                </div>
+                
+                {% if request.user.is_superuser %}
+                <hr style="border-color: rgba(255,255,255,0.05); margin: 1.5rem 0;">
+                <a href="{% url 'car_rental:update_purchase' purchase.id %}" class="btn btn-action btn-warning-custom w-100">
+                    <i class="fas fa-edit me-2"></i> Update Ledger (Admin)
+                </a>
+                {% endif %}
+            </div>
+            
+            <div class="invoice-card p-4">
+                <h4 class="section-title mb-4"><i class="fas fa-tasks me-2" style="color: var(--primary-color);"></i>Quick Actions</h4>
+                
+                {% if request.user.is_superuser %}
+                <a href="{% url 'car_rental:customers' %}" class="btn btn-action btn-outline-custom w-100">
+                    <i class="fas fa-users me-2"></i> Client Database
+                </a>
+                {% endif %}
+                
+                {% if purchase.customer.phone %}
+                <a href="https://wa.me/{{ purchase.customer.phone|cut:'+'|cut:' ' }}" target="_blank" class="btn btn-action w-100" style="border: 1px solid #25d366; color: #25d366; background-color: transparent;">
+                    <i class="fab fa-whatsapp me-2"></i> Message Client
+                </a>
+                {% endif %}
+                
+                <a href="{% url 'car_rental:home' %}" class="btn btn-action btn-outline-custom w-100">
+                    <i class="fas fa-home me-2"></i> Return to Homepage
+                </a>
             </div>
         </div>
     </div>

@@ -4,514 +4,296 @@
 
 {% block extra_css %}
 <style>
-    .hero-contact {
-        background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url('https://images.unsplash.com/photo-1516321318423-f06f85e504b3?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1950&q=80');
+    .contact-hero {
+        background: linear-gradient(to bottom, rgba(0,0,0,0.9), var(--light-color)), url('https://images.unsplash.com/photo-1516321318423-f06f85e504b3?ixlib=rb-4.0.3');
         background-size: cover;
         background-position: center;
         background-attachment: fixed;
-        color: white;
-        padding: 8rem 0;
-        border-radius: 0;
-        margin-bottom: 3rem;
-        position: relative;
-        overflow: hidden;
+        padding: 120px 0 60px;
+        border-bottom: 1px solid rgba(255,255,255,0.05);
     }
-    
-    .hero-contact::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        background: linear-gradient(135deg, rgba(212, 175, 55, 0.8) 0%, rgba(66, 66, 66, 0.8) 100%);
-        z-index: 1;
-    }
-    
-    .hero-content {
-        position: relative;
-        z-index: 2;
-        text-align: center;
-        max-width: 800px;
-        margin: 0 auto;
-    }
-    
-    .hero-contact h1 {
-        font-size: 3.5rem;
-        font-weight: 700;
-        margin-bottom: 1.5rem;
-        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
-        animation: fadeInDown 1s ease-out;
-    }
-    
-    .hero-contact .lead {
-        font-size: 1.5rem;
-        margin-bottom: 2rem;
-        text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
-        animation: fadeInUp 1s ease-out 0.3s both;
-    }
-    
+
     .contact-card {
-        border-radius: 15px;
-        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-        border: none;
-        overflow: hidden;
-        transition: all 0.3s ease;
-        height: 100%;
-    }
-    
-    .contact-card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
-    }
-    
-    .contact-card .card-header {
-        background: linear-gradient(45deg, #d4af37, #f5d76e);
-        color: white;
-        border: none;
-        padding: 1.5rem;
-    }
-    
-    .contact-card .card-header h5 {
-        font-size: 1.3rem;
-        font-weight: 600;
-        margin: 0;
-    }
-    
-    .contact-card .card-body {
-        padding: 2rem;
-    }
-    
-    .form-control, .form-select {
-        border-radius: 10px;
-        border: 1px solid #e0e0e0;
-        padding: 0.8rem 1rem;
-        font-size: 1rem;
-        transition: all 0.3s ease;
-    }
-    
-    .form-control:focus, .form-select:focus {
-        border-color: #d4af37;
-        box-shadow: 0 0 0 0.25rem rgba(212, 175, 55, 0.25);
-    }
-    
-    .form-label {
-        font-weight: 600;
-        color: #333;
-        margin-bottom: 0.5rem;
-    }
-    
-    /* Email Button */
-    .btn-primary {
-        background: linear-gradient(45deg, #d4af37, #f5d76e);
-        border: none;
-        border-radius: 50px;
-        padding: 0.8rem 2rem;
-        font-weight: 600;
-        font-size: 1rem;
-        transition: all 0.3s ease;
-        display: inline-flex;
-        align-items: center;
-        color: #212529;
-    }
-    
-    .btn-primary:hover {
-        background: linear-gradient(45deg, #b8941f, #d4af37);
-        transform: translateY(-2px);
-        box-shadow: 0 5px 15px rgba(212, 175, 55, 0.3);
-        color: #212529;
+        background-color: var(--secondary-color);
+        border-radius: 16px;
+        border: 1px solid rgba(255,255,255,0.05);
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+        padding: 3rem;
     }
 
-    /* WhatsApp Button Styles */
-    .btn-whatsapp {
-        background: linear-gradient(45deg, #25D366, #128C7E);
-        border: none;
-        border-radius: 50px;
-        padding: 0.8rem 2rem;
-        font-weight: 600;
-        font-size: 1rem;
-        transition: all 0.3s ease;
-        display: inline-flex;
-        align-items: center;
-        color: white;
+    .form-control {
+        background-color: var(--dark-bg);
+        border: 1px solid rgba(255,255,255,0.1);
+        color: var(--text-color);
+        border-radius: 8px;
+        padding: 1rem;
+        transition: var(--transition);
     }
 
-    .btn-whatsapp:hover {
-        background: linear-gradient(45deg, #128C7E, #075E54);
-        transform: translateY(-2px);
-        box-shadow: 0 5px 15px rgba(37, 211, 102, 0.3);
-        color: white;
+    .form-control:focus {
+        background-color: rgba(0,0,0,0.8);
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 0.25rem rgba(184, 115, 51, 0.25);
+        color: var(--text-color);
     }
 
-    .form-actions {
-        display: flex;
-        gap: 1rem;
-        flex-wrap: wrap;
+    .form-control::placeholder {
+        color: var(--gray-color);
     }
-    
+
     .info-item {
         display: flex;
-        align-items: center;
-        margin-bottom: 1.5rem;
+        align-items: flex-start;
+        margin-bottom: 2rem;
     }
-    
+
     .info-icon {
-        width: 50px;
-        height: 50px;
-        border-radius: 50%;
-        background: linear-gradient(45deg, #d4af37, #f5d76e);
-        color: #212529;
+        width: 48px;
+        height: 48px;
+        border-radius: 12px;
+        background-color: rgba(184, 115, 51, 0.1);
+        color: var(--primary-color);
         display: flex;
         align-items: center;
         justify-content: center;
-        margin-right: 1rem;
-        font-size: 1.2rem;
+        font-size: 1.25rem;
+        margin-right: 1.5rem;
         flex-shrink: 0;
+        border: 1px solid rgba(184, 115, 51, 0.2);
     }
-    
-    .info-text {
-        flex-grow: 1;
-    }
-    
+
     .info-text h6 {
-        font-weight: 600;
-        margin-bottom: 0.2rem;
-        color: #333;
+        color: var(--dark-color);
+        font-weight: 700;
+        margin-bottom: 0.25rem;
+        font-family: var(--font-family-poppins);
+        letter-spacing: 0.5px;
     }
-    
+
     .info-text p {
+        color: var(--gray-color);
         margin-bottom: 0;
-        color: #666;
+        font-size: 0.95rem;
     }
-    
-    .hours-table {
-        width: 100%;
-        border-collapse: collapse;
-        margin-top: 1rem;
-    }
-    
-    .hours-table th, .hours-table td {
-        padding: 0.8rem;
-        border-bottom: 1px solid #eee;
-    }
-    
-    .hours-table th {
-        font-weight: 600;
-        color: #333;
-    }
-    
-    .hours-table td:last-child {
-        text-align: right;
-        font-weight: 500;
-    }
-    
+
+    /* Map Styling */
     #dynamic-map {
-        border-radius: 15px;
+        border-radius: 16px;
         overflow: hidden;
-        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        border: 1px solid rgba(255,255,255,0.05);
+        height: 100%;
+        min-height: 400px;
     }
-    
+
     .map-fallback {
-        height: 300px;
+        height: 100%;
+        min-height: 400px;
         display: flex;
         flex-direction: column;
         align-items: center;
         justify-content: center;
-        background-color: #f8f9fa;
-        border-radius: 15px;
+        background-color: var(--dark-bg);
+        border-radius: 16px;
+        border: 1px solid rgba(255,255,255,0.05);
         padding: 2rem;
         text-align: center;
     }
-    
-    @keyframes fadeInDown {
-        from { opacity: 0; transform: translateY(-20px); }
-        to { opacity: 1; transform: translateY(0); }
+
+    .btn-whatsapp {
+        background-color: rgba(37, 211, 102, 0.1);
+        color: #25D366;
+        border: 1px solid rgba(37, 211, 102, 0.3);
     }
     
-    @keyframes fadeInUp {
-        from { opacity: 0; transform: translateY(20px); }
-        to { opacity: 1; transform: translateY(0); }
+    .btn-whatsapp:hover {
+        background-color: #25D366;
+        color: var(--dark-bg);
+    }
+
+    @media (max-width: 991px) {
+        .contact-card {
+            padding: 2rem;
+        }
+        #dynamic-map {
+            min-height: 300px;
+            margin-top: 2rem;
+        }
     }
 </style>
 {% endblock %}
 
 {% block content %}
-<div class="hero-contact">
-    <div class="hero-content">
-        <h1>Contact Us</h1>
-        <p class="lead">We'd love to hear from you. Reach out to us for any inquiries or assistance.</p>
+<section class="contact-hero text-center">
+    <div class="container">
+        <h1 class="display-3 fw-bold mb-3" style="color: var(--dark-color);">Get in Touch</h1>
+        <p class="lead" style="color: var(--gray-color); max-width: 600px; margin: 0 auto;">Whether you're looking to acquire a specific vehicle or require expert service, our concierge team is ready to assist.</p>
     </div>
-</div>
+</section>
 
-<div class="container my-5">
-    <div class="row">
-        <div class="col-lg-6 mb-4">
-            <div class="contact-card">
-                <div class="card-header">
-                    <h5><i class="fas fa-paper-plane me-2"></i>Send Us a Message</h5>
-                </div>
-                <div class="card-body">
-                    <p class="mb-4">Have questions or need assistance? Fill out the form below and choose how you'd like to reach us.</p>
+<div class="container mb-5" style="margin-top: -40px; position: relative; z-index: 10;">
+    <div class="row g-4">
+        
+        <div class="col-lg-7">
+            <div class="contact-card h-100">
+                <h3 class="mb-4" style="color: var(--dark-color); font-family: var(--font-family-playfair);">Send an Inquiry</h3>
+                
+                {% if messages %}
+                    {% for message in messages %}
+                        <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert" style="background-color: rgba(184, 115, 51, 0.1); color: var(--primary-color); border: 1px solid var(--primary-color);">
+                            {{ message }}
+                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    {% endfor %}
+                {% endif %}
+                
+                <form method="post" id="contactForm">
+                    {% csrf_token %}
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-6">
+                            <label for="name" class="form-label" style="color: var(--text-color);">Full Name</label>
+                            <input type="text" class="form-control" id="name" name="name" placeholder="John Doe" value="{% if request.user.is_authenticated %}{{ request.user.customer_account.name|default:request.user.get_full_name|default:request.user.username }}{% endif %}" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="email" class="form-label" style="color: var(--text-color);">Email Address</label>
+                            <input type="email" class="form-control" id="email" name="email" placeholder="john@example.com" value="{% if request.user.is_authenticated %}{{ request.user.email }}{% endif %}" required>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="subject" class="form-label" style="color: var(--text-color);">Subject</label>
+                        <input type="text" class="form-control" id="subject" name="subject" placeholder="How can we help?" required>
+                    </div>
+                    <div class="mb-4">
+                        <label for="message" class="form-label" style="color: var(--text-color);">Message</label>
+                        <textarea class="form-control" id="message" name="message" rows="6" placeholder="Provide details regarding your inquiry..." required></textarea>
+                    </div>
                     
-                    {% if messages %}
-                        {% for message in messages %}
-                            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
-                                {{ message }}
-                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                            </div>
-                        {% endfor %}
-                    {% endif %}
-                    
-                    <form method="post" id="contactForm">
-                        {% csrf_token %}
-                        <div class="mb-3">
-                            <label for="name" class="form-label">Full Name</label>
-                            <div class="input-group">
-                                <span class="input-group-text"><i class="fas fa-user"></i></span>
-                                <input type="text" class="form-control" id="name" name="name" placeholder="Your name" value="{% if request.user.is_authenticated %}{{ request.user.customer_account.name|default:request.user.get_full_name|default:request.user.username }}{% endif %}" required>
-                            </div>
-                        </div>
-                        <div class="mb-3">
-                            <label for="email" class="form-label">Email Address</label>
-                            <div class="input-group">
-                                <span class="input-group-text"><i class="fas fa-envelope"></i></span>
-                                <input type="email" class="form-control" id="email" name="email" placeholder="your.email@example.com" value="{% if request.user.is_authenticated %}{{ request.user.email }}{% endif %}" required>
-                            </div>
-                        </div>
-                        <div class="mb-3">
-                            <label for="subject" class="form-label">Subject</label>
-                            <div class="input-group">
-                                <span class="input-group-text"><i class="fas fa-tag"></i></span>
-                                <input type="text" class="form-control" id="subject" name="subject" placeholder="What's this about?" required>
-                            </div>
-                        </div>
-                        <div class="mb-4">
-                            <label for="message" class="form-label">Your Message</label>
-                            <div class="input-group">
-                                <span class="input-group-text"><i class="fas fa-comment-alt"></i></span>
-                                <textarea class="form-control" id="message" name="message" rows="5" placeholder="Type your message here..." required></textarea>
-                            </div>
-                        </div>
+                    <div class="d-flex flex-wrap gap-3">
+                        <button type="submit" class="btn btn-primary px-4 py-2 flex-grow-1">
+                            <i class="fas fa-envelope me-2"></i> Send via Email
+                        </button>
                         
-                        <div class="form-actions">
-                            <button type="submit" class="btn btn-primary">
-                                <i class="fas fa-envelope me-2"></i>Send via Email
-                            </button>
-                            
-                            {% if site_info and site_info.whatsapp_phone %}
-                            <button type="button" class="btn btn-whatsapp" id="whatsappBtn">
-                                <i class="fab fa-whatsapp me-2"></i>Send via WhatsApp
-                            </button>
-                            {% endif %}
-                        </div>
-                    </form>
+                        {% if site_info and site_info.whatsapp_phone %}
+                        <button type="button" class="btn btn-whatsapp px-4 py-2 flex-grow-1" id="whatsappBtn">
+                            <i class="fab fa-whatsapp me-2"></i> Send via WhatsApp
+                        </button>
+                        {% endif %}
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <div class="col-lg-5 d-flex flex-column gap-4">
+            <div class="contact-card">
+                <div class="info-item">
+                    <div class="info-icon"><i class="fas fa-map-marker-alt"></i></div>
+                    <div class="info-text">
+                        <h6>Headquarters</h6>
+                        <p>{% if site_info %}{{ site_info.address }}{% else %}123 Luxury Avenue, Beverly Hills, CA 90210{% endif %}</p>
+                    </div>
                 </div>
+                
+                <div class="info-item">
+                    <div class="info-icon"><i class="fas fa-phone-alt"></i></div>
+                    <div class="info-text">
+                        <h6>Direct Line</h6>
+                        <p>{% if site_info %}{{ site_info.phone }}{% else %}+1 (234) 567-890{% endif %}</p>
+                    </div>
+                </div>
+                
+                <div class="info-item mb-0">
+                    <div class="info-icon"><i class="fas fa-envelope-open-text"></i></div>
+                    <div class="info-text">
+                        <h6>Email Support</h6>
+                        <p>{% if site_info %}{{ site_info.email }}{% else %}info@hillzexquisites.com{% endif %}</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex-grow-1" style="min-height: 300px;">
+                <div id="dynamic-map"></div>
             </div>
         </div>
         
-        <div class="col-lg-6">
-            <div class="contact-card mb-4">
-                <div class="card-header">
-                    <h5><i class="fas fa-info-circle me-2"></i>Contact Information</h5>
-                </div>
-                <div class="card-body">
-                    <div class="info-item">
-                        <div class="info-icon">
-                            <i class="fas fa-map-marker-alt"></i>
-                        </div>
-                        <div class="info-text">
-                            <h6>Our Address</h6>
-                            <p>{% if site_info %}{{ site_info.address }}{% else %}123 Luxury Avenue, Beverly Hills, CA 90210{% endif %}</p>
-                        </div>
-                    </div>
-                    
-                    <div class="info-item">
-                        <div class="info-icon">
-                            <i class="fas fa-phone"></i>
-                        </div>
-                        <div class="info-text">
-                            <h6>Phone Number</h6>
-                            <p>{% if site_info %}{{ site_info.phone }}{% else %}+1 (234) 567-890{% endif %}</p>
-                            {% if site_info and site_info.whatsapp_phone %}
-                            <p class="text-success"><i class="fab fa-whatsapp me-1"></i> WhatsApp: {{ site_info.whatsapp_phone }}</p>
-                            {% endif %}
-                        </div>
-                    </div>
-                    
-                    <div class="info-item">
-                        <div class="info-icon">
-                            <i class="fas fa-envelope"></i>
-                        </div>
-                        <div class="info-text">
-                            <h6>Email Address</h6>
-                            <p>{% if site_info %}{{ site_info.email }}{% else %}info@hillzexquisites.com{% endif %}</p>
-                        </div>
-                    </div>
-                    
-                    <h6 class="mt-4 mb-3"><i class="fas fa-clock me-2"></i>Business Hours</h6>
-                    <table class="hours-table">
-                        <tr>
-                            <th>Monday - Friday</th>
-                            <td>{% if site_info %}{{ site_info.monday_hours }}{% else %}9:00 AM - 8:00 PM{% endif %}</td>
-                        </tr>
-                        <tr>
-                            <th>Saturday</th>
-                            <td>{% if site_info %}{{ site_info.saturday_hours }}{% else %}10:00 AM - 6:00 PM{% endif %}</td>
-                        </tr>
-                        <tr>
-                            <th>Sunday</th>
-                            <td>{% if site_info %}{{ site_info.sunday_hours }}{% else %}10:00 AM - 6:00 PM{% endif %}</td>
-                        </tr>
-                    </table>
-                    
-                    {% if site_info and site_info.instagram_url %}
-                    <div class="mt-4">
-                        <a href="{{ site_info.instagram_url }}" target="_blank" class="btn btn-outline-dark btn-sm">
-                            <i class="fab fa-instagram me-2"></i>Follow us on Instagram
-                        </a>
-                    </div>
-                    {% endif %}
-                </div>
-            </div>
-            
-            <div class="contact-card">
-                <div class="card-header">
-                    <h5><i class="fas fa-map-marked-alt me-2"></i>Find Us</h5>
-                </div>
-                <div class="card-body p-0">
-                    <div id="dynamic-map" style="height: 300px; width: 100%;">
-                        </div>
-                </div>
-            </div>
-        </div>
     </div>
 </div>
 {% endblock %}
 
 {% block extra_js %}
 <script>
-    // Get the address from the Django context
     const companyAddress = "{% if site_info %}{{ site_info.address|escapejs }}{% else %}123 Luxury Avenue, Beverly Hills, CA 90210{% endif %}";
     const companyName = "{% if site_info %}{{ site_info.company_name|escapejs }}{% else %}Hillz Exquisites{% endif %}";
-    
-    // Check if we have a Google Maps API key
     const googleMapsApiKey = "{{ GOOGLE_MAPS_API_KEY|default:'' }}";
     
     function initMap() {
         if (!googleMapsApiKey) {
-            // No API key provided, show fallback
             document.getElementById('dynamic-map').innerHTML = `
                 <div class="map-fallback">
-                    <i class="fas fa-map-marked-alt fa-3x mb-3 text-muted"></i>
-                    <h6>Map View</h6>
-                    <p>${companyName}</p>
-                    <p>${companyAddress}</p>
-                    <p class="small text-muted">Google Maps integration requires an API key.</p>
+                    <i class="fas fa-map-marker-alt fa-3x mb-3" style="color: var(--primary-color);"></i>
+                    <h5 style="color: var(--dark-color);">${companyName}</h5>
+                    <p style="color: var(--gray-color);">${companyAddress}</p>
+                    <small style="color: var(--gray-color); opacity: 0.5;">Map requires API key configuration.</small>
                 </div>
             `;
             return;
         }
         
-        // Create script element for Google Maps API
         const script = document.createElement('script');
         script.src = `https://maps.googleapis.com/maps/api/js?key=${googleMapsApiKey}&callback=initMapInternal`;
         script.async = true;
         script.defer = true;
         document.head.appendChild(script);
-        
-        // Prevent multiple script loads
         window.initMap = function() {};
     }
     
-    // This function will be called by the Google Maps API script
     window.initMapInternal = function() {
-        // Initialize the Geocoder service
         const geocoder = new google.maps.Geocoder();
-        
         geocoder.geocode({ 'address': companyAddress }, function(results, status) {
             if (status === 'OK' && results[0]) {
                 const mapOptions = {
-                    // Center the map on the geocoded address
                     center: results[0].geometry.location,
-                    zoom: 15, // Zoom level (adjust as needed)
+                    zoom: 15, 
                     styles: [
-                        {
-                            "featureType": "all",
-                            "elementType": "geometry.fill",
-                            "stylers": [{"weight": "2.00"}]
-                        },
-                        {
-                            "featureType": "all",
-                            "elementType": "geometry.stroke",
-                            "stylers": [{"color": "#9c9c9c"}]
-                        },
-                        {
-                            "featureType": "all",
-                            "elementType": "labels.text",
-                            "stylers": [{"visibility": "on"}]
-                        }
+                        { "featureType": "all", "elementType": "geometry.fill", "stylers": [{"color": "#1c1c1e"}] },
+                        { "featureType": "all", "elementType": "labels.text.fill", "stylers": [{"color": "#d1d1d1"}] },
+                        { "featureType": "all", "elementType": "labels.text.stroke", "stylers": [{"color": "#000000"}] },
+                        { "featureType": "water", "elementType": "geometry", "stylers": [{"color": "#000000"}] },
+                        { "featureType": "road", "elementType": "geometry", "stylers": [{"color": "#2c2c2e"}] }
                     ]
                 };
 
-                // Create the map object
                 const map = new google.maps.Map(document.getElementById('dynamic-map'), mapOptions);
-
-                // Add a marker at the company location
                 const marker = new google.maps.Marker({
                     map: map,
                     position: results[0].geometry.location,
-                    title: companyName,
-                    animation: google.maps.Animation.DROP
-                });
-                
-                // Add info window
-                const infoWindow = new google.maps.InfoWindow({
-                    content: `
-                        <div style="padding: 10px;">
-                            <h6 style="margin: 0 0 5px 0; color: #d4af37;">${companyName}</h6>
-                            <p style="margin: 0;">${companyAddress}</p>
-                        </div>
-                    `
-                });
-                
-                marker.addListener('click', function() {
-                    infoWindow.open(map, marker);
+                    title: companyName
                 });
             } else {
-                // Handle the case where the address could not be found
                 document.getElementById('dynamic-map').innerHTML = `
                     <div class="map-fallback">
-                        <i class="fas fa-map-marker-slash fa-3x mb-3 text-muted"></i>
-                        <h6>Map Unavailable</h6>
-                        <p>Could not load map for the address: ${companyAddress}</p>
-                        <p class="small text-muted">Please check the address format in the admin panel.</p>
+                        <i class="fas fa-map-marker-slash fa-3x mb-3" style="color: var(--primary-color);"></i>
+                        <p style="color: var(--text-color);">Could not locate address on map.</p>
                     </div>
                 `;
             }
         });
     }
     
-    // Initialize the map and WhatsApp logic when the page loads
     document.addEventListener('DOMContentLoaded', function() {
         initMap();
 
-        // --- WHATSAPP LOGIC ---
         const whatsappBtn = document.getElementById('whatsappBtn');
         if (whatsappBtn) {
             whatsappBtn.addEventListener('click', function() {
-                // Grab values from the form inputs
                 const name = document.getElementById('name').value.trim();
                 const email = document.getElementById('email').value.trim();
                 const subject = document.getElementById('subject').value.trim();
                 const message = document.getElementById('message').value.trim();
 
-                // Basic validation so they don't send a blank WhatsApp message
                 if (!name || !message) {
                     alert('Please fill out at least your Name and Message to send via WhatsApp.');
                     return;
                 }
 
-                // Strip out anything that isn't a number to ensure the wa.me link works perfectly
                 const rawNumber = "{% if site_info and site_info.whatsapp_phone %}{{ site_info.whatsapp_phone|escapejs }}{% endif %}";
                 const whatsappNumber = rawNumber.replace(/[^0-9]/g, '');
 
@@ -520,19 +302,14 @@
                     return;
                 }
 
-                // Construct a neatly formatted message for the dealer
                 let waText = `*Website Contact Inquiry*\n\n`;
                 waText += `*Name:* ${name}\n`;
                 if (email) waText += `*Email:* ${email}\n`;
                 if (subject) waText += `*Subject:* ${subject}\n\n`;
                 waText += `*Message:*\n${message}`;
 
-                // Encode the text so it works in a URL
                 const encodedText = encodeURIComponent(waText);
-                const waUrl = `https://wa.me/${whatsappNumber}?text=${encodedText}`;
-
-                // Open WhatsApp in a new tab
-                window.open(waUrl, '_blank');
+                window.open(`https://wa.me/${whatsappNumber}?text=${encodedText}`, '_blank');
             });
         }
     });

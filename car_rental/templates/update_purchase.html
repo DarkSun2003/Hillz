@@ -1,587 +1,182 @@
 {% extends 'base.html' %}
+{% load static %}
 
-{% block title %}Update Purchase - {{ site_info.company_name }}{% endblock %}
+{% block title %}Update Purchase - {{ purchase.car.make }} {{ purchase.car.model }} - {% if site_info %}{{ site_info.company_name }}{% else %}Hillz Exquisite{% endif %}{% endblock %}
 
 {% block extra_css %}
 <style>
-    .page-header {
-        background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
-        border-radius: 15px;
+    .update-wrapper { padding: 3rem 0; }
+    
+    .update-card {
+        background-color: var(--secondary-color);
+        border: 1px solid rgba(255,255,255,0.05);
+        border-radius: 16px;
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+        overflow: hidden;
+    }
+    
+    .update-header {
+        background-color: rgba(0,0,0,0.2);
+        border-bottom: 1px solid rgba(255,255,255,0.05);
         padding: 2rem;
-        margin-bottom: 2rem;
-        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+        text-align: center;
     }
     
-    .page-header h1 {
-        font-weight: 700;
-        color: #2c3e50;
-        margin-bottom: 0.5rem;
-    }
-    
-    .page-header p {
-        color: #6c757d;
-        font-size: 1.1rem;
-    }
-    
-    .main-card {
-        border-radius: 15px;
-        box-shadow: 0 5px 25px rgba(0, 0, 0, 0.07);
-        border: none;
-        overflow: hidden;
-    }
-    
-    .main-card .card-header {
-        background: linear-gradient(45deg, #d4af37, #f5d76e);
-        color: #212529;
-        border: none;
-        padding: 1.25rem 1.5rem;
-    }
-    
-    .main-card .card-title {
-        font-weight: 700;
-        margin-bottom: 0;
-    }
-    
-    .nav-tabs {
-        border-bottom: 2px solid #e9ecef;
-        margin-bottom: 1.5rem;
-    }
-    
-    .nav-tabs .nav-link {
-        border: none;
-        border-radius: 50px 50px 0 0;
-        padding: 0.75rem 1.25rem;
-        color: #6c757d;
-        font-weight: 600;
-        transition: all 0.3s ease;
-    }
-    
-    .nav-tabs .nav-link:hover {
-        color: #d4af37;
-        background-color: rgba(212, 175, 55, 0.1);
-    }
-    
-    .nav-tabs .nav-link.active {
-        color: #212529;
-        background-color: #f8f9fa;
-        border-bottom: 3px solid #d4af37;
-    }
-    
-    .form-label {
-        font-weight: 600;
-        color: #495057;
-        margin-bottom: 0.5rem;
-    }
-    
-    .form-control, .form-select {
-        border-radius: 10px;
-        border: 1px solid #ced4da;
-        padding: 0.75rem 1rem;
-        transition: all 0.3s ease;
-    }
-    
-    .form-control:focus, .form-select:focus {
-        border-color: #d4af37;
-        box-shadow: 0 0 0 0.25rem rgba(212, 175, 55, 0.25);
-    }
-    
-    .input-group {
-        border-radius: 10px;
-        overflow: hidden;
-    }
-    
-    .input-group-text {
-        background-color: #f8f9fa;
-        border: 1px solid #ced4da;
-        border-radius: 10px 0 0 10px;
-        color: #6c757d;
-        font-weight: 600;
-    }
-    
-    .input-group .form-control {
-        border-left: none;
-        border-radius: 0 10px 10px 0;
-    }
-    
-    .tab-pane {
-        padding: 1.5rem 0;
-    }
-    
-    .section-title {
-        font-weight: 700;
-        color: #2c3e50;
-        margin-bottom: 1.5rem;
-        padding-bottom: 0.75rem;
-        border-bottom: 2px solid #e9ecef;
-        position: relative;
-    }
-    
-    .section-title::after {
-        content: '';
-        position: absolute;
-        bottom: -2px;
-        left: 0;
-        width: 50px;
-        height: 2px;
-        background: linear-gradient(45deg, #d4af37, #f5d76e);
-    }
-    
-    .btn-primary {
-        background: linear-gradient(45deg, #d4af37, #f5d76e);
-        border: none;
-        border-radius: 50px;
-        padding: 0.75rem 2rem;
-        font-weight: 600;
-        color: #212529;
-        transition: all 0.3s ease;
-    }
-    
-    .btn-primary:hover {
-        background: linear-gradient(45deg, #b8941f, #d4af37);
-        transform: translateY(-2px);
-        box-shadow: 0 5px 15px rgba(212, 175, 55, 0.3);
-        color: #212529;
-    }
-    
-    .btn-outline-secondary {
-        border: 2px solid #6c757d;
-        border-radius: 50px;
-        padding: 0.75rem 2rem;
-        font-weight: 600;
-        color: #6c757d;
-        transition: all 0.3s ease;
-    }
-    
-    .btn-outline-secondary:hover {
-        background-color: #6c757d;
-        transform: translateY(-2px);
-        color: white;
-    }
-    
-    .alert {
-        border-radius: 10px;
-        border: none;
-        padding: 1rem 1.25rem;
-    }
-    
-    .alert-dismissible .btn-close {
-        padding: 1.25rem 1rem;
-    }
-    
-    .invalid-feedback {
-        font-size: 0.875rem;
-        margin-top: 0.25rem;
-    }
-    
-    .form-row {
-        margin-bottom: 1.5rem;
-    }
-    
-    .icon-badge {
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        width: 40px;
-        height: 40px;
-        border-radius: 50%;
-        background-color: #f8f9fa;
-        color: #d4af37;
-        margin-right: 1rem;
-        font-size: 1.2rem;
-    }
-    
-    .card-section {
-        background-color: #f8f9fa;
-        border-radius: 10px;
+    .fieldset-card {
+        background-color: var(--dark-bg);
+        border: 1px solid rgba(255,255,255,0.05);
+        border-radius: 12px;
         padding: 1.5rem;
         margin-bottom: 1.5rem;
-        border-left: 4px solid #d4af37;
     }
     
-    @media (max-width: 768px) {
-        .page-header {
-            padding: 1.5rem;
-        }
-        
-        .page-header h1 {
-            font-size: 1.5rem;
-        }
-        
-        .nav-tabs .nav-link {
-            padding: 0.5rem 0.75rem;
-            font-size: 0.9rem;
-        }
-        
-        .d-md-flex {
-            flex-direction: column;
-            gap: 1rem;
-        }
-        
-        .btn-lg {
-            padding: 0.6rem 1.5rem;
-            font-size: 1rem;
-        }
+    .fieldset-title {
+        color: var(--primary-color);
+        font-family: var(--font-family-playfair);
+        font-size: 1.1rem;
+        font-weight: 700;
+        margin-bottom: 1.25rem;
+        padding-bottom: 0.5rem;
+        border-bottom: 1px solid rgba(184, 115, 51, 0.2);
+    }
+
+    .form-label { color: var(--text-color); font-weight: 500; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 1px; }
+    
+    .form-control, .form-select, textarea {
+        background-color: rgba(255,255,255,0.03);
+        border: 1px solid rgba(255,255,255,0.1);
+        color: var(--text-color);
+        border-radius: 8px;
+        padding: 0.75rem 1rem;
+        width: 100%;
+        transition: var(--transition);
+    }
+    
+    .form-control:focus, .form-select:focus, textarea:focus {
+        background-color: rgba(0,0,0,0.8);
+        border-color: var(--primary-color);
+        outline: none;
+        box-shadow: 0 0 0 0.25rem rgba(184, 115, 51, 0.25);
     }
 </style>
 {% endblock %}
 
 {% block content %}
-<div class="container my-5">
-    <div class="page-header">
-        <div class="d-flex align-items-center">
-            <div class="icon-badge">
-                <i class="fas fa-shopping-cart"></i>
+<div class="container update-wrapper">
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <div class="mb-4">
+                <a href="{% url 'car_rental:purchase_detail' purchase.id %}" class="text-decoration-none" style="color: var(--gray-color); transition: 0.3s;" onmouseover="this.style.color='var(--primary-color)';" onmouseout="this.style.color='var(--gray-color)';">
+                    <i class="fas fa-arrow-left me-2"></i> Back to Invoice
+                </a>
             </div>
-            <div>
-                <h1>Update Purchase</h1>
-                <p>Update purchase details, delivery information, and status</p>
-            </div>
-        </div>
-    </div>
 
-    <div class="card main-card">
-        <div class="card-header">
-            <h5 class="card-title"><i class="fas fa-edit me-2"></i>Purchase Update Form</h5>
-        </div>
-        <div class="card-body p-4">
-            {% if messages %}
-                {% for message in messages %}
-                    <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
-                        <div class="d-flex align-items-center">
-                            <i class="fas {% if message.tags == 'success' %}fa-check-circle{% elif message.tags == 'error' %}fa-exclamation-circle{% elif message.tags == 'warning' %}fa-exclamation-triangle{% else %}fa-info-circle{% endif %} me-2"></i>
-                            <div>{{ message }}</div>
+            <div class="update-card">
+                <div class="update-header">
+                    <h3 class="mb-1" style="color: var(--dark-color); font-family: var(--font-family-playfair);">Modify Acquisition Ledger</h3>
+                    <p style="color: var(--gray-color); margin-bottom: 0;">Updating records for Invoice #{{ purchase.id }}</p>
+                </div>
+                
+                <div class="card-body p-4 p-md-5">
+                    <form method="post">
+                        {% csrf_token %}
+                        
+                        <div class="row g-4 mb-4">
+                            <div class="col-md-6">
+                                <label class="form-label">Client Account</label>
+                                {{ form.customer }}
+                                {% if form.customer.errors %}<div class="text-danger small mt-1" style="color: #ff6b6b !important;">{{ form.customer.errors }}</div>{% endif %}
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Allocated Vehicle</label>
+                                {{ form.car }}
+                                {% if form.car.errors %}<div class="text-danger small mt-1" style="color: #ff6b6b !important;">{{ form.car.errors }}</div>{% endif %}
+                            </div>
                         </div>
-                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                    </div>
-                {% endfor %}
-            {% endif %}
-            
-            <form method="post">
-                {% csrf_token %}
-                
-                <ul class="nav nav-tabs mb-4" id="purchaseTabs" role="tablist">
-                    <li class="nav-item" role="presentation">
-                        <button class="nav-link active" id="basic-tab" data-bs-toggle="tab" data-bs-target="#basic" type="button" role="tab">
-                            <i class="fas fa-info-circle me-2"></i>Basic Info
-                        </button>
-                    </li>
-                    <li class="nav-item" role="presentation">
-                        <button class="nav-link" id="pricing-tab" data-bs-toggle="tab" data-bs-target="#pricing" type="button" role="tab">
-                            <i class="fas fa-dollar-sign me-2"></i>Pricing
-                        </button>
-                    </li>
-                    <li class="nav-item" role="presentation">
-                        <button class="nav-link" id="warranty-tab" data-bs-toggle="tab" data-bs-target="#warranty" type="button" role="tab">
-                            <i class="fas fa-shield-alt me-2"></i>Warranty
-                        </button>
-                    </li>
-                    <li class="nav-item" role="presentation">
-                        <button class="nav-link" id="delivery-tab" data-bs-toggle="tab" data-bs-target="#delivery" type="button" role="tab">
-                            <i class="fas fa-truck me-2"></i>Delivery
-                        </button>
-                    </li>
-                </ul>
-                
-                <div class="tab-content" id="purchaseTabsContent">
-                    <div class="tab-pane fade show active" id="basic" role="tabpanel">
-                        <div class="card-section">
-                            <h5 class="section-title">Purchase Information</h5>
-                            <div class="row">
-                                <div class="col-md-6 mb-3">
-                                    <label for="{{ form.customer.id_for_label }}" class="form-label">Customer</label>
-                                    <div class="input-group">
-                                        <span class="input-group-text"><i class="fas fa-user"></i></span>
-                                        {{ form.customer.as_widget }}
-                                    </div>
-                                    {% if form.customer.errors %}
-                                        <div class="invalid-feedback d-block">{{ form.customer.errors|join:", " }}</div>
-                                    {% endif %}
+                        
+                        <div class="row g-4 mb-4">
+                            <div class="col-md-4">
+                                <label class="form-label">Initiation Date</label>
+                                {{ form.purchase_datetime }}
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label">Expected Delivery</label>
+                                {{ form.delivery_datetime }}
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label">Actual Delivery</label>
+                                {{ form.actual_delivery_datetime }}
+                            </div>
+                        </div>
+                        
+                        <div class="fieldset-card">
+                            <h6 class="fieldset-title">Financial Data</h6>
+                            <div class="row g-4">
+                                <div class="col-md-3">
+                                    <label class="form-label">Base Price</label>
+                                    {{ form.purchase_price }}
                                 </div>
-                                <div class="col-md-6 mb-3">
-                                    <label for="{{ form.car.id_for_label }}" class="form-label">Car</label>
-                                    <div class="input-group">
-                                        <span class="input-group-text"><i class="fas fa-car"></i></span>
-                                        {{ form.car.as_widget }}
-                                    </div>
-                                    {% if form.car.errors %}
-                                        <div class="invalid-feedback d-block">{{ form.car.errors|join:", " }}</div>
-                                    {% endif %}
+                                <div class="col-md-3">
+                                    <label class="form-label">Taxes</label>
+                                    {{ form.taxes }}
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="form-label">Admin Fees</label>
+                                    {{ form.fees }}
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="form-label" style="color: var(--primary-color);">Gross Total</label>
+                                    {{ form.total_amount }}
                                 </div>
                             </div>
                         </div>
                         
-                        <div class="card-section">
-                            <h5 class="section-title">Dates & Status</h5>
-                            <div class="row">
-                                <div class="col-md-6 mb-3">
-                                    <label for="{{ form.purchase_datetime.id_for_label }}" class="form-label">Purchase Date</label>
-                                    <div class="input-group">
-                                        <span class="input-group-text"><i class="fas fa-calendar"></i></span>
-                                        {{ form.purchase_datetime.as_widget }}
-                                    </div>
-                                    {% if form.purchase_datetime.errors %}
-                                        <div class="invalid-feedback d-block">{{ form.purchase_datetime.errors|join:", " }}</div>
-                                    {% endif %}
-                                </div>
-                                <div class="col-md-6 mb-3">
-                                    <label for="{{ form.delivery_datetime.id_for_label }}" class="form-label">Expected Delivery Date</label>
-                                    <div class="input-group">
-                                        <span class="input-group-text"><i class="fas fa-truck-loading"></i></span>
-                                        {{ form.delivery_datetime.as_widget }}
-                                    </div>
-                                    {% if form.delivery_datetime.errors %}
-                                        <div class="invalid-feedback d-block">{{ form.delivery_datetime.errors|join:", " }}</div>
-                                    {% endif %}
-                                </div>
+                        <div class="row g-4 mb-4">
+                            <div class="col-md-6">
+                                <label class="form-label">Logistics Status</label>
+                                {{ form.status }}
                             </div>
-                            <div class="row">
-                                <div class="col-md-6 mb-3">
-                                    <label for="{{ form.actual_delivery_datetime.id_for_label }}" class="form-label">Actual Delivery Date</label>
-                                    <div class="input-group">
-                                        <span class="input-group-text"><i class="fas fa-check-circle"></i></span>
-                                        {{ form.actual_delivery_datetime.as_widget }}
-                                    </div>
-                                    <div id="actual-delivery-help-text" class="form-text" style="display: none; color: #6c757d; margin-top: 0.25rem;">
-                                        Not applicable for cancelled or shipped orders.
-                                    </div>
-                                    {% if form.actual_delivery_datetime.errors %}
-                                        <div class="invalid-feedback d-block">{{ form.actual_delivery_datetime.errors|join:", " }}</div>
-                                    {% endif %}
-                                </div>
-                                <div class="col-md-6 mb-3">
-                                    <label for="{{ form.employee.id_for_label }}" class="form-label">Employee</label>
-                                    <div class="input-group">
-                                        <span class="input-group-text"><i class="fas fa-user-tie"></i></span>
-                                        {{ form.employee.as_widget }}
-                                    </div>
-                                    {% if form.employee.errors %}
-                                        <div class="invalid-feedback d-block">{{ form.employee.errors|join:", " }}</div>
-                                    {% endif %}
-                                </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Financial Status</label>
+                                {{ form.payment_status }}
                             </div>
-                            <div class="row">
-                                <div class="col-md-6 mb-3">
-                                    <label for="{{ form.status.id_for_label }}" class="form-label">Status</label>
-                                    <div class="input-group">
-                                        <span class="input-group-text"><i class="fas fa-info-circle"></i></span>
-                                        {{ form.status.as_widget }}
-                                    </div>
-                                    {% if form.status.errors %}
-                                        <div class="invalid-feedback d-block">{{ form.status.errors|join:", " }}</div>
-                                    {% endif %}
+                        </div>
+                        
+                        <div class="fieldset-card">
+                            <h6 class="fieldset-title">Warranty Parameters</h6>
+                            <div class="row g-4">
+                                <div class="col-md-6">
+                                    <label class="form-label">Expiration Date</label>
+                                    {{ form.warranty_expiry }}
                                 </div>
-                                <div class="col-md-6 mb-3">
-                                    <label for="{{ form.payment_status.id_for_label }}" class="form-label">Payment Status</label>
-                                    <div class="input-group">
-                                        <span class="input-group-text"><i class="fas fa-credit-card"></i></span>
-                                        {{ form.payment_status.as_widget }}
-                                    </div>
-                                    {% if form.payment_status.errors %}
-                                        <div class="invalid-feedback d-block">{{ form.payment_status.errors|join:", " }}</div>
-                                    {% endif %}
+                                <div class="col-md-6">
+                                    <label class="form-label">Terms & Conditions</label>
+                                    {{ form.warranty_terms }}
                                 </div>
                             </div>
                         </div>
-                    </div>
-                    
-                    <div class="tab-pane fade" id="pricing" role="tabpanel">
-                        <div class="card-section">
-                            <h5 class="section-title">Pricing Details</h5>
-                            <div class="row">
-                                <div class="col-md-6 mb-3">
-                                    <label for="{{ form.purchase_price.id_for_label }}" class="form-label">Purchase Price</label>
-                                    <div class="input-group">
-                                        <span class="input-group-text">₦</span>
-                                        {{ form.purchase_price.as_widget }}
-                                    </div>
-                                    {% if form.purchase_price.errors %}
-                                        <div class="invalid-feedback d-block">{{ form.purchase_price.errors|join:", " }}</div>
-                                    {% endif %}
-                                </div>
-                                <div class="col-md-6 mb-3">
-                                    <label for="{{ form.taxes.id_for_label }}" class="form-label">Taxes</label>
-                                    <div class="input-group">
-                                        <span class="input-group-text">₦</span>
-                                        {{ form.taxes.as_widget }}
-                                    </div>
-                                    {% if form.taxes.errors %}
-                                        <div class="invalid-feedback d-block">{{ form.taxes.errors|join:", " }}</div>
-                                    {% endif %}
-                                </div>
-                            </div>
-                            <div class="row">
-                                <div class="col-md-6 mb-3">
-                                    <label for="{{ form.fees.id_for_label }}" class="form-label">Fees</label>
-                                    <div class="input-group">
-                                        <span class="input-group-text">₦</span>
-                                        {{ form.fees.as_widget }}
-                                    </div>
-                                    {% if form.fees.errors %}
-                                        <div class="invalid-feedback d-block">{{ form.fees.errors|join:", " }}</div>
-                                    {% endif %}
-                                </div>
-                                <div class="col-md-6 mb-3">
-                                    <label for="{{ form.total_amount.id_for_label }}" class="form-label">Total Amount</label>
-                                    <div class="input-group">
-                                        <span class="input-group-text">₦</span>
-                                        {{ form.total_amount.as_widget }}
-                                    </div>
-                                    {% if form.total_amount.errors %}
-                                        <div class="invalid-feedback d-block">{{ form.total_amount.errors|join:", " }}</div>
-                                    {% endif %}
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="tab-pane fade" id="warranty" role="tabpanel">
-                        <div class="card-section">
-                            <h5 class="section-title">Warranty Information</h5>
-                            <div class="row">
-                                <div class="col-md-6 mb-3">
-                                    <label for="{{ form.warranty_expiry.id_for_label }}" class="form-label">Warranty Expiry</label>
-                                    <div class="input-group">
-                                        <span class="input-group-text"><i class="fas fa-calendar-check"></i></span>
-                                        {{ form.warranty_expiry.as_widget }}
-                                    </div>
-                                    {% if form.warranty_expiry.errors %}
-                                        <div class="invalid-feedback d-block">{{ form.warranty_expiry.errors|join:", " }}</div>
-                                    {% endif %}
-                                </div>
-                                <div class="col-md-6 mb-3">
-                                    <label for="{{ form.warranty_terms.id_for_label }}" class="form-label">Warranty Terms</label>
-                                    {{ form.warranty_terms.as_widget }}
-                                    {% if form.warranty_terms.errors %}
-                                        <div class="invalid-feedback d-block">{{ form.warranty_terms.errors|join:", " }}</div>
-                                    {% endif %}
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="tab-pane fade" id="delivery" role="tabpanel">
-                        <div class="card-section">
-                            <h5 class="section-title">Delivery Information</h5>
+
+                        <div class="fieldset-card">
+                            <h6 class="fieldset-title">Logistics & Routing</h6>
                             <div class="mb-3">
-                                <label for="{{ form.delivery_address.id_for_label }}" class="form-label">Delivery Address</label>
-                                <div class="input-group">
-                                    <span class="input-group-text"><i class="fas fa-map-marker-alt"></i></span>
-                                    {{ form.delivery_address.as_widget }}
-                                </div>
-                                {% if form.delivery_address.errors %}
-                                    <div class="invalid-feedback d-block">{{ form.delivery_address.errors|join:", " }}</div>
-                                {% endif %}
+                                <label class="form-label">Destination Address</label>
+                                {{ form.delivery_address }}
                             </div>
-                            
-                            <div class="mb-3">
-                                <label for="{{ form.delivery_notes.id_for_label }}" class="form-label">Delivery Notes</label>
-                                <div class="input-group">
-                                    <span class="input-group-text"><i class="fas fa-sticky-note"></i></span>
-                                    {{ form.delivery_notes.as_widget }}
-                                </div>
-                                {% if form.delivery_notes.errors %}
-                                    <div class="invalid-feedback d-block">{{ form.delivery_notes.errors|join:", " }}</div>
-                                {% endif %}
+                            <div>
+                                <label class="form-label">Concierge Routing Notes</label>
+                                {{ form.delivery_notes }}
                             </div>
                         </div>
-                    </div>
+                        
+                        <div class="d-grid mt-5">
+                            <button type="submit" class="btn btn-primary btn-lg py-3 fw-bold">
+                                <i class="fas fa-save me-2"></i> COMMIT CHANGES
+                            </button>
+                        </div>
+                    </form>
                 </div>
-                
-                <div class="d-grid gap-2 d-md-flex mt-4">
-                    <button type="submit" class="btn btn-primary btn-lg me-md-2">
-                        <i class="fas fa-save me-2"></i> Update Purchase
-                    </button>
-                    <a href="{% url 'car_rental:purchase_detail' purchase.pk %}" class="btn btn-outline-secondary btn-lg">
-                        <i class="fas fa-times me-2"></i> Cancel
-                    </a>
-                </div>
-            </form>
+            </div>
         </div>
     </div>
 </div>
-{% endblock %}
-
-{% block extra_js %}
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        // Add auto-calculation for total amount
-        const purchasePrice = document.getElementById('{{ form.purchase_price.id_for_label }}');
-        const taxes = document.getElementById('{{ form.taxes.id_for_label }}');
-        const fees = document.getElementById('{{ form.fees.id_for_label }}');
-        const totalAmount = document.getElementById('{{ form.total_amount.id_for_label }}');
-        
-        function calculateTotal() {
-            const price = parseFloat(purchasePrice.value) || 0;
-            const tax = parseFloat(taxes.value) || 0;
-            const fee = parseFloat(fees.value) || 0;
-            const total = price + tax + fee;
-            
-            if (!isNaN(total)) {
-                totalAmount.value = total.toFixed(2);
-            }
-        }
-        
-        if (purchasePrice && taxes && fees && totalAmount) {
-            purchasePrice.addEventListener('input', calculateTotal);
-            taxes.addEventListener('input', calculateTotal);
-            fees.addEventListener('input', calculateTotal);
-        }
-        
-        // Add date validation
-        const purchaseDate = document.getElementById('{{ form.purchase_datetime.id_for_label }}');
-        const deliveryDate = document.getElementById('{{ form.delivery_datetime.id_for_label }}');
-        const actualDeliveryDate = document.getElementById('{{ form.actual_delivery_datetime.id_for_label }}');
-        
-        if (purchaseDate && deliveryDate) {
-            deliveryDate.addEventListener('change', function() {
-                if (deliveryDate.value && purchaseDate.value) {
-                    if (new Date(deliveryDate.value) < new Date(purchaseDate.value)) {
-                        alert('Delivery date must be after purchase date');
-                    }
-                }
-            });
-        }
-        
-        if (actualDeliveryDate && purchaseDate) {
-            actualDeliveryDate.addEventListener('change', function() {
-                if (actualDeliveryDate.value && purchaseDate.value) {
-                    if (new Date(actualDeliveryDate.value) < new Date(purchaseDate.value)) {
-                        alert('Actual delivery date must be after purchase date');
-                    }
-                }
-            });
-        }
-
-        // Logic to disable Actual Delivery Date based on status
-        const statusField = document.getElementById('{{ form.status.id_for_label }}');
-        const actualDeliveryDateField = document.getElementById('{{ form.actual_delivery_datetime.id_for_label }}');
-        const actualDeliveryHelpText = document.getElementById('actual-delivery-help-text');
-
-        function toggleActualDeliveryDate() {
-            const currentStatus = statusField.value;
-
-            if (currentStatus === 'cancelled' || currentStatus === 'shipped') {
-                // Disable the field and clear its value
-                actualDeliveryDateField.disabled = true;
-                actualDeliveryDateField.value = '';
-                // Show the helper text
-                actualDeliveryHelpText.style.display = 'block';
-            } else {
-                // Enable the field
-                actualDeliveryDateField.disabled = false;
-                // Hide the helper text
-                actualDeliveryHelpText.style.display = 'none';
-            }
-        }
-
-        // Add event listener to the status field
-        if (statusField) {
-            statusField.addEventListener('change', toggleActualDeliveryDate);
-            
-            // Run the function once on page load to set the correct initial state
-            toggleActualDeliveryDate();
-        }
-
-    });
-</script>
 {% endblock %}

@@ -1,12 +1,32 @@
 {% extends 'base.html' %}
 
-{% block title %}404 Not Found - {{ site_info.company_name }}{% endblock %}
+{% block title %}Page Not Found - {% if site_info %}{{ site_info.company_name }}{% else %}Hillz Exquisite{% endif %}{% endblock %}
 
 {% block content %}
-<div class="container text-center py-5">
-    <h1 class="display-1">404</h1>
-    <h2>Page Not Found</h2>
-    <p class="lead">The page you are looking for does not exist.</p>
-    <a href="{% url 'car_rental:home' %}" class="btn btn-primary">Go to Home</a>
+<div class="container d-flex align-items-center justify-content-center" style="min-height: 70vh;">
+    <div class="text-center p-5" style="background-color: var(--secondary-color); border: 1px solid rgba(255,255,255,0.05); border-radius: 16px; box-shadow: 0 20px 40px rgba(0,0,0,0.5); max-width: 600px; width: 100%;">
+        
+        <div class="mb-4">
+            <div style="width: 100px; height: 100px; background-color: rgba(184, 115, 51, 0.1); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto;">
+                <i class="fas fa-map-signs fa-3x" style="color: var(--primary-color);"></i>
+            </div>
+        </div>
+        
+        <h1 class="display-1 fw-bold" style="color: var(--dark-color); font-family: var(--font-family-playfair); margin-bottom: -10px;">404</h1>
+        <h3 class="mb-3" style="color: var(--primary-color); font-family: var(--font-family-playfair);">Destination Unknown</h3>
+        
+        <p class="lead mb-5" style="color: var(--gray-color); font-size: 1.05rem;">
+            The page you are looking for has been moved, deleted, or does not exist. Let's get you back on the right road.
+        </p>
+        
+        <div class="d-flex justify-content-center gap-3 flex-wrap">
+            <a href="{% url 'car_rental:home' %}" class="btn btn-primary px-4 py-3">
+                <i class="fas fa-home me-2"></i> Return to Homepage
+            </a>
+            <a href="{% url 'car_rental:all_cars' %}" class="btn px-4 py-3" style="background-color: transparent; border: 1px solid var(--gray-color); color: var(--text-color);">
+                <i class="fas fa-car me-2"></i> View Fleet
+            </a>
+        </div>
+    </div>
 </div>
 {% endblock %}

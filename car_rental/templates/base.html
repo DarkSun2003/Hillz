@@ -15,7 +15,7 @@
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Lato:wght@300;400;700&display=swap" rel="stylesheet">
     
     <script src="https://cdn.jsdelivr.net/npm/js-cookie@3.0.5/dist/js.cookie.min.js"></script>
     
@@ -23,21 +23,21 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <style>
-        /* --- CSS Variables for Maintainability --- */
+        /* --- CSS Variables for Maintainability (Stealth Wealth Theme) --- */
         :root {
-            --primary-color: #d4af37; /* Gold */
-            --secondary-color: #f8f9fa; /* Light gray */
-            --dark-color: #212529; /* Dark */
-            --light-color: #ffffff; /* White */
-            --text-color: #333333; /* Text */
-            --gray-color: #6c757d; /* Gray */
-            --light-bg: #f8f9fa; /* Light background */
-            --dark-bg: #1a1a1a; /* Dark background */
-            --transition: all 0.3s ease;
+            --primary-color: #b87333; /* Matte Copper */
+            --secondary-color: #2c2c2e; /* Gunmetal */
+            --dark-color: #f4f4f4; /* Off-white for headings (inverted for dark mode) */
+            --light-color: #1c1c1e; /* Almost Black for body background */
+            --text-color: #d1d1d1; /* Light Gray for readability */
+            --gray-color: #8e8e93; 
+            --light-bg: #1c1c1e; 
+            --dark-bg: #000000; /* Pure Black */
+            --transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
             
             /* Font Variables */
-            --font-family-playfair: 'Playfair Display', serif;
-            --font-family-poppins: 'Poppins', sans-serif;
+            --font-family-playfair: 'Cinzel', serif;
+            --font-family-poppins: 'Lato', sans-serif;
 
             /* Spacing Variables */
             --spacing-xs: 0.5rem;
@@ -65,26 +65,59 @@
             font-weight: 700;
             color: var(--dark-color);
         }
+
+        /* --- Dark Theme Bootstrap Overrides --- */
+        .bg-light { background-color: var(--secondary-color) !important; }
+        .card { background-color: var(--dark-bg); color: var(--text-color); border: 1px solid rgba(255,255,255,0.05); }
+        .card-title, .card-subtitle { color: var(--dark-color); }
+        .text-dark { color: var(--dark-color) !important; }
+        .text-muted { color: var(--gray-color) !important; }
+        .btn-outline-primary { color: var(--primary-color); border-color: var(--primary-color); }
+        .btn-outline-primary:hover { background-color: var(--primary-color); color: var(--dark-bg); }
+        .btn-primary { background-color: var(--primary-color); border-color: var(--primary-color); color: var(--dark-bg); }
+        .btn-primary:hover { background-color: #a0632a; border-color: #a0632a; color: var(--dark-bg); }
+
+        /* --- Native Browser Element Dark Mode Fixes --- */
+        .form-control, .form-select {
+            color-scheme: dark; /* Forces native scrollbars and dropdowns into dark mode */
+        }
+
+        /* Convert default black calendar/time icons to Matte Copper */
+        input[type="date"]::-webkit-calendar-picker-indicator,
+        input[type="datetime-local"]::-webkit-calendar-picker-indicator,
+        input[type="time"]::-webkit-calendar-picker-indicator {
+            filter: invert(52%) sepia(43%) saturate(555%) hue-rotate(345deg) brightness(90%) contrast(85%);
+            cursor: pointer;
+            opacity: 0.8;
+            transition: var(--transition);
+        }
+
+        input[type="date"]::-webkit-calendar-picker-indicator:hover,
+        input[type="datetime-local"]::-webkit-calendar-picker-indicator:hover,
+        input[type="time"]::-webkit-calendar-picker-indicator:hover {
+            opacity: 1;
+            transform: scale(1.1);
+        }
         
         /* Luxury Navbar */
         .navbar {
             background-color: var(--dark-bg) !important;
             padding: var(--spacing-sm) 0;
-            box-shadow: 0 2px 15px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 2px 15px rgba(0, 0, 0, 0.5);
             transition: var(--transition);
         }
         
         .navbar-brand {
             font-family: var(--font-family-playfair);
-            font-size: 1.5rem; /* Reduced to save space */
+            font-size: 1.5rem;
             font-weight: 700;
             color: var(--primary-color) !important;
             letter-spacing: 1px;
-            white-space: nowrap; /* Prevents brand from wrapping */
+            white-space: nowrap;
         }
         
         .navbar-brand img {
-            max-height: 35px; /* Slightly smaller logo */
+            max-height: 35px;
             width: auto;
             transition: var(--transition);
         }
@@ -95,16 +128,16 @@
         
         .navbar-nav .nav-link {
             font-family: var(--font-family-poppins);
-            font-size: 0.95rem; /* Slightly smaller text */
+            font-size: 0.95rem;
             font-weight: 500;
-            color: rgba(255, 255, 255, 0.8) !important;
-            margin: 0 0.3rem; /* Drastically reduced empty space between links */
-            padding-left: 0.5rem !important; /* Tighter bootstrap padding */
+            color: rgba(255, 255, 255, 0.7) !important;
+            margin: 0 0.3rem;
+            padding-left: 0.5rem !important;
             padding-right: 0.5rem !important;
             position: relative;
             transition: var(--transition);
-            letter-spacing: 0.3px; /* Slightly tighter letter spacing */
-            white-space: nowrap; /* Prevents text wrapping */
+            letter-spacing: 0.3px;
+            white-space: nowrap;
         }
         
         .navbar-nav .nav-link:hover {
@@ -115,7 +148,6 @@
             color: var(--primary-color) !important;
         }
 
-        /* Specific style for the Management dropdown to stand out */
         .nav-link.mgmt-link {
             color: var(--primary-color) !important;
         }
@@ -138,10 +170,10 @@
         }
         
         .dropdown-menu {
-            background-color: rgba(26, 26, 26, 0.95);
-            border: none;
+            background-color: var(--secondary-color);
+            border: 1px solid rgba(255,255,255,0.05);
             border-radius: 0;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
             padding: var(--spacing-sm) 0;
             margin-top: var(--spacing-sm);
         }
@@ -153,7 +185,7 @@
         }
         
         .dropdown-item:hover, .dropdown-item:focus {
-            background-color: rgba(212, 175, 55, 0.2);
+            background-color: rgba(184, 115, 51, 0.15); /* Copper tint */
             color: var(--primary-color);
         }
         
@@ -191,22 +223,22 @@
             height: 50px;
             border-radius: 50%;
             background-color: var(--primary-color);
-            color: white;
+            color: var(--dark-bg);
             border: none;
             cursor: pointer;
             z-index: 999;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
             transition: var(--transition);
         }
         #backToTop:hover {
-            background-color: #b8941f;
+            background-color: #a0632a;
             transform: translateY(-3px);
         }
         
         /* Footer */
         .footer {
             background-color: var(--dark-bg);
-            color: rgba(255, 255, 255, 0.8);
+            color: rgba(255, 255, 255, 0.7);
             padding: 70px 0 30px;
             position: relative;
         }
@@ -217,7 +249,7 @@
             top: 0;
             left: 0;
             width: 100%;
-            height: 5px;
+            height: 3px;
             background: linear-gradient(90deg, var(--primary-color), transparent);
         }
         
@@ -250,7 +282,7 @@
         }
         
         .footer-links a {
-            color: rgba(255, 255, 255, 0.8);
+            color: rgba(255, 255, 255, 0.7);
             text-decoration: none;
             transition: var(--transition);
             font-size: 0.95rem;
@@ -269,51 +301,32 @@
             height: 40px;
             margin-right: var(--spacing-sm);
             border-radius: 50%;
-            background-color: rgba(255, 255, 255, 0.1);
-            color: white;
+            background-color: var(--secondary-color);
+            color: var(--primary-color);
             transition: var(--transition);
         }
         
         .social-links a:hover {
             background-color: var(--primary-color);
+            color: var(--dark-bg);
             transform: translateY(-3px);
         }
         
         .footer-bottom {
             margin-top: 50px;
             padding-top: var(--spacing-lg);
-            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
             text-align: center;
             font-size: 0.9rem;
-            color: rgba(255, 255, 255, 0.6);
+            color: rgba(255, 255, 255, 0.5);
         }
         
         /* Alert styling */
         .alert {
             border-radius: 8px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
             border: none;
             margin-bottom: var(--spacing-lg);
-        }
-        
-        .alert-success {
-            background-color: rgba(40, 167, 69, 0.1);
-            color: #155724;
-        }
-        
-        .alert-danger {
-            background-color: rgba(220, 53, 69, 0.1);
-            color: #721c24;
-        }
-        
-        .alert-warning {
-            background-color: rgba(255, 193, 7, 0.1);
-            color: #856404;
-        }
-        
-        .alert-info {
-            background-color: rgba(23, 162, 184, 0.1);
-            color: #0c5460;
         }
         
         /* Enhanced Cookie Consent Banner */
@@ -322,12 +335,13 @@
             bottom: 0;
             left: 0;
             width: 100%;
-            background-color: rgba(26, 26, 26, 0.95);
-            color: white;
+            background-color: var(--dark-bg);
+            color: var(--text-color);
             padding: var(--spacing-lg) 0;
             z-index: 1001;
-            box-shadow: 0 -5px 20px rgba(0, 0, 0, 0.2);
+            box-shadow: 0 -5px 25px rgba(0, 0, 0, 0.5);
             display: none;
+            border-top: 1px solid rgba(255,255,255,0.05);
         }
         
         #cookieConsent .container {
@@ -361,30 +375,30 @@
         
         #acceptCookies {
             background-color: var(--primary-color);
-            color: white;
+            color: var(--dark-bg);
         }
         
         #acceptCookies:hover {
-            background-color: #b8941f;
+            background-color: #a0632a;
         }
         
         #declineCookies {
             background-color: transparent;
-            color: white;
-            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: var(--text-color);
+            border: 1px solid var(--gray-color);
         }
         
         #declineCookies:hover {
-            background-color: rgba(255, 255, 255, 0.1);
+            background-color: rgba(255, 255, 255, 0.05);
         }
         
         #customizeCookies {
-            background-color: rgba(255, 255, 255, 0.2);
-            color: white;
+            background-color: var(--secondary-color);
+            color: var(--text-color);
         }
         
         #customizeCookies:hover {
-            background-color: rgba(255, 255, 255, 0.3);
+            background-color: rgba(255, 255, 255, 0.1);
         }
         
         /* Cookie Settings Modal */
@@ -394,10 +408,12 @@
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            background: white;
+            background: var(--dark-bg);
+            color: var(--text-color);
             padding: var(--spacing-xl);
-            border-radius: 15px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            border-radius: 12px;
+            border: 1px solid rgba(255,255,255,0.1);
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.6);
             z-index: 1002;
             max-width: 550px;
             width: 90%;
@@ -412,7 +428,7 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background-color: rgba(0, 0, 0, 0.5);
+            background-color: rgba(0, 0, 0, 0.7);
             z-index: 1001;
         }
         
@@ -429,7 +445,7 @@
             justify-content: space-between;
             align-items: center;
             padding: var(--spacing-lg) 0;
-            border-bottom: 1px solid #eee;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
         }
         
         .cookie-option:last-child {
@@ -446,7 +462,7 @@
         .cookie-option p {
             margin: var(--spacing-xs) 0 0 0;
             font-size: 0.9rem;
-            color: #6c757d;
+            color: var(--gray-color);
         }
         
         .toggle-switch {
@@ -469,7 +485,7 @@
             left: 0;
             right: 0;
             bottom: 0;
-            background-color: #ccc;
+            background-color: var(--secondary-color);
             transition: var(--transition);
             border-radius: 30px;
         }
@@ -481,7 +497,7 @@
             width: 22px;
             left: 4px;
             bottom: 4px;
-            background-color: white;
+            background-color: var(--text-color);
             transition: var(--transition);
             border-radius: 50%;
         }
@@ -492,6 +508,7 @@
         
         input:checked + .slider:before {
             transform: translateX(30px);
+            background-color: var(--dark-bg);
         }
         
         /* Loading Spinner */
@@ -501,7 +518,7 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background-color: rgba(255, 255, 255, 0.95);
+            background-color: var(--light-color);
             display: flex;
             justify-content: center;
             align-items: center;
@@ -511,7 +528,7 @@
         .spinner {
             width: 60px;
             height: 60px;
-            border: 5px solid #f3f3f3;
+            border: 5px solid var(--secondary-color);
             border-top: 5px solid var(--primary-color);
             border-radius: 50%;
             animation: spin 1s linear infinite;
@@ -524,7 +541,7 @@
         
         /* Image Loading Placeholder */
         .img-placeholder {
-            background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+            background: linear-gradient(90deg, var(--secondary-color) 25%, var(--light-color) 50%, var(--secondary-color) 75%);
             background-size: 200% 100%;
             animation: loading 1.5s infinite;
         }
@@ -632,7 +649,7 @@
                         </a>
                         <ul class="dropdown-menu" aria-labelledby="navbarDropdownServices">
                             <li><a class="dropdown-item" href="{% url 'car_rental:services_overview' %}"><i class="fas fa-th-large me-2"></i>All Services</a></li>
-                            <li><hr class="dropdown-divider"></li>
+                            <li><hr class="dropdown-divider" style="border-color: rgba(255,255,255,0.05);"></li>
                             <li><a class="dropdown-item" href="{% url 'car_rental:book_diagnostic' %}"><i class="fas fa-stethoscope me-2"></i>Diagnostic</a></li>
                             <li><a class="dropdown-item" href="{% url 'car_rental:book_repair' %}"><i class="fas fa-tools me-2"></i>Repair</a></li>
                             <li><a class="dropdown-item" href="{% url 'car_rental:book_upgrade' %}"><i class="fas fa-rocket me-2"></i>Upgrade</a></li>
@@ -657,10 +674,12 @@
                             </a>
                             <ul class="dropdown-menu dropdown-menu-end">
                                 <li><a class="dropdown-item" href="{% url 'car_rental:fleet_management' %}"><i class="fas fa-car-side me-2"></i>Fleet Management</a></li>
+                                <li><a class="dropdown-item" href="{% url 'car_rental:rental_list' %}"><i class="fas fa-clipboard-list me-2"></i>Manage Rentals</a></li>
                                 <li><a class="dropdown-item" href="{% url 'car_rental:service_booking_list' %}"><i class="fas fa-calendar-check me-2"></i>Service Bookings</a></li>
                                 <li><a class="dropdown-item" href="{% url 'car_rental:customers' %}"><i class="fas fa-users me-2"></i>Customers</a></li>
+                                <li><a class="dropdown-item" href="{% url 'car_rental:reports_dashboard' %}"><i class="fas fa-chart-pie me-2"></i>Analytics & Reports</a></li>
                                 <li><a class="dropdown-item" href="{% url 'car_rental:add_car' %}"><i class="fas fa-plus-circle me-2"></i>Add Vehicle</a></li>
-                                <li><hr class="dropdown-divider"></li>
+                                <li><hr class="dropdown-divider" style="border-color: rgba(255,255,255,0.05);"></li>
                                 <li><a class="dropdown-item" href="{% url 'car_rental:site_info_edit' %}"><i class="fas fa-cog me-2"></i>Site Settings</a></li>
                             </ul>
                         </li>
@@ -675,7 +694,7 @@
                                 <li><a class="dropdown-item" href="{% url 'car_rental:my_rentals' %}"><i class="fas fa-car me-2"></i>My Rentals</a></li>
                                 <li><a class="dropdown-item" href="{% url 'car_rental:my_purchases' %}"><i class="fas fa-shopping-cart me-2"></i>My Purchases</a></li>
                                 <li><a class="dropdown-item" href="{% url 'car_rental:my_services' %}"><i class="fas fa-wrench me-2"></i>My Services</a></li>
-                                <li><hr class="dropdown-divider"></li>
+                                <li><hr class="dropdown-divider" style="border-color: rgba(255,255,255,0.05);"></li>
                                 <li><a class="dropdown-item" href="{% url 'account_logout' %}"><i class="fas fa-sign-out-alt me-2"></i>Logout</a></li>
                             </ul>
                         </li>
@@ -695,12 +714,12 @@
     {% if messages %}
     <div class="container mt-4">
         {% for message in messages %}
-        <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+        <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert" style="background-color: rgba(184, 115, 51, 0.1); border: 1px solid var(--primary-color); color: var(--primary-color);">
             <div class="d-flex align-items-center">
                 <i class="fas {% if message.tags == 'success' %}fa-check-circle{% elif message.tags == 'error' %}fa-exclamation-circle{% elif message.tags == 'warning' %}fa-exclamation-triangle{% else %}fa-info-circle{% endif %} me-3" style="font-size: 1.2rem;"></i>
                 <div>{{ message }}</div>
             </div>
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
         {% endfor %}
     </div>
@@ -749,16 +768,16 @@
                 <div class="col-lg-4 mb-4">
                     <h5>Contact Information</h5>
                     <ul class="list-unstyled">
-                        <li class="mb-3"><i class="fas fa-map-marker-alt me-3 text-warning"></i> {% if site_info %}{{ site_info.address }}{% else %}123 Luxury Avenue, Beverly Hills, CA 90210{% endif %}</li>
-                        <li class="mb-3"><i class="fas fa-phone me-3 text-warning"></i> {% if site_info %}{{ site_info.phone }}{% else %}+1 (234) 567-890{% endif %}</li>
-                        <li class="mb-3"><i class="fas fa-envelope me-3 text-warning"></i> {% if site_info %}{{ site_info.email }}{% else %}info@hillzexquisites.com{% endif %}</li>
+                        <li class="mb-3"><i class="fas fa-map-marker-alt me-3" style="color: var(--primary-color);"></i> {% if site_info %}{{ site_info.address }}{% else %}123 Luxury Avenue, Beverly Hills, CA 90210{% endif %}</li>
+                        <li class="mb-3"><i class="fas fa-phone me-3" style="color: var(--primary-color);"></i> {% if site_info %}{{ site_info.phone }}{% else %}+1 (234) 567-890{% endif %}</li>
+                        <li class="mb-3"><i class="fas fa-envelope me-3" style="color: var(--primary-color);"></i> {% if site_info %}{{ site_info.email }}{% else %}info@hillzexquisites.com{% endif %}</li>
                     </ul>
                     
                     <h5 class="mt-4">Business Hours</h5>
                     <ul class="list-unstyled">
-                        <li class="mb-2"><i class="far fa-calendar me-3 text-warning"></i> Mon-Fri: {% if site_info %}{{ site_info.monday_hours }}{% else %}9:00 AM - 8:00 PM{% endif %}</li>
-                        <li class="mb-2"><i class="far fa-calendar me-3 text-warning"></i> Saturday: {% if site_info %}{{ site_info.saturday_hours }}{% else %}10:00 AM - 6:00 PM{% endif %}</li>
-                        <li><i class="far fa-calendar me-3 text-warning"></i> Sunday: {% if site_info %}{{ site_info.sunday_hours }}{% else %}10:00 AM - 6:00 PM{% endif %}</li>
+                        <li class="mb-2"><i class="far fa-calendar me-3" style="color: var(--primary-color);"></i> Mon-Fri: {% if site_info %}{{ site_info.monday_hours }}{% else %}9:00 AM - 8:00 PM{% endif %}</li>
+                        <li class="mb-2"><i class="far fa-calendar me-3" style="color: var(--primary-color);"></i> Saturday: {% if site_info %}{{ site_info.saturday_hours }}{% else %}10:00 AM - 6:00 PM{% endif %}</li>
+                        <li><i class="far fa-calendar me-3" style="color: var(--primary-color);"></i> Sunday: {% if site_info %}{{ site_info.sunday_hours }}{% else %}10:00 AM - 6:00 PM{% endif %}</li>
                     </ul>
                 </div>
             </div>
@@ -822,7 +841,7 @@
         
         <div class="mt-4 d-flex gap-3">
             <button id="saveCookieSettings" class="btn btn-primary">Save Preferences</button>
-            <button id="closeCookieSettings" class="btn btn-secondary">Cancel</button>
+            <button id="closeCookieSettings" class="btn btn-secondary" style="background-color: var(--secondary-color); border: none;">Cancel</button>
         </div>
     </div>
 
@@ -869,12 +888,9 @@
         const saveCookieSettings = document.getElementById('saveCookieSettings');
         const closeCookieSettings = document.getElementById('closeCookieSettings');
         
-        // --- THE COMPLETE applyCookiePreferences FUNCTION ---
         function applyCookiePreferences(preferences) {
-            // --- 1. Set a Consent Cookie ---
             Cookies.set('cookie_consent', preferences.choice, { expires: 365 });
 
-            // --- 2. Manage Analytics Cookies ---
             const analyticsScriptId = '{{ GOOGLE_ANALYTICS_ID|default:"" }}'; 
             let analyticsScript = document.getElementById('ga-script');
 
@@ -900,10 +916,8 @@
                 if (analyticsScript) {
                     analyticsScript.setAttribute('disabled', '');
                 }
-                console.log('Analytics disabled by user preference or missing ID.');
             }
 
-            // --- 3. Manage Marketing Cookies ---
             const pixelScriptId = '{{ META_PIXEL_ID|default:"" }}'; 
             let pixelScript = document.getElementById('fb-pixel-script');
 
@@ -930,14 +944,9 @@
                 if (pixelScript) {
                     pixelScript.setAttribute('disabled', '');
                 }
-                console.log('Marketing cookies disabled by user preference or missing ID.');
             }
-
-            console.log('Cookie preferences have been applied:', preferences);
         }
-        // ------------------------------------------
 
-        // Check if user has already made a cookie choice
         const cookieChoice = Cookies.get('cookie_consent');
         if (!cookieChoice) {
             cookieConsent.style.display = 'block';
@@ -950,7 +959,6 @@
             applyCookiePreferences(preferences);
         }
         
-        // Cookie consent event listeners
         acceptCookies.addEventListener('click', function() {
             const preferences = { necessary: true, analytics: true, marketing: true, choice: 'accepted' };
             Cookies.set('cookie_consent', 'accepted', { expires: 365 });
@@ -997,12 +1005,10 @@
             cookieSettingsBackdrop.style.display = 'none';
         });
         
-        // Close modal when clicking on backdrop
         cookieSettingsBackdrop.addEventListener('click', function() {
             cookieSettings.style.display = 'none';
             cookieSettingsBackdrop.style.display = 'none';
         });
-        // --- END OF COOKIE CONSENT LOGIC ---
     </script>
     
     {% block extra_js %}{% endblock %}

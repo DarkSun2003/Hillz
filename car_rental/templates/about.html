@@ -3,341 +3,165 @@
 
 {% block title %}About Us - {% if site_info %}{{ site_info.company_name }}{% else %}Hillz Exquisite{% endif %}{% endblock %}
 
+{% block extra_css %}
+<style>
+    .about-hero {
+        background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.8)), url('https://images.unsplash.com/photo-1560958089-b8a1929cea89?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80');
+        background-size: cover;
+        background-position: center;
+        padding: 8rem 0 5rem;
+        text-align: center;
+        border-bottom: 2px solid var(--primary-color);
+    }
+    
+    .about-hero h1 {
+        font-family: var(--font-family-playfair);
+        font-size: 4rem;
+        font-weight: 700;
+        color: #fff;
+        margin-bottom: 1rem;
+    }
+    
+    .about-hero p {
+        color: var(--primary-color);
+        font-size: 1.2rem;
+        letter-spacing: 2px;
+        text-transform: uppercase;
+    }
+    
+    .content-section {
+        padding: 5rem 0;
+    }
+    
+    .text-block p {
+        color: var(--gray-color);
+        font-size: 1.1rem;
+        line-height: 1.8;
+        margin-bottom: 1.5rem;
+    }
+    
+    .stats-container {
+        background-color: var(--dark-bg);
+        border: 1px solid rgba(255,255,255,0.05);
+        border-radius: 16px;
+        padding: 3rem 2rem;
+        box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+        margin-top: -3rem;
+        position: relative;
+        z-index: 10;
+    }
+    
+    .stat-item {
+        text-align: center;
+        padding: 1rem;
+    }
+    
+    .stat-number {
+        font-family: var(--font-family-playfair);
+        font-size: 3rem;
+        font-weight: 700;
+        color: var(--primary-color);
+        line-height: 1;
+        margin-bottom: 0.5rem;
+    }
+    
+    .stat-label {
+        color: var(--text-color);
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        font-size: 0.85rem;
+    }
+
+    .review-card {
+        background-color: var(--secondary-color);
+        border: 1px solid rgba(255,255,255,0.05);
+        border-radius: 12px;
+        padding: 2rem;
+        height: 100%;
+    }
+</style>
+{% endblock %}
+
 {% block content %}
-<!-- Hero Section -->
-<section class="about-hero py-5 mb-5" style="background: linear-gradient(rgba(26, 26, 26, 0.8), rgba(26, 26, 26, 0.8)), url('https://images.unsplash.com/photo-1554224712-d8560f709cbe?ixlib=rb-4.0.3'); background-size: cover; background-position: center; background-attachment: fixed;">
-    <div class="container text-center py-5">
-        <h1 class="display-4 fw-bold text-white mb-3">About {% if site_info %}{{ site_info.company_name }}{% else %}Hillz Exquisite{% endif %}</h1>
-        <p class="lead text-warning">{% if site_info %}{{ site_info.tagline }}{% else %}Premium Car Rentals & Automotive Services{% endif %}</p>
+<section class="about-hero">
+    <div class="container">
+        <h1>Hillz Exquisite</h1>
+        <p>Redefining Automotive Luxury</p>
     </div>
 </section>
 
-<div class="container my-5">
-    <div class="row mb-5">
-        <div class="col-md-6">
-            <h2 class="position-relative mb-4">Our Story</h2>
-            <p class="text-muted">{% if site_info %}{{ site_info.description }}{% else %}Experience luxury and performance with our exclusive fleet of premium vehicles. Rent, buy, or service your car with confidence at Hillz Exquisites.{% endif %}</p>
-            <p>Founded with a passion for excellence, {% if site_info %}{{ site_info.company_name }}{% else %}Hillz Exquisite{% endif %} has been providing premium automotive services to our valued customers for years. Our commitment to quality, reliability, and customer satisfaction sets us apart in the industry.</p>
-        </div>
-        <div class="col-md-6">
-            <h2 class="position-relative mb-4">Our Mission</h2>
-            <p>Our mission is to provide exceptional car rental and automotive services that exceed our customers' expectations. We strive to make every interaction with our company a positive and memorable experience.</p>
-            <ul class="custom-list">
-                <li><i class="fas fa-check-circle text-warning me-2"></i>Provide high-quality, well-maintained vehicles</li>
-                <li><i class="fas fa-check-circle text-warning me-2"></i>Offer competitive and transparent pricing</li>
-                <li><i class="fas fa-check-circle text-warning me-2"></i>Deliver outstanding customer service</li>
-                <li><i class="fas fa-check-circle text-warning me-2"></i>Continuously improve our services based on customer feedback</li>
-            </ul>
-        </div>
-    </div>
-    
-    <div class="row mb-5">
-        <div class="col-12">
-            <h2 class="text-center mb-5 position-relative">Why Choose Us</h2>
-            <div class="row">
-                <div class="col-md-4 mb-4">
-                    <div class="card h-100 border-0 shadow-sm feature-card">
-                        <div class="card-body text-center p-4">
-                            <div class="icon-circle mb-3">
-                                <i class="fas fa-car text-warning"></i>
-                            </div>
-                            <h5 class="card-title">Premium Fleet</h5>
-                            <p class="card-text">Our vehicles are regularly serviced and maintained to ensure your safety and comfort.</p>
-                        </div>
+<div class="container">
+    <div class="stats-container">
+        <div class="row g-4">
+            <div class="col-md-4">
+                <div class="stat-item border-end" style="border-color: rgba(255,255,255,0.05) !important;">
+                    <div class="stat-number">{{ overall_rating }}</div>
+                    <div class="mb-2" style="color: #fbbf24;">
+                        <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star-half-alt"></i>
                     </div>
-                </div>
-                <div class="col-md-4 mb-4">
-                    <div class="card h-100 border-0 shadow-sm feature-card">
-                        <div class="card-body text-center p-4">
-                            <div class="icon-circle mb-3">
-                                <i class="fas fa-dollar-sign text-warning"></i>
-                            </div>
-                            <h5 class="card-title">Competitive Pricing</h5>
-                            <p class="card-text">We offer fair and transparent pricing with no hidden fees or surprises.</p>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-4 mb-4">
-                    <div class="card h-100 border-0 shadow-sm feature-card">
-                        <div class="card-body text-center p-4">
-                            <div class="icon-circle mb-3">
-                                <i class="fas fa-headset text-warning"></i>
-                            </div>
-                            <h5 class="card-title">24/7 Support</h5>
-                            <p class="card-text">Our customer support team is always ready to assist you with any questions or concerns.</p>
-                        </div>
-                    </div>
+                    <div class="stat-label">Average Client Rating</div>
                 </div>
             </div>
-        </div>
-    </div>
-    
-    <!-- Customer Reviews Section -->
-    <section class="py-5 bg-light mb-5">
-        <div class="container">
-            <div class="text-center mb-5">
-                <h2 class="display-5 position-relative">Customer Reviews</h2>
-                <div class="row justify-content-center">
-                    <div class="col-md-3">
-                        <div class="d-flex align-items-center justify-content-center mb-3">
-                            <div class="text-warning me-2">
-                                {% for i in "12345" %}
-                                    {% if forloop.counter <= overall_rating|floatformat:0 %}
-                                        <i class="fas fa-star"></i>
-                                    {% else %}
-                                        <i class="far fa-star"></i>
-                                    {% endif %}
-                                {% endfor %}
-                            </div>
-                            <span class="h4 mb-0">{{ overall_rating|floatformat:1 }}</span>
-                        </div>
-                        <p class="text-muted">Based on {{ total_reviews }} reviews</p>
-                    </div>
-                    <div class="col-md-3">
-                        <div class="h3 text-success">{{ satisfaction_rate }}%</div>
-                        <p class="text-muted">Customer Satisfaction</p>
-                    </div>
-                    <div class="col-md-3">
-                        <div class="h3 text-primary">{{ service_quality }}</div>
-                        <p class="text-muted">Service Quality</p>
-                    </div>
+            <div class="col-md-4">
+                <div class="stat-item border-end" style="border-color: rgba(255,255,255,0.05) !important;">
+                    <div class="stat-number">{{ satisfaction_rate }}%</div>
+                    <div class="stat-label mt-3">Client Satisfaction</div>
                 </div>
             </div>
-            
-            <div class="row mb-5">
-                <div class="col-md-8 mx-auto">
-                    <div class="card border-0 shadow-sm">
-                        <div class="card-body p-4">
-                            <h5 class="card-title">Rating Breakdown</h5>
-                            <div class="mb-3">
-                                <div class="d-flex justify-content-between">
-                                    <span>5 stars</span>
-                                    <span>{{ rating_breakdown.five }}%</span>
-                                </div>
-                                <div class="progress">
-                                    <div class="progress-bar bg-warning" role="progressbar" style="width: {{ rating_breakdown.five }}%"></div>
-                                </div>
-                            </div>
-                            <div class="mb-3">
-                                <div class="d-flex justify-content-between">
-                                    <span>4 stars</span>
-                                    <span>{{ rating_breakdown.four }}%</span>
-                                </div>
-                                <div class="progress">
-                                    <div class="progress-bar bg-warning" role="progressbar" style="width: {{ rating_breakdown.four }}%"></div>
-                                </div>
-                            </div>
-                            <div class="mb-3">
-                                <div class="d-flex justify-content-between">
-                                    <span>3 stars</span>
-                                    <span>{{ rating_breakdown.three }}%</span>
-                                </div>
-                                <div class="progress">
-                                    <div class="progress-bar bg-warning" role="progressbar" style="width: {{ rating_breakdown.three }}%"></div>
-                                </div>
-                            </div>
-                            <div class="mb-3">
-                                <div class="d-flex justify-content-between">
-                                    <span>2 stars</span>
-                                    <span>{{ rating_breakdown.two }}%</span>
-                                </div>
-                                <div class="progress">
-                                    <div class="progress-bar bg-warning" role="progressbar" style="width: {{ rating_breakdown.two }}%"></div>
-                                </div>
-                            </div>
-                            <div class="mb-0">
-                                <div class="d-flex justify-content-between">
-                                    <span>1 star</span>
-                                    <span>{{ rating_breakdown.one }}%</span>
-                                </div>
-                                <div class="progress">
-                                    <div class="progress-bar bg-warning" role="progressbar" style="width: {{ rating_breakdown.one }}%"></div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="row">
-                {% for review in recent_reviews %}
-                <div class="col-md-4 mb-4">
-                    <div class="card h-100 border-0 shadow-sm review-card">
-                        <div class="card-body">
-                            <div class="d-flex justify-content-between mb-3">
-                                <h6 class="card-subtitle mb-2 text-muted">{{ review.customer.name }}</h6>
-                                <div class="text-warning">
-                                    {% for i in "12345" %}
-                                        {% if forloop.counter <= review.rating %}
-                                            <i class="fas fa-star"></i>
-                                        {% else %}
-                                            <i class="far fa-star"></i>
-                                        {% endif %}
-                                    {% endfor %}
-                                </div>
-                            </div>
-                            <p class="card-text">{{ review.comment|truncatewords:30 }}</p>
-                            <div class="d-flex justify-content-between align-items-center mt-3">
-                                <small class="text-muted">{{ review.created_at|date:"M d, Y" }}</small>
-                                {% if review.would_recommend %}
-                                    <span class="badge bg-success">Recommended</span>
-                                {% endif %}
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                {% empty %}
-                <div class="col-12 text-center">
-                    <div class="alert alert-light">
-                        <p>No reviews available yet.</p>
-                    </div>
-                </div>
-                {% endfor %}
-            </div>
-        </div>
-    </section>
-    
-    <div class="row mb-5">
-        <div class="col-md-6">
-            <h2 class="position-relative mb-4">Our Team</h2>
-            <p class="text-muted">Our team consists of experienced professionals who are passionate about cars and committed to providing the best service possible.</p>
-            <p>From our certified technicians to our customer service representatives, every member of our team is dedicated to ensuring your complete satisfaction.</p>
-        </div>
-        <div class="col-md-6">
-            <h2 class="position-relative mb-4">Contact Information</h2>
-            <div class="contact-info">
-                <p class="mb-3"><i class="fas fa-map-marker-alt text-warning me-3"></i> {% if site_info %}{{ site_info.address }}{% else %}123 Luxury Avenue, Beverly Hills, CA 90210{% endif %}</p>
-                <p class="mb-3"><i class="fas fa-phone text-warning me-3"></i> {% if site_info %}{{ site_info.phone }}{% else %}+1 (234) 567-890{% endif %}</p>
-                <p class="mb-4"><i class="fas fa-envelope text-warning me-3"></i> {% if site_info %}{{ site_info.email }}{% else %}info@hillzexquisites.com{% endif %}</p>
-                
-                <h5 class="mb-3">Business Hours</h5>
-                <div class="business-hours">
-                    <p class="mb-2"><i class="far fa-calendar text-warning me-3"></i> Monday - Friday: {% if site_info %}{{ site_info.monday_hours }}{% else %}9:00 AM - 8:00 PM{% endif %}</p>
-                    <p class="mb-2"><i class="far fa-calendar text-warning me-3"></i> Saturday: {% if site_info %}{{ site_info.saturday_hours }}{% else %}10:00 AM - 6:00 PM{% endif %}</p>
-                    <p class="mb-0"><i class="far fa-calendar text-warning me-3"></i> Sunday: {% if site_info %}{{ site_info.sunday_hours }}{% else %}10:00 AM - 6:00 PM{% endif %}</p>
+            <div class="col-md-4">
+                <div class="stat-item">
+                    <div class="stat-number">{{ total_reviews }}</div>
+                    <div class="stat-label mt-3">Verified Reviews</div>
                 </div>
             </div>
         </div>
     </div>
 </div>
 
-<style>
-    /* About Page Specific Styles */
-    .about-hero {
-        position: relative;
-        overflow: hidden;
-    }
-    
-    .about-hero::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        background: linear-gradient(rgba(26, 26, 26, 0.7), rgba(26, 26, 26, 0.9));
-        z-index: 1;
-    }
-    
-    .about-hero .container {
-        position: relative;
-        z-index: 2;
-    }
-    
-    h2.position-relative {
-        padding-bottom: 15px;
-    }
-    
-    h2.position-relative::after {
-        content: '';
-        position: absolute;
-        bottom: 0;
-        left: 0;
-        width: 60px;
-        height: 3px;
-        background-color: var(--primary-color);
-    }
-    
-    .custom-list {
-        list-style: none;
-        padding: 0;
-    }
-    
-    .custom-list li {
-        margin-bottom: 12px;
-        padding-left: 10px;
-    }
-    
-    .feature-card {
-        transition: transform 0.3s ease, box-shadow 0.3s ease;
-    }
-    
-    .feature-card:hover {
-        transform: translateY(-10px);
-        box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1) !important;
-    }
-    
-    .icon-circle {
-        width: 80px;
-        height: 80px;
-        border-radius: 50%;
-        background-color: rgba(212, 175, 55, 0.1);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        margin: 0 auto;
-        transition: all 0.3s ease;
-    }
-    
-    .feature-card:hover .icon-circle {
-        background-color: var(--primary-color);
-    }
-    
-    .feature-card:hover .icon-circle i {
-        color: white !important;
-    }
-    
-    .icon-circle i {
-        font-size: 2rem;
-        transition: all 0.3s ease;
-    }
-    
-    .review-card {
-        transition: transform 0.3s ease, box-shadow 0.3s ease;
-    }
-    
-    .review-card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1) !important;
-    }
-    
-    .contact-info p {
-        display: flex;
-        align-items: center;
-    }
-    
-    .contact-info i {
-        width: 24px;
-        text-align: center;
-    }
-    
-    @media (max-width: 768px) {
-        .about-hero {
-            padding: 40px 0;
-        }
-        
-        .display-4 {
-            font-size: 2rem;
-        }
-        
-        .icon-circle {
-            width: 60px;
-            height: 60px;
-        }
-        
-        .icon-circle i {
-            font-size: 1.5rem;
-        }
-    }
-</style>
+<section class="content-section">
+    <div class="container">
+        <div class="row align-items-center g-5">
+            <div class="col-lg-6 text-block">
+                <h2 style="font-family: var(--font-family-playfair); color: var(--dark-color); font-size: 2.5rem; margin-bottom: 1.5rem;">Our Heritage</h2>
+                <div style="width: 50px; height: 3px; background-color: var(--primary-color); margin-bottom: 2rem;"></div>
+                <p>Founded on the principles of uncompromising quality and unparalleled service, Hillz Exquisite has established itself as the premier destination for luxury automotive acquisitions and executive rentals.</p>
+                <p>We understand that our clientele demands more than just transportation; they require an experience that reflects their status and ambition. Our curated fleet represents the pinnacle of engineering, design, and comfort.</p>
+                <p>Whether you are acquiring a permanent addition to your collection or requiring an executive vehicle for a temporary engagement, our concierge team ensures a seamless, discreet, and highly personalized transaction.</p>
+            </div>
+            <div class="col-lg-6">
+                <img src="https://images.unsplash.com/photo-1563720223185-11003d516935?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Luxury Car Detail" class="img-fluid rounded-4" style="box-shadow: 0 20px 40px rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.1);">
+            </div>
+        </div>
+    </div>
+</section>
+
+{% if recent_reviews %}
+<section class="content-section" style="background-color: var(--dark-bg); border-top: 1px solid rgba(255,255,255,0.05);">
+    <div class="container">
+        <h2 class="text-center mb-5" style="font-family: var(--font-family-playfair); color: var(--dark-color);">Client Testimonials</h2>
+        <div class="row g-4 justify-content-center">
+            {% for review in recent_reviews|slice:":3" %}
+            <div class="col-md-4">
+                <div class="review-card">
+                    <div class="d-flex align-items-center mb-3">
+                        <div class="bg-dark rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 50px; height: 50px; border: 1px solid var(--primary-color);">
+                            <i class="fas fa-user" style="color: var(--primary-color);"></i>
+                        </div>
+                        <div>
+                            <h6 style="color: var(--dark-color); margin: 0;">{{ review.customer.name }}</h6>
+                            <div style="color: #fbbf24; font-size: 0.8rem;">
+                                {% for i in "12345"|make_list %}
+                                    <i class="fas fa-star {% if forloop.counter > review.rating %}text-muted{% endif %}"></i>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                    <p style="color: var(--gray-color); font-style: italic; font-size: 0.95rem;">"{{ review.comment|default:'Excellent service and premium vehicle quality.' }}"</p>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endif %}
 {% endblock %}

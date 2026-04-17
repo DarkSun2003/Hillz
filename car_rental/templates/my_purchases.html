@@ -5,131 +5,92 @@
 
 {% block extra_css %}
 <style>
-    .page-header {
-        background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
-        border-radius: 15px;
+    .dashboard-header {
+        margin-bottom: 2rem;
+        padding-bottom: 1rem;
+        border-bottom: 1px solid rgba(255,255,255,0.05);
+    }
+    
+    .stat-box {
+        background-color: var(--dark-bg);
+        border: 1px solid rgba(255,255,255,0.05);
+        border-radius: 12px;
+        padding: 1.5rem;
+        text-align: center;
+        height: 100%;
+        transition: var(--transition);
+    }
+    
+    .stat-box:hover {
+        transform: translateY(-3px);
+        border-color: rgba(184, 115, 51, 0.2);
+    }
+    
+    .stat-number {
+        font-size: 2rem;
+        font-weight: 700;
+        color: var(--primary-color);
+        font-family: var(--font-family-playfair);
+        margin-bottom: 0.5rem;
+    }
+    
+    .stat-label {
+        font-size: 0.85rem;
+        color: var(--gray-color);
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+
+    .data-card {
+        background-color: var(--secondary-color);
+        border-radius: 16px;
+        border: 1px solid rgba(255,255,255,0.05);
+        box-shadow: 0 10px 30px rgba(0,0,0,0.3);
         padding: 2rem;
         margin-bottom: 2rem;
-        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
     }
     
-    .page-header h1 {
-        font-weight: 700;
-        color: #2c3e50;
-        margin-bottom: 0.5rem;
-    }
-    
-    .page-header p {
-        color: #6c757d;
-        font-size: 1.1rem;
-    }
-    
-    .stats-card {
-        border-radius: 15px;
-        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
-        border: none;
-        transition: transform 0.3s ease;
-        margin-bottom: 1.5rem;
-        height: 100%;
-    }
-    
-    .stats-card:hover {
-        transform: translateY(-5px);
-    }
-    
-    .stats-card .card-body {
-        padding: 1.5rem;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        text-align: center;
-    }
-    
-    .stats-card .icon {
-        font-size: 2rem;
-        color: #d4af37;
-        margin-bottom: 1rem;
-    }
-    
-    .stats-card .card-title {
-        font-size: 0.9rem;
-        color: #6c757d;
-        font-weight: 600;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-        margin-bottom: 0.5rem;
-    }
-    
-    .stats-card .stats-value {
-        font-size: 1.8rem;
-        font-weight: 700;
-        color: #2c3e50;
-    }
-    
-    .main-card {
-        border-radius: 15px;
-        box-shadow: 0 5px 25px rgba(0, 0, 0, 0.07);
-        border: none;
-        overflow: hidden;
-    }
-    
-    .main-card .card-header {
-        background-color: #fff;
-        border-bottom: 1px solid #eee;
-        padding: 1.25rem 1.5rem;
-    }
-    
-    .main-card .card-title {
-        font-weight: 600;
-        color: #2c3e50;
+    .table-dark-custom {
+        --bs-table-bg: transparent;
+        --bs-table-color: var(--text-color);
+        color: var(--text-color) !important;
         margin-bottom: 0;
     }
     
-    .table-responsive {
-        border-radius: 0 0 15px 15px;
-    }
-    
-    .table {
-        margin-bottom: 0;
-    }
-    
-    .table thead th {
-        border-bottom: 2px solid #eee;
-        color: #6c757d;
-        font-weight: 600;
-        text-transform: uppercase;
-        font-size: 0.8rem;
-        letter-spacing: 0.5px;
+    .table-dark-custom th {
+        background-color: var(--dark-bg);
+        color: var(--primary-color) !important; 
+        border-bottom: 2px solid rgba(184, 115, 51, 0.2);
         padding: 1rem;
-        background-color: #f8f9fa;
+        font-weight: 600;
+        text-transform: uppercase;
+        font-size: 0.85rem;
+        letter-spacing: 1px;
     }
     
-    .table tbody td {
+    .table-dark-custom td {
+        padding: 1rem;
+        border-bottom: 1px solid rgba(255,255,255,0.05);
+        background: transparent;
         vertical-align: middle;
-        padding: 1rem;
-        color: #495057;
+        color: var(--text-color) !important; 
     }
     
-    .table tbody tr {
-        transition: all 0.2s ease;
+    .table-dark-custom tbody tr:hover {
+        background-color: rgba(184, 115, 51, 0.05);
     }
-    
-    .table tbody tr:hover {
-        background-color: #f8f9fa;
-    }
-    
-    .vehicle-name {
-        font-weight: 600;
-        color: #2c3e50;
+
+    .vehicle-link {
+        color: var(--dark-color);
         text-decoration: none;
-        transition: color 0.2s ease;
+        font-weight: 600;
+        transition: var(--transition);
     }
     
-    .vehicle-name:hover {
-        color: #d4af37;
+    .vehicle-link:hover {
+        color: var(--primary-color);
     }
-    
+
     .status-badge {
         font-size: 0.75rem;
         font-weight: 600;
@@ -140,456 +101,256 @@
         display: inline-block;
     }
     
-    .status-badge.delivered {
-        background-color: #d4edda;
-        color: #155724;
-    }
-    
-    .status-badge.shipped {
-        background-color: #d1ecf1;
-        color: #0c5460;
-    }
-    
-    .status-badge.processing {
-        background-color: #fff3cd;
-        color: #856404;
-    }
-    
-    .status-badge.pending {
-        background-color: #e2e3e5;
-        color: #383d41;
-    }
-    
-    .status-badge.cancelled {
-        background-color: #f8d7da;
-        color: #721c24;
-    }
-    
-    .amount {
-        font-weight: 700;
-        color: #2c3e50;
-        font-size: 1.1rem;
-    }
-    
-    .net-amount {
-        font-size: 0.85rem;
-        color: #28a745;
-    }
-    
-    .btn-action {
-        border-radius: 50px;
-        padding: 0.4rem 0.8rem;
-        font-size: 0.8rem;
-        font-weight: 600;
-        transition: all 0.2s ease;
-        margin-right: 0.5rem;
-    }
-    
-    .btn-action:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
-    }
-    
-    .btn-rate {
-        background-color: #ffc107;
-        border-color: #ffc107;
-        color: #212529;
-    }
-    
-    .btn-rate:hover {
-        background-color: #e0a800;
-        border-color: #e0a800;
-        color: #212529;
-    }
-    
-    .rated-badge {
-        background-color: #e9ecef;
-        color: #495057;
-        font-size: 0.75rem;
-        font-weight: 600;
-        padding: 0.25rem 0.6rem;
-        border-radius: 50px;
-    }
-    
+    .status-delivered { background-color: rgba(74, 222, 128, 0.1); color: #4ade80; }
+    .status-shipped { background-color: rgba(13, 202, 240, 0.1); color: #0dcaf0; }
+    .status-processing { background-color: rgba(251, 191, 36, 0.1); color: #fbbf24; }
+    .status-pending { background-color: rgba(255,255,255,0.1); color: var(--gray-color); }
+    .status-cancelled { background-color: rgba(255, 107, 107, 0.1); color: #ff6b6b; }
+
+    /* Modal Dark Theme */
     .modal-content {
-        border-radius: 15px;
-        border: none;
-        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        background-color: var(--secondary-color);
+        color: var(--text-color);
+        border: 1px solid rgba(255,255,255,0.1);
+        border-radius: 16px;
     }
-    
     .modal-header {
-        background: linear-gradient(45deg, #d4af37, #f5d76e);
-        color: #212529;
-        border-radius: 15px 15px 0 0;
-        border: none;
+        border-bottom: 1px solid rgba(255,255,255,0.05);
     }
-    
-    .modal-title {
-        font-weight: 700;
+    .modal-header .btn-close {
+        filter: invert(1) grayscale(100%) brightness(200%);
     }
-    
-    .star-rating {
-        display: flex;
-        justify-content: center;
-        margin: 1.5rem 0;
+    .modal-footer {
+        border-top: 1px solid rgba(255,255,255,0.05);
     }
-    
-    .star-rating label {
-        cursor: pointer;
-        font-size: 1.8rem;
-        color: #ddd;
-        transition: color 0.2s ease;
-        margin: 0 5px;
+    .form-control {
+        background-color: var(--dark-bg);
+        border: 1px solid rgba(255,255,255,0.1);
+        color: var(--text-color);
     }
-    
-    .star-rating input:checked ~ label,
-    .star-rating label:hover,
-    .star-rating label:hover ~ label {
-        color: #ffc107;
-    }
-    
-    .empty-state {
-        text-align: center;
-        padding: 3rem 1rem;
-    }
-    
-    .empty-state-icon {
-        font-size: 4rem;
-        color: #dee2e6;
-        margin-bottom: 1.5rem;
-    }
-    
-    .empty-state h4 {
-        color: #6c757d;
-        margin-bottom: 1rem;
-    }
-    
-    .empty-state p {
-        color: #6c757d;
-        margin-bottom: 1.5rem;
-    }
-    
-    .btn-browse {
-        background: linear-gradient(45deg, #d4af37, #f5d76e);
-        border: none;
-        border-radius: 50px;
-        padding: 0.75rem 1.5rem;
-        font-weight: 600;
-        color: #212529;
-        transition: all 0.3s ease;
-    }
-    
-    .btn-browse:hover {
-        background: linear-gradient(45deg, #b8941f, #d4af37);
-        transform: translateY(-2px);
-        box-shadow: 0 5px 15px rgba(212, 175, 55, 0.3);
-        color: #212529;
-    }
-    
-    .pagination {
-        margin-top: 2rem;
-    }
-    
-    .page-link {
-        border-radius: 50px;
-        margin: 0 2px;
-        border: none;
-        color: #6c757d;
-        font-weight: 600;
-    }
-    
-    .page-item.active .page-link {
-        background: linear-gradient(45deg, #d4af37, #f5d76e);
-        border-color: #d4af37;
-        color: #212529;
-    }
-    
-    .warranty-info {
-        font-size: 0.8rem;
-        color: #6c757d;
-        margin-top: 0.25rem;
-    }
-    
-    @media (max-width: 768px) {
-        .page-header {
-            padding: 1.5rem;
-        }
-        
-        .page-header h1 {
-            font-size: 1.5rem;
-        }
-        
-        .table thead th {
-            font-size: 0.7rem;
-        }
-        
-        .table tbody td {
-            font-size: 0.85rem;
-            padding: 0.75rem 0.5rem;
-        }
-        
-        .btn-action {
-            padding: 0.3rem 0.6rem;
-            font-size: 0.75rem;
-        }
-        
-        .stats-card .icon {
-            font-size: 1.5rem;
-        }
-        
-        .stats-card .stats-value {
-            font-size: 1.5rem;
-        }
+    .form-control:focus {
+        background-color: rgba(0,0,0,0.8);
+        border-color: var(--primary-color);
+        color: var(--text-color);
+        box-shadow: none;
     }
 </style>
 {% endblock %}
 
 {% block content %}
 <div class="container my-5">
-    <!-- Page Header -->
-    <div class="page-header">
+    <div class="dashboard-header">
         <div class="d-flex align-items-center">
             <div class="me-3">
-                <i class="fas fa-shopping-cart fa-3x text-primary"></i>
+                <i class="fas fa-shopping-cart fa-3x" style="color: var(--primary-color);"></i>
             </div>
             <div>
-                <h1>My Purchases</h1>
-                <p>Track and manage all your vehicle purchases</p>
+                <h1 class="mb-0" style="color: var(--dark-color); font-family: var(--font-family-playfair);">My Purchases</h1>
+                <p class="mb-0" style="color: var(--gray-color);">Track and manage all your vehicle acquisitions</p>
             </div>
         </div>
     </div>
     
-    <!-- Stats Cards -->
-    <div class="row mb-4">
+    <div class="row mb-5 g-4">
         <div class="col-md-4">
-            <div class="card stats-card">
-                <div class="card-body">
-                    <div class="icon">
-                        <i class="fas fa-shopping-bag"></i>
-                    </div>
-                    <div class="card-title">Total Purchases</div>
-                    <div class="stats-value">{{ total_purchases }}</div>
-                </div>
+            <div class="stat-box">
+                <div class="stat-number">{{ total_purchases }}</div>
+                <div class="stat-label">Total Purchases</div>
             </div>
         </div>
         <div class="col-md-4">
-            <div class="card stats-card">
-                <div class="card-body">
-                    <div class="icon">
-                        <i class="fas fa-truck"></i>
-                    </div>
-                    <div class="card-title">Delivered</div>
-                    <div class="stats-value">{{ delivered_purchases }}</div>
-                </div>
+            <div class="stat-box">
+                <div class="stat-number">{{ delivered_purchases }}</div>
+                <div class="stat-label">Vehicles Delivered</div>
             </div>
         </div>
         <div class="col-md-4">
-            <div class="card stats-card">
-                <div class="card-body">
-                    <div class="icon">
-                        <i class="fas fa-money-bill-wave"></i>
-                    </div>
-                    <div class="card-title">Total Spent</div>
-                    <div class="stats-value">₦{{ total_spent|floatformat:2 }}</div>
-                </div>
+            <div class="stat-box">
+                <div class="stat-number">₦{{ total_spent|floatformat:2 }}</div>
+                <div class="stat-label">Total Invested</div>
             </div>
         </div>
     </div>
     
-    <!-- Main Card -->
-    <div class="card main-card">
-        <div class="card-header">
-            <h3 class="card-title"><i class="fas fa-list me-2"></i>Purchase History</h3>
-        </div>
-        <div class="card-body p-0">
-            {% if purchases %}
-            <div class="table-responsive">
-                <table class="table">
-                    <thead>
-                        <tr>
-                            <th>Vehicle</th>
-                            <th>Purchase Date</th>
-                            <th>Status</th>
-                            <th>Total Amount</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for purchase in purchases %}
-                        <tr>
-                            <td>
-                                {% if purchase.car %}
-                                    <div>
-                                        <a href="{% url 'car_rental:car_detail' purchase.car.pk %}" class="vehicle-name">
-                                            {{ purchase.car.year }} {{ purchase.car.make }} {{ purchase.car.model }}
-                                        </a>
-                                        {% if purchase.warranty_expiry %}
-                                        <div class="warranty-info">
-                                            <i class="fas fa-shield-alt me-1"></i>Warranty: {{ purchase.warranty_expiry|date:"M d, Y" }}
-                                        </div>
-                                        {% endif %}
-                                    </div>
-                                {% else %}
-                                    <span class="text-muted">Car no longer available</span>
-                                {% endif %}
-                            </td>
-                            <td>
+    <div class="data-card p-0">
+        {% if purchases %}
+        <div class="table-responsive">
+            <table class="table table-dark-custom">
+                <thead>
+                    <tr>
+                        <th>Vehicle</th>
+                        <th>Purchase Date</th>
+                        <th>Status</th>
+                        <th>Total Amount</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for purchase in purchases %}
+                    <tr>
+                        <td>
+                            {% if purchase.car %}
                                 <div>
-                                    <i class="far fa-calendar-alt me-2 text-muted"></i>
-                                    {{ purchase.purchase_datetime|date:"M d, Y" }}
+                                    <a href="{% url 'car_rental:car_detail' purchase.car.pk %}" class="vehicle-link">
+                                        {{ purchase.car.year }} {{ purchase.car.make }} {{ purchase.car.model }}
+                                    </a>
+                                    {% if purchase.warranty_expiry %}
+                                    <div class="small mt-1" style="color: var(--gray-color);">
+                                        <i class="fas fa-shield-alt me-1"></i>Warranty: {{ purchase.warranty_expiry|date:"M d, Y" }}
+                                    </div>
+                                    {% endif %}
                                 </div>
-                            </td>
-                            <td>
-                                {% if purchase.status == 'delivered' %}
-                                <span class="status-badge delivered">Delivered</span>
-                                {% elif purchase.status == 'shipped' %}
-                                <span class="status-badge shipped">Shipped</span>
-                                {% elif purchase.status == 'processing' %}
-                                <span class="status-badge processing">Processing</span>
-                                {% elif purchase.status == 'pending' %}
-                                <span class="status-badge pending">Pending</span>
-                                {% else %}
-                                <span class="status-badge cancelled">Cancelled</span>
-                                {% endif %}
-                            </td>
-                            <td>
-                                <div class="amount">₦{{ purchase.total_amount|floatformat:2 }}</div>
-                                {% if purchase.net_amount != purchase.total_amount %}
-                                <div class="net-amount">Net: ₦{{ purchase.net_amount|floatformat:2 }}</div>
-                                {% endif %}
-                            </td>
-                            <td>
-                                <a href="{% url 'car_rental:purchase_detail' purchase.pk %}" class="btn btn-sm btn-outline-info btn-action" title="View Details">
-                                    <i class="fas fa-info-circle"></i>
-                                </a>
-                                
-                                {% if purchase.status == 'delivered' and purchase.id not in rated_purchases %}
-                                <button type="button" class="btn btn-sm btn-rate btn-action" data-bs-toggle="modal" data-bs-target="#ratingModal-{{ purchase.pk }}" title="Rate Purchase">
-                                    <i class="fas fa-star"></i>
-                                </button>
-                                {% elif purchase.status == 'delivered' and purchase.id in rated_purchases %}
-                                <span class="rated-badge" title="Already Rated">
-                                    <i class="fas fa-check me-1"></i>Rated
-                                </span>
-                                {% endif %}
-                                
-                                <!-- Only show edit button to superusers -->
-                                {% if request.user.is_superuser %}
-                                <a href="{% url 'car_rental:update_purchase' purchase.pk %}" class="btn btn-sm btn-primary btn-action" title="Edit Purchase">
-                                    <i class="fas fa-edit"></i>
-                                </a>
-                                {% endif %}
-                            </td>
-                        </tr>
-                        
-                        <!-- Rating Modal -->
-                        <div class="modal fade" id="ratingModal-{{ purchase.pk }}" tabindex="-1" aria-hidden="true">
-                            <div class="modal-dialog">
-                                <div class="modal-content">
-                                    <form method="post" action="{% url 'car_rental:submit_purchase_rating' purchase.pk %}">
-                                        {% csrf_token %}
-                                        <div class="modal-header">
-                                            <h5 class="modal-title">
-                                                <i class="fas fa-star me-2"></i>Rate Your Purchase Experience
-                                            </h5>
-                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            {% else %}
+                                <span style="color: var(--gray-color);">Car no longer available</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <div>
+                                <i class="far fa-calendar-alt me-2" style="color: var(--gray-color);"></i>
+                                {{ purchase.purchase_datetime|date:"M d, Y" }}
+                            </div>
+                        </td>
+                        <td>
+                            {% if purchase.status == 'delivered' %}
+                            <span class="status-badge status-delivered">Delivered</span>
+                            {% elif purchase.status == 'shipped' %}
+                            <span class="status-badge status-shipped">Shipped</span>
+                            {% elif purchase.status == 'processing' %}
+                            <span class="status-badge status-processing">Processing</span>
+                            {% elif purchase.status == 'pending' %}
+                            <span class="status-badge status-pending">Pending</span>
+                            {% else %}
+                            <span class="status-badge status-cancelled">Cancelled</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <div style="font-weight: 700; color: var(--primary-color); font-size: 1.1rem;">₦{{ purchase.total_amount|floatformat:2 }}</div>
+                            {% if purchase.net_amount != purchase.total_amount %}
+                            <div class="small" style="color: #4ade80;">Net: ₦{{ purchase.net_amount|floatformat:2 }}</div>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <a href="{% url 'car_rental:purchase_detail' purchase.pk %}" class="btn btn-sm btn-outline-primary" title="View Details">
+                                <i class="fas fa-info-circle"></i>
+                            </a>
+                            
+                            {% if purchase.status == 'delivered' and purchase.id not in rated_purchases %}
+                            <button type="button" class="btn btn-sm btn-primary ms-1" data-bs-toggle="modal" data-bs-target="#ratingModal-{{ purchase.pk }}" title="Rate Purchase">
+                                <i class="fas fa-star"></i>
+                            </button>
+                            {% elif purchase.status == 'delivered' and purchase.id in rated_purchases %}
+                            <span class="badge ms-1" style="background-color: rgba(184, 115, 51, 0.1); color: var(--primary-color);" title="Already Rated">
+                                Rated
+                            </span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    
+                    <div class="modal fade" id="ratingModal-{{ purchase.pk }}" tabindex="-1" aria-hidden="true">
+                        <div class="modal-dialog">
+                            <div class="modal-content">
+                                <form method="post" action="{% url 'car_rental:submit_purchase_rating' purchase.pk %}">
+                                    {% csrf_token %}
+                                    <div class="modal-header">
+                                        <h5 class="modal-title" style="color: var(--dark-color); font-family: var(--font-family-playfair);">
+                                            <i class="fas fa-star me-2" style="color: var(--primary-color);"></i>Rate Your Purchase
+                                        </h5>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <div class="text-center mb-4">
+                                            {% if purchase.car %}
+                                                <p style="color: var(--gray-color);">How was your buying experience for the {{ purchase.car.year }} {{ purchase.car.make }} {{ purchase.car.model }}?</p>
+                                            {% else %}
+                                                <p style="color: var(--gray-color);">How was your buying experience?</p>
+                                            {% endif %}
                                         </div>
-                                        <div class="modal-body">
-                                            <div class="text-center mb-4">
-                                                {% if purchase.car %}
-                                                    <h6 class="text-muted">How was your buying experience for the {{ purchase.car.year }} {{ purchase.car.make }} {{ purchase.car.model }}?</h6>
-                                                {% else %}
-                                                    <h6 class="text-muted">How was your buying experience for your purchase?</h6>
-                                                {% endif %}
-                                            </div>
-                                            
-                                            <div class="star-rating">
+                                        
+                                        <div class="mb-4 text-center">
+                                            <div class="d-flex justify-content-center">
                                                 {% for i in "12345"|make_list %}
                                                 <input type="radio" class="btn-check" name="rating" id="star-purchase-{{ purchase.pk }}-{{ i }}" value="{{ i }}" required>
-                                                <label class="btn btn-outline-warning" for="star-purchase-{{ purchase.pk }}-{{ i }}">
+                                                <label class="btn btn-outline-primary btn-lg mx-1" for="star-purchase-{{ purchase.pk }}-{{ i }}">
                                                     <i class="fas fa-star"></i>
                                                 </label>
                                                 {% endfor %}
                                             </div>
-                                            
-                                            <div class="mb-3">
-                                                <label for="comment-purchase-{{ purchase.pk }}" class="form-label">
-                                                    <i class="fas fa-comment me-2"></i>Comment (Optional)
-                                                </label>
-                                                <textarea class="form-control" id="comment-purchase-{{ purchase.pk }}" name="comment" rows="3" placeholder="Share your experience..."></textarea>
-                                            </div>
-                                            
-                                            <div class="form-check mb-3">
-                                                <input class="form-check-input" type="checkbox" name="would_recommend" id="recommend-purchase-{{ purchase.pk }}" value="on" checked>
-                                                <label class="form-check-label" for="recommend-purchase-{{ purchase.pk }}">
-                                                    <i class="fas fa-thumbs-up me-2"></i>I would recommend Hillz Exquisites.
-                                                </label>
-                                            </div>
-                                            
                                         </div>
-                                        <div class="modal-footer">
-                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
-                                                <i class="fas fa-times me-2"></i>Close
-                                            </button>
-                                            <button type="submit" class="btn btn-primary">
-                                                <i class="fas fa-paper-plane me-2"></i>Submit Review
-                                            </button>
+                                        
+                                        <div class="mb-4">
+                                            <label for="comment-purchase-{{ purchase.pk }}" class="form-label">
+                                                Comment (Optional)
+                                            </label>
+                                            <textarea class="form-control" id="comment-purchase-{{ purchase.pk }}" name="comment" rows="3" placeholder="Share your experience..."></textarea>
                                         </div>
-                                    </form>
-                                </div>
+                                        
+                                        <div class="form-check mb-3">
+                                            <input class="form-check-input" type="checkbox" name="would_recommend" id="recommend-purchase-{{ purchase.pk }}" value="on" checked style="background-color: transparent; border-color: rgba(255,255,255,0.2);">
+                                            <label class="form-check-label" for="recommend-purchase-{{ purchase.pk }}">
+                                                I would recommend Hillz Exquisites.
+                                            </label>
+                                        </div>
+                                        
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" style="background-color: transparent; border-color: var(--gray-color);">Close</button>
+                                        <button type="submit" class="btn btn-primary">Submit Review</button>
+                                    </div>
+                                </form>
                             </div>
                         </div>
-                        
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
-            
-            <!-- Pagination -->
-            {% if is_paginated %}
-            <nav aria-label="Page navigation" class="p-3">
-                <ul class="pagination justify-content-center">
-                    {% if page_obj.has_previous %}
-                    <li class="page-item">
-                        <a class="page-link" href="?page={{ page_obj.previous_page_number }}" aria-label="Previous">
-                            <i class="fas fa-chevron-left"></i>
-                        </a>
-                    </li>
-                    {% endif %}
-                    
-                    {% for num in page_obj.paginator.page_range %}
-                        {% if page_obj.number == num %}
-                            <li class="page-item active"><span class="page-link">{{ num }}</span></li>
-                        {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
-                            <li class="page-item"><a class="page-link" href="?page={{ num }}">{{ num }}</a></li>
-                        {% endif %}
+                    </div>
                     {% endfor %}
-                    
-                    {% if page_obj.has_next %}
-                    <li class="page-item">
-                        <a class="page-link" href="?page={{ page_obj.next_page_number }}" aria-label="Next">
-                            <i class="fas fa-chevron-right"></i>
-                        </a>
-                    </li>
-                    {% endif %}
-                </ul>
-            </nav>
-            {% endif %}
-            
-            {% else %}
-            <!-- Empty State -->
-            <div class="empty-state">
-                <div class="empty-state-icon">
-                    <i class="fas fa-shopping-cart"></i>
-                </div>
-                <h4>No purchases found</h4>
-                <p>Find your next vehicle from our curated selection of premium cars for sale.</p>
-                <a href="{% url 'car_rental:sale_cars' %}" class="btn btn-browse">
-                    <i class="fas fa-car me-2"></i>Browse Cars for Sale
-                </a>
-            </div>
-            {% endif %}
+                </tbody>
+            </table>
         </div>
+        
+        {% if is_paginated %}
+        <nav aria-label="Page navigation" class="p-3">
+            <ul class="pagination justify-content-center custom-pagination">
+                {% if page_obj.has_previous %}
+                <li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}">Previous</a></li>
+                {% endif %}
+                
+                {% for num in page_obj.paginator.page_range %}
+                    {% if page_obj.number == num %}
+                        <li class="page-item active"><span class="page-link">{{ num }}</span></li>
+                    {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                        <li class="page-item"><a class="page-link" href="?page={{ num }}">{{ num }}</a></li>
+                    {% endif %}
+                {% endfor %}
+                
+                {% if page_obj.has_next %}
+                <li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}">Next</a></li>
+                {% endif %}
+            </ul>
+        </nav>
+        {% endif %}
+        
+        {% else %}
+        <div class="text-center py-5">
+            <i class="fas fa-shopping-cart fa-3x mb-3" style="color: rgba(255,255,255,0.1);"></i>
+            <h4 style="color: var(--dark-color);">No purchases found</h4>
+            <p style="color: var(--gray-color);">Find your next vehicle from our curated selection of premium cars.</p>
+            <a href="{% url 'car_rental:sale_cars' %}" class="btn btn-primary mt-3">Browse Cars for Sale</a>
+        </div>
+        {% endif %}
     </div>
 </div>
+
+<style>
+    /* Pagination Overrides */
+    .custom-pagination .page-link {
+        background-color: var(--dark-bg);
+        border-color: rgba(255,255,255,0.1);
+        color: var(--text-color);
+        margin: 0 3px;
+        border-radius: 6px;
+    }
+    .custom-pagination .page-item.active .page-link {
+        background-color: var(--primary-color);
+        border-color: var(--primary-color);
+        color: var(--dark-bg);
+    }
+</style>
 {% endblock %}

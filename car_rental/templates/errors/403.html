@@ -1,12 +1,26 @@
 {% extends 'base.html' %}
 
-{% block title %}403 Forbidden - {{ site_info.company_name }}{% endblock %}
+{% block title %}Access Restricted - {{ site_info.company_name }}{% endblock %}
 
 {% block content %}
-<div class="container text-center py-5">
-    <h1 class="display-1">403</h1>
-    <h2>Forbidden</h2>
-    <p class="lead">You don't have permission to access this page.</p>
-    <a href="{% url 'car_rental:home' %}" class="btn btn-primary">Go to Home</a>
+<div class="container d-flex align-items-center justify-content-center" style="min-height: 70vh;">
+    <div class="text-center p-5" style="background-color: var(--secondary-color); border: 1px solid rgba(255,255,255,0.05); border-radius: 16px; box-shadow: 0 20px 40px rgba(0,0,0,0.5); max-width: 600px;">
+        
+        <div class="mb-4">
+            <div style="width: 100px; height: 100px; background-color: rgba(184, 115, 51, 0.1); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto;">
+                <i class="fas fa-shield-lock fa-3x" style="color: var(--primary-color);"></i>
+            </div>
+        </div>
+        
+        <h2 class="display-6 fw-bold mb-3" style="color: var(--dark-color); font-family: var(--font-family-playfair);">Access Restricted</h2>
+        
+        <p class="lead mb-5" style="color: var(--gray-color); font-size: 1.1rem;">
+            You do not have the required administrative permissions to view this secure area. If you believe this is an error, please contact support.
+        </p>
+        
+        <a href="{% url 'car_rental:home' %}" class="btn btn-primary px-4 py-3">
+            <i class="fas fa-arrow-left me-2"></i> Return to Homepage
+        </a>
+    </div>
 </div>
 {% endblock %}

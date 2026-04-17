@@ -3,149 +3,260 @@
 {% load custom_filters %}
 {% block title %}My Rentals - {{ site_info.company_name }}{% endblock %}
 
+{% block extra_css %}
+<style>
+    .dashboard-header {
+        margin-bottom: 2rem;
+        padding-bottom: 1rem;
+        border-bottom: 1px solid rgba(255,255,255,0.05);
+    }
+    
+    .data-card {
+        background-color: var(--secondary-color);
+        border-radius: 16px;
+        border: 1px solid rgba(255,255,255,0.05);
+        box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        padding: 2rem;
+        margin-bottom: 2rem;
+    }
+    
+    .table-dark-custom {
+        --bs-table-bg: transparent;
+        --bs-table-color: var(--text-color);
+        color: var(--text-color) !important;
+        margin-bottom: 0;
+    }
+    
+    .table-dark-custom th {
+        background-color: var(--dark-bg);
+        color: var(--primary-color) !important; 
+        border-bottom: 2px solid rgba(184, 115, 51, 0.2);
+        padding: 1rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        font-size: 0.85rem;
+        letter-spacing: 1px;
+    }
+    
+    .table-dark-custom td {
+        padding: 1rem;
+        border-bottom: 1px solid rgba(255,255,255,0.05);
+        background: transparent;
+        vertical-align: middle;
+        color: var(--text-color) !important; 
+    }
+    
+    .table-dark-custom tbody tr:hover {
+        background-color: rgba(184, 115, 51, 0.05);
+    }
+
+    .vehicle-link {
+        color: var(--dark-color);
+        text-decoration: none;
+        transition: var(--transition);
+    }
+    
+    .vehicle-link:hover {
+        color: var(--primary-color);
+    }
+
+    /* Modal Dark Theme */
+    .modal-content {
+        background-color: var(--secondary-color);
+        color: var(--text-color);
+        border: 1px solid rgba(255,255,255,0.1);
+        border-radius: 16px;
+    }
+    .modal-header {
+        border-bottom: 1px solid rgba(255,255,255,0.05);
+    }
+    .modal-header .btn-close {
+        filter: invert(1) grayscale(100%) brightness(200%);
+    }
+    .modal-footer {
+        border-top: 1px solid rgba(255,255,255,0.05);
+    }
+    .form-control, .form-select {
+        background-color: var(--dark-bg);
+        border: 1px solid rgba(255,255,255,0.1);
+        color: var(--text-color);
+    }
+    .form-control:focus {
+        background-color: rgba(0,0,0,0.8);
+        border-color: var(--primary-color);
+        color: var(--text-color);
+        box-shadow: none;
+    }
+</style>
+{% endblock %}
+
 {% block content %}
 <div class="container my-5">
-    <h1 class="mb-4">My Rentals</h1>
-    
-    <div class="card shadow">
-        <div class="card-body">
-            {% if rentals %}
-            <div class="table-responsive">
-                <table class="table table-hover align-middle">
-                    <thead class="table-light">
-                        <tr>
-                            <th>Vehicle</th>
-                            <th>Rental Dates</th>
-                            <th>Status</th>
-                            <th>Total Amount</th>
-                            <th>Actions & Review</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for rental in rentals %}
-                        <tr>
-                            <td>
-                                <a href="{% url 'car_rental:car_detail' rental.car.pk %}" class="text-primary fw-bold">
-                                    {{ rental.car.year }} {{ rental.car.make }} {{ rental.car.model }}
-                                </a>
-                                <div class="text-muted small">{{ rental.pickup_location }} to {{ rental.return_location }}</div>
-                            </td>
-                            <td>
-                                <div><i class="fas fa-calendar-alt me-2"></i>{{ rental.rental_datetime|date:"M d, Y" }}</div>
-                                <div class="text-muted small">to {{ rental.return_datetime|date:"M d, Y" }}</div>
-                            </td>
-                            <td>
-                                {% if rental.status == 'active' %}
-                                <span class="badge bg-success">Active</span>
-                                {% elif rental.status == 'completed' %}
-                                <span class="badge bg-primary">Completed</span>
-                                {% elif rental.status == 'overdue' %}
-                                <span class="badge bg-danger">Overdue</span>
-                                {% else %}
-                                <span class="badge bg-secondary">{{ rental.get_status_display }}</span>
-                                {% endif %}
-                            </td>
-                            <td>
-                                <strong>{{ rental.total_amount_due|format_naira_price|default:"N/A" }}</strong>
-                                {% if rental.late_fee > 0 %}
-                                <div class="text-danger small">(Late Fee: {{ rental.late_fee|format_naira_price }})</div>
-                                {% endif %}
-                            </td>
-                            <td>
-                                <a href="{% url 'car_rental:rental_detail' rental.pk %}" class="btn btn-sm btn-outline-info me-2">
-                                    <i class="fas fa-info-circle"></i> Details
-                                </a>
-                                
-                                {% if rental.status == 'completed' and rental.id not in rated_rentals %}
-                                <button type="button" class="btn btn-sm btn-warning" data-bs-toggle="modal" data-bs-target="#ratingModal-{{ rental.pk }}">
-                                    <i class="fas fa-star"></i> Rate
-                                </button>
-                                {% elif rental.status == 'completed' and rental.id in rated_rentals %}
-                                <span class="badge bg-warning text-dark">Rated</span>
-                                {% endif %}
-                            </td>
-                        </tr>
-                        
-                        <div class="modal fade" id="ratingModal-{{ rental.pk }}" tabindex="-1" aria-hidden="true">
-                            <div class="modal-dialog">
-                                <div class="modal-content">
-                                    <form method="post" action="{% url 'car_rental:submit_rental_rating' rental.pk %}">
-                                        {% csrf_token %}
-                                        <div class="modal-header">
-                                            <h5 class="modal-title">Rate Your Rental Experience</h5>
-                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                        </div>
-                                        <div class="modal-body">
-                                            <p class="text-muted">How was your experience with the {{ rental.car.year }} {{ rental.car.make }} {{ rental.car.model }}?</p>
-                                            
-                                            <div class="mb-3">
-                                                <label class="form-label">Rating</label>
-                                                <div class="d-flex justify-content-center">
-                                                    {% for i in "12345"|make_list %}
-                                                    <input type="radio" class="btn-check" name="rating" id="star-{{ rental.pk }}-{{ i }}" value="{{ i }}" required>
-                                                    <label class="btn btn-outline-warning btn-lg" for="star-{{ rental.pk }}-{{ i }}" style="margin: 0 5px;">
-                                                        <i class="fas fa-star"></i>
-                                                    </label>
-                                                    {% endfor %}
-                                                </div>
-                                            </div>
-                                            
-                                            <div class="mb-3">
-                                                <label for="comment-{{ rental.pk }}" class="form-label">Comment (Optional)</label>
-                                                <textarea class="form-control" id="comment-{{ rental.pk }}" name="comment" rows="3"></textarea>
-                                            </div>
-                                            
-                                            <div class="form-check">
-                                                <input class="form-check-input" type="checkbox" name="would_recommend" id="recommend-{{ rental.pk }}" checked>
-                                                <label class="form-check-label" for="recommend-{{ rental.pk }}">
-                                                    I would recommend Hillz Exquisites.
-                                                </label>
-                                            </div>
-                                            
-                                        </div>
-                                        <div class="modal-footer">
-                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                                            <button type="submit" class="btn btn-primary">Submit Review</button>
-                                        </div>
-                                    </form>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        {% endfor %}
-                    </tbody>
-                </table>
+    <div class="dashboard-header">
+        <div class="d-flex align-items-center">
+            <div class="me-3">
+                <i class="fas fa-key fa-3x" style="color: var(--primary-color);"></i>
             </div>
-            
-            {% if is_paginated %}
-            <nav aria-label="Page navigation" class="mt-4">
-                <ul class="pagination justify-content-center">
-                    {% if page_obj.has_previous %}
-                    <li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}">Previous</a></li>
-                    {% endif %}
-                    
-                    {% for num in page_obj.paginator.page_range %}
-                        {% if page_obj.number == num %}
-                            <li class="page-item active"><span class="page-link">{{ num }}</span></li>
-                        {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
-                            <li class="page-item"><a class="page-link" href="?page={{ num }}">{{ num }}</a></li>
-                        {% endif %}
-                    {% endfor %}
-                    
-                    {% if page_obj.has_next %}
-                    <li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}">Next</a></li>
-                    {% endif %}
-                </ul>
-            </nav>
-            {% endif %}
-            
-            {% else %}
-            <div class="alert alert-info text-center">
-                <h4>No rentals found</h4>
-                <p>Start your luxury experience by checking out our <a href="{% url 'car_rental:rent_cars' %}">rental fleet</a>.</p>
+            <div>
+                <h1 class="mb-0" style="color: var(--dark-color); font-family: var(--font-family-playfair);">My Rentals</h1>
+                <p class="mb-0" style="color: var(--gray-color);">Track and manage your active and past vehicle rentals</p>
             </div>
-            {% endif %}
         </div>
     </div>
+    
+    <div class="data-card p-0">
+        {% if rentals %}
+        <div class="table-responsive">
+            <table class="table table-dark-custom">
+                <thead>
+                    <tr>
+                        <th>Vehicle</th>
+                        <th>Rental Dates</th>
+                        <th>Status</th>
+                        <th>Total Amount</th>
+                        <th>Actions & Review</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for rental in rentals %}
+                    <tr>
+                        <td>
+                            <a href="{% url 'car_rental:car_detail' rental.car.pk %}" class="vehicle-link fw-bold">
+                                {{ rental.car.year }} {{ rental.car.make }} {{ rental.car.model }}
+                            </a>
+                            <div class="small" style="color: var(--gray-color);">{{ rental.pickup_location }} to {{ rental.return_location }}</div>
+                        </td>
+                        <td>
+                            <div><i class="fas fa-calendar-alt me-2" style="color: var(--gray-color);"></i>{{ rental.rental_datetime|date:"M d, Y" }}</div>
+                            <div class="small" style="color: var(--gray-color);">to {{ rental.return_datetime|date:"M d, Y" }}</div>
+                        </td>
+                        <td>
+                            {% if rental.status == 'active' %}
+                            <span class="badge" style="background-color: rgba(74, 222, 128, 0.1); color: #4ade80;">Active</span>
+                            {% elif rental.status == 'completed' %}
+                            <span class="badge" style="background-color: rgba(255,255,255,0.1); color: var(--gray-color);">Completed</span>
+                            {% elif rental.status == 'overdue' %}
+                            <span class="badge" style="background-color: rgba(255, 107, 107, 0.1); color: #ff6b6b;">Overdue</span>
+                            {% else %}
+                            <span class="badge" style="background-color: rgba(251, 191, 36, 0.1); color: #fbbf24;">{{ rental.get_status_display }}</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <strong style="color: var(--primary-color);">{{ rental.total_amount_due|format_naira_price|default:"N/A" }}</strong>
+                            {% if rental.late_fee > 0 %}
+                            <div class="small mt-1" style="color: #ff6b6b;">(Late Fee: {{ rental.late_fee|format_naira_price }})</div>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <a href="{% url 'car_rental:rental_detail' rental.pk %}" class="btn btn-sm btn-outline-primary me-2">
+                                <i class="fas fa-info-circle"></i> Details
+                            </a>
+                            
+                            {% if rental.status == 'completed' and rental.id not in rated_rentals %}
+                            <button type="button" class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#ratingModal-{{ rental.pk }}">
+                                <i class="fas fa-star"></i> Rate
+                            </button>
+                            {% elif rental.status == 'completed' and rental.id in rated_rentals %}
+                            <span class="badge" style="background-color: rgba(184, 115, 51, 0.1); color: var(--primary-color);">Rated</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    
+                    <div class="modal fade" id="ratingModal-{{ rental.pk }}" tabindex="-1" aria-hidden="true">
+                        <div class="modal-dialog">
+                            <div class="modal-content">
+                                <form method="post" action="{% url 'car_rental:submit_rental_rating' rental.pk %}">
+                                    {% csrf_token %}
+                                    <div class="modal-header">
+                                        <h5 class="modal-title" style="color: var(--dark-color); font-family: var(--font-family-playfair);">Rate Your Rental Experience</h5>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <p style="color: var(--gray-color);">How was your experience with the {{ rental.car.year }} {{ rental.car.make }} {{ rental.car.model }}?</p>
+                                        
+                                        <div class="mb-4 text-center">
+                                            <div class="d-flex justify-content-center">
+                                                {% for i in "12345"|make_list %}
+                                                <input type="radio" class="btn-check" name="rating" id="star-{{ rental.pk }}-{{ i }}" value="{{ i }}" required>
+                                                <label class="btn btn-outline-primary btn-lg mx-1" for="star-{{ rental.pk }}-{{ i }}">
+                                                    <i class="fas fa-star"></i>
+                                                </label>
+                                                {% endfor %}
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="mb-4">
+                                            <label for="comment-{{ rental.pk }}" class="form-label">Comment (Optional)</label>
+                                            <textarea class="form-control" id="comment-{{ rental.pk }}" name="comment" rows="3"></textarea>
+                                        </div>
+                                        
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" name="would_recommend" id="recommend-{{ rental.pk }}" checked style="background-color: transparent; border-color: rgba(255,255,255,0.2);">
+                                            <label class="form-check-label" for="recommend-{{ rental.pk }}">
+                                                I would recommend Hillz Exquisites.
+                                            </label>
+                                        </div>
+                                        
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" style="background-color: transparent; border-color: var(--gray-color);">Close</button>
+                                        <button type="submit" class="btn btn-primary">Submit Review</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        
+        {% if is_paginated %}
+        <nav aria-label="Page navigation" class="p-3">
+            <ul class="pagination justify-content-center custom-pagination">
+                {% if page_obj.has_previous %}
+                <li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}">Previous</a></li>
+                {% endif %}
+                
+                {% for num in page_obj.paginator.page_range %}
+                    {% if page_obj.number == num %}
+                        <li class="page-item active"><span class="page-link">{{ num }}</span></li>
+                    {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                        <li class="page-item"><a class="page-link" href="?page={{ num }}">{{ num }}</a></li>
+                    {% endif %}
+                {% endfor %}
+                
+                {% if page_obj.has_next %}
+                <li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}">Next</a></li>
+                {% endif %}
+            </ul>
+        </nav>
+        {% endif %}
+        
+        {% else %}
+        <div class="text-center py-5">
+            <i class="fas fa-key fa-3x mb-3" style="color: rgba(255,255,255,0.1);"></i>
+            <h4 style="color: var(--dark-color);">No rentals found</h4>
+            <p style="color: var(--gray-color);">Start your luxury experience by checking out our rental fleet.</p>
+            <a href="{% url 'car_rental:rent_cars' %}" class="btn btn-primary mt-3">Browse Rental Fleet</a>
+        </div>
+        {% endif %}
+    </div>
 </div>
+
+<style>
+    /* Pagination Overrides */
+    .custom-pagination .page-link {
+        background-color: var(--dark-bg);
+        border-color: rgba(255,255,255,0.1);
+        color: var(--text-color);
+        margin: 0 3px;
+        border-radius: 6px;
+    }
+    .custom-pagination .page-item.active .page-link {
+        background-color: var(--primary-color);
+        border-color: var(--primary-color);
+        color: var(--dark-bg);
+    }
+</style>
 {% endblock %}

@@ -1,217 +1,291 @@
 {% extends 'base.html' %}
 {% load static %}
 {% load custom_filters %}
+
 {% block title %}My Services - {% if site_info %}{{ site_info.company_name }}{% else %}Hillz Exquisite{% endif %}{% endblock %}
+
+{% block extra_css %}
+<style>
+    .dashboard-header {
+        margin-bottom: 2rem;
+        padding-bottom: 1rem;
+        border-bottom: 1px solid rgba(255,255,255,0.05);
+    }
+    
+    .stat-box {
+        background-color: var(--dark-bg);
+        border: 1px solid rgba(255,255,255,0.05);
+        border-radius: 12px;
+        padding: 1.5rem;
+        text-align: center;
+        height: 100%;
+        transition: var(--transition);
+        display: flex;
+        align-items: center;
+    }
+    
+    .stat-box:hover {
+        transform: translateY(-3px);
+        border-color: rgba(184, 115, 51, 0.2);
+    }
+    
+    .stat-icon {
+        width: 50px;
+        height: 50px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        background-color: rgba(184, 115, 51, 0.1);
+        color: var(--primary-color);
+        margin-right: 1.5rem;
+    }
+
+    .data-card {
+        background-color: var(--secondary-color);
+        border-radius: 16px;
+        border: 1px solid rgba(255,255,255,0.05);
+        box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        padding: 2rem;
+        margin-bottom: 2rem;
+    }
+    
+    .table-dark-custom {
+        --bs-table-bg: transparent;
+        --bs-table-color: var(--text-color);
+        color: var(--text-color) !important;
+        margin-bottom: 0;
+    }
+    
+    .table-dark-custom th {
+        background-color: var(--dark-bg);
+        color: var(--primary-color) !important; 
+        border-bottom: 2px solid rgba(184, 115, 51, 0.2);
+        padding: 1rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        font-size: 0.85rem;
+        letter-spacing: 1px;
+    }
+    
+    .table-dark-custom td {
+        padding: 1rem;
+        border-bottom: 1px solid rgba(255,255,255,0.05);
+        background: transparent;
+        vertical-align: middle;
+        color: var(--text-color) !important; 
+    }
+    
+    .table-dark-custom tbody tr:hover {
+        background-color: rgba(184, 115, 51, 0.05);
+    }
+
+    .status-badge {
+        font-size: 0.75rem;
+        font-weight: 600;
+        padding: 0.4rem 0.8rem;
+        border-radius: 50px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        display: inline-block;
+    }
+    
+    .status-pending { background-color: rgba(251, 191, 36, 0.1); color: #fbbf24; }
+    .status-confirmed { background-color: rgba(13, 202, 240, 0.1); color: #0dcaf0; }
+    .status-in_progress { background-color: rgba(184, 115, 51, 0.1); color: var(--primary-color); }
+    .status-completed { background-color: rgba(74, 222, 128, 0.1); color: #4ade80; }
+    .status-cancelled { background-color: rgba(255, 107, 107, 0.1); color: #ff6b6b; }
+</style>
+{% endblock %}
 
 {% block content %}
 <div class="container my-5">
-    <div class="row">
-        <div class="col-lg-12">
-            <div class="card shadow-sm border-0 mb-4">
-                <div class="card-header bg-white py-3">
-                    <div class="row align-items-center">
-                        <div class="col">
-                            <h4 class="mb-0">My Service Bookings</h4>
-                        </div>
-                        <div class="col-auto">
-                            <a href="{% url 'car_rental:services_overview' %}" class="btn btn-primary btn-sm">
-                                <i class="fas fa-plus me-2"></i>Book New Service
-                            </a>
-                        </div>
-                    </div>
+    <div class="dashboard-header">
+        <div class="row align-items-center">
+            <div class="col d-flex align-items-center">
+                <div class="me-3">
+                    <i class="fas fa-tools fa-3x" style="color: var(--primary-color);"></i>
                 </div>
-                <div class="card-body">
-                    {% if messages %}
-                        {% for message in messages %}
-                            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
-                                {{ message }}
-                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                            </div>
-                        {% endfor %}
-                    {% endif %}
-                    
-                    <!-- Stats Cards -->
-                    <div class="row mb-4">
-                        <div class="col-md-4">
-                            <div class="card border-primary">
-                                <div class="card-body">
-                                    <div class="d-flex align-items-center">
-                                        <div class="flex-grow-1">
-                                            <h6 class="text-muted mb-1">Total Bookings</h6>
-                                            <h3 class="mb-0">{{ total_bookings }}</h3>
-                                        </div>
-                                        <div class="ms-3">
-                                            <div class="stat-icon bg-primary bg-opacity-10 text-primary">
-                                                <i class="fas fa-calendar-check"></i>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-4">
-                            <div class="card border-warning">
-                                <div class="card-body">
-                                    <div class="d-flex align-items-center">
-                                        <div class="flex-grow-1">
-                                            <h6 class="text-muted mb-1">Pending</h6>
-                                            <h3 class="mb-0">{{ pending_bookings }}</h3>
-                                        </div>
-                                        <div class="ms-3">
-                                            <div class="stat-icon bg-warning bg-opacity-10 text-warning">
-                                                <i class="fas fa-clock"></i>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-4">
-                            <div class="card border-success">
-                                <div class="card-body">
-                                    <div class="d-flex align-items-center">
-                                        <div class="flex-grow-1">
-                                            <h6 class="text-muted mb-1">Completed</h6>
-                                            <h3 class="mb-0">{{ completed_bookings }}</h3>
-                                        </div>
-                                        <div class="ms-3">
-                                            <div class="stat-icon bg-success bg-opacity-10 text-success">
-                                                <i class="fas fa-check-circle"></i>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    {% if bookings %}
-                        <div class="table-responsive">
-                            <table class="table table-hover">
-                                <thead>
-                                    <tr>
-                                        <th>ID</th>
-                                        <th>Service Type</th>
-                                        <th>Vehicle</th>
-                                        <th>Preferred Date</th>
-                                        <th>Status</th>
-                                        <th>Actions</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {% for booking in bookings %}
-                                    <tr>
-                                        <td>#{{ booking.id }}</td>
-                                        <td>
-                                            <span class="badge bg-{{ booking.service_type|service_type_color }}">
-                                                {{ booking.get_service_type_display }}
-                                            </span>
-                                        </td>
-                                        <td>{{ booking.car_year }} {{ booking.car_make }} {{ booking.car_model }}</td>
-                                        <td>{{ booking.preferred_date|date:"M d, Y" }}</td>
-                                        <td>
-                                            {% if booking.status == 'pending' %}
-                                            <span class="badge bg-warning">Pending</span>
-                                            {% elif booking.status == 'confirmed' %}
-                                            <span class="badge bg-info">Confirmed</span>
-                                            {% elif booking.status == 'in_progress' %}
-                                            <span class="badge bg-primary">In Progress</span>
-                                            {% elif booking.status == 'completed' %}
-                                            <span class="badge bg-success">Completed</span>
-                                            {% elif booking.status == 'cancelled' %}
-                                            <span class="badge bg-danger">Cancelled</span>
-                                            {% else %}
-                                            <span class="badge bg-secondary">{{ booking.get_status_display }}</span>
-                                            {% endif %}
-                                        </td>
-                                        <td>
-                                            <div class="btn-group">
-                                                <a href="{% url 'car_rental:service_booking_detail' booking.id %}" class="btn btn-sm btn-outline-primary">
-                                                    <i class="fas fa-eye"></i>
-                                                </a>
-                                                {% if booking.status == 'pending' %}
-                                                <!-- =============================================================== -->
-                                                <!-- KEY CHANGE: Added type="button" to prevent default form submission -->
-                                                <!-- =============================================================== -->
-                                                <button type="button" class="btn btn-sm btn-outline-danger cancel-booking" data-id="{{ booking.id }}">
-                                                    <i class="fas fa-times"></i>
-                                                </button>
-                                                {% endif %}
-                                            </div>
-                                        </td>
-                                    </tr>
-                                    {% endfor %}
-                                </tbody>
-                            </table>
-                        </div>
-                        
-                        <!-- Pagination -->
-                        {% if is_paginated %}
-                            <nav aria-label="Page navigation">
-                                <ul class="pagination justify-content-center">
-                                    {% if page_obj.has_previous %}
-                                        <li class="page-item">
-                                            <a class="page-link" href="?page={{ page_obj.previous_page_number }}" aria-label="Previous">
-                                                <span aria-hidden="true">&laquo;</span>
-                                            </a>
-                                        </li>
-                                    {% endif %}
+                <div>
+                    <h1 class="mb-0" style="color: var(--dark-color); font-family: var(--font-family-playfair);">My Services</h1>
+                    <p class="mb-0" style="color: var(--gray-color);">Manage your vehicle maintenance and upgrades</p>
+                </div>
+            </div>
+            <div class="col-auto mt-3 mt-md-0">
+                <a href="{% url 'car_rental:services_overview' %}" class="btn btn-primary">
+                    <i class="fas fa-plus me-2"></i>Book New Service
+                </a>
+            </div>
+        </div>
+    </div>
+    
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" style="background-color: rgba(184, 115, 51, 0.1); border: 1px solid var(--primary-color); color: var(--primary-color);">
+                {{ message }}
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert"></button>
+            </div>
+        {% endfor %}
+    {% endif %}
 
-                                    {% for num in page_obj.paginator.page_range %}
-                                        {% if page_obj.number == num %}
-                                            <li class="page-item active"><span class="page-link">{{ num }}</span></li>
-                                        {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
-                                            <li class="page-item"><a class="page-link" href="?page={{ num }}">{{ num }}</a></li>
-                                        {% endif %}
-                                    {% endfor %}
-
-                                    {% if page_obj.has_next %}
-                                        <li class="page-item">
-                                            <a class="page-link" href="?page={{ page_obj.next_page_number }}" aria-label="Next">
-                                                <span aria-hidden="true">&raquo;</span>
-                                            </a>
-                                        </li>
-                                    {% endif %}
-                                </ul>
-                            </nav>
-                        {% endif %}
-                    {% else %}
-                        <div class="text-center py-5">
-                            <i class="fas fa-wrench fa-3x text-muted mb-3"></i>
-                            <h5 class="text-muted">No service bookings found</h5>
-                            <p class="text-muted">You haven't booked any services yet.</p>
-                            <a href="{% url 'car_rental:services_overview' %}" class="btn btn-primary mt-2">
-                                <i class="fas fa-plus me-2"></i>Book Your First Service
-                            </a>
-                        </div>
-                    {% endif %}
+    <div class="row mb-5 g-4">
+        <div class="col-md-4">
+            <div class="stat-box">
+                <div class="stat-icon"><i class="fas fa-clipboard-list"></i></div>
+                <div class="text-start">
+                    <div style="font-size: 1.8rem; font-weight: 700; color: var(--dark-color); line-height: 1;">{{ total_bookings }}</div>
+                    <div class="stat-label mt-1">Total Bookings</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="stat-box" style="border-left: 3px solid #fbbf24;">
+                <div class="stat-icon" style="color: #fbbf24; background-color: rgba(251, 191, 36, 0.1);"><i class="fas fa-clock"></i></div>
+                <div class="text-start">
+                    <div style="font-size: 1.8rem; font-weight: 700; color: var(--dark-color); line-height: 1;">{{ pending_bookings }}</div>
+                    <div class="stat-label mt-1">Pending</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="stat-box" style="border-left: 3px solid #4ade80;">
+                <div class="stat-icon" style="color: #4ade80; background-color: rgba(74, 222, 128, 0.1);"><i class="fas fa-check-circle"></i></div>
+                <div class="text-start">
+                    <div style="font-size: 1.8rem; font-weight: 700; color: var(--dark-color); line-height: 1;">{{ completed_bookings }}</div>
+                    <div class="stat-label mt-1">Completed</div>
                 </div>
             </div>
         </div>
     </div>
+    
+    <div class="data-card p-0">
+        {% if bookings %}
+            <div class="table-responsive">
+                <table class="table table-dark-custom">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Service Type</th>
+                            <th>Vehicle</th>
+                            <th>Preferred Date</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for booking in bookings %}
+                        <tr>
+                            <td style="color: var(--gray-color) !important;">#{{ booking.id }}</td>
+                            <td>
+                                <span style="color: var(--primary-color); font-weight: 600;">
+                                    {{ booking.get_service_type_display }}
+                                </span>
+                            </td>
+                            <td style="font-weight: 500;">{{ booking.car_year }} {{ booking.car_make }} {{ booking.car_model }}</td>
+                            <td>{{ booking.preferred_date|date:"M d, Y" }}</td>
+                            <td>
+                                {% if booking.status == 'pending' %}
+                                <span class="status-badge status-pending">Pending</span>
+                                {% elif booking.status == 'confirmed' %}
+                                <span class="status-badge status-confirmed">Confirmed</span>
+                                {% elif booking.status == 'in_progress' %}
+                                <span class="status-badge status-in_progress">In Progress</span>
+                                {% elif booking.status == 'completed' %}
+                                <span class="status-badge status-completed">Completed</span>
+                                {% elif booking.status == 'cancelled' %}
+                                <span class="status-badge status-cancelled">Cancelled</span>
+                                {% else %}
+                                <span class="status-badge bg-secondary">{{ booking.get_status_display }}</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <div class="d-flex gap-2">
+                                    <a href="{% url 'car_rental:service_booking_detail' booking.id %}" class="btn btn-sm btn-outline-primary" title="View Details">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                    {% if booking.status == 'pending' %}
+                                    <button type="button" class="btn btn-sm btn-outline-danger cancel-booking" data-id="{{ booking.id }}" title="Cancel Booking">
+                                        <i class="fas fa-times"></i>
+                                    </button>
+                                    {% endif %}
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            
+            {% if is_paginated %}
+                <nav aria-label="Page navigation" class="p-3">
+                    <ul class="pagination justify-content-center custom-pagination">
+                        {% if page_obj.has_previous %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ page_obj.previous_page_number }}">Previous</a>
+                            </li>
+                        {% endif %}
+
+                        {% for num in page_obj.paginator.page_range %}
+                            {% if page_obj.number == num %}
+                                <li class="page-item active"><span class="page-link">{{ num }}</span></li>
+                            {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                                <li class="page-item"><a class="page-link" href="?page={{ num }}">{{ num }}</a></li>
+                            {% endif %}
+                        {% endfor %}
+
+                        {% if page_obj.has_next %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ page_obj.next_page_number }}">Next</a>
+                            </li>
+                        {% endif %}
+                    </ul>
+                </nav>
+            {% endif %}
+        {% else %}
+            <div class="text-center py-5">
+                <i class="fas fa-wrench fa-3x mb-3" style="color: rgba(255,255,255,0.1);"></i>
+                <h5 style="color: var(--dark-color);">No service bookings found</h5>
+                <p style="color: var(--gray-color);">You haven't booked any services yet.</p>
+                <a href="{% url 'car_rental:services_overview' %}" class="btn btn-primary mt-2">Book Your First Service</a>
+            </div>
+        {% endif %}
+    </div>
 </div>
-<!-- ================================================================================= -->
-<!-- KEY CHANGE: Replaced the entire script block with a more robust version -->
-<!-- ================================================================================= -->
+
+<style>
+    /* Pagination Overrides */
+    .custom-pagination .page-link {
+        background-color: var(--dark-bg);
+        border-color: rgba(255,255,255,0.1);
+        color: var(--text-color);
+        margin: 0 3px;
+        border-radius: 6px;
+    }
+    .custom-pagination .page-item.active .page-link {
+        background-color: var(--primary-color);
+        border-color: var(--primary-color);
+        color: var(--dark-bg);
+    }
+</style>
+
+{% endblock %}
+
 {% block extra_js %}
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        // Handle cancel booking button
         const cancelButtons = document.querySelectorAll('.cancel-booking');
         
         cancelButtons.forEach(button => {
             button.addEventListener('click', function(event) {
-                // This prevents the button's default action (e.g., submitting a form)
                 event.preventDefault(); 
 
                 const bookingId = this.getAttribute('data-id');
                 
                 if (confirm('Are you sure you want to cancel this booking?')) {
-                    // Disable the button to prevent multiple clicks
                     this.disabled = true;
                     this.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
 
-                    // Send AJAX request to cancel booking
                     fetch(`/service-bookings/${bookingId}/cancel/`, {
                         method: 'POST',
                         headers: {
@@ -221,29 +295,21 @@
                         body: JSON.stringify({})
                     })
                     .then(response => {
-                        console.log('Response received:', response); // Log for debugging
-                        
                         if (response.ok) {
-                            // Reload the page to show updated bookings
                             window.location.reload();
                         } else {
-                            // Try to get more error details from the response
                             response.json().then(errData => {
-                                console.error('Error data from server:', errData);
                                 alert(`Failed to cancel booking: ${errData.error || 'Unknown error'}`);
                             }).catch(() => {
-                                // If the response is not valid JSON
                                 alert(`Failed to cancel booking. Server responded with status: ${response.status}`);
                             });
-                            // Re-enable the button on failure
                             this.disabled = false;
                             this.innerHTML = '<i class="fas fa-times"></i>';
                         }
                     })
                     .catch(error => {
-                        console.error('Fetch error:', error); // Log for debugging
+                        console.error('Fetch error:', error);
                         alert('A network error occurred. Please check your connection and try again.');
-                        // Re-enable the button on failure
                         this.disabled = false;
                         this.innerHTML = '<i class="fas fa-times"></i>';
                     });
@@ -251,7 +317,6 @@
             });
         });
         
-        // Helper function to get CSRF token
         function getCookie(name) {
             let cookieValue = null;
             if (document.cookie && document.cookie !== '') {
@@ -268,17 +333,4 @@
         }
     });
 </script>
-{% endblock %}
-
-<style>
-    .stat-icon {
-        width: 48px;
-        height: 48px;
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 1.2rem;
-    }
-</style>
 {% endblock %}

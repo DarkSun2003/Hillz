@@ -1,0 +1,192 @@
+{% extends 'base.html' %}
+{% load i18n %}
+{% load account socialaccount %}
+
+{% block title %}Register - {% if site_info %}{{ site_info.company_name }}{% else %}Hillz Exquisite{% endif %}{% endblock %}
+
+{% block extra_css %}
+<style>
+    .auth-wrapper {
+        min-height: 75vh;
+        display: flex;
+        align-items: center;
+        padding: 3rem 0;
+    }
+    
+    .auth-card {
+        background-color: var(--secondary-color);
+        border: 1px solid rgba(255,255,255,0.05);
+        border-radius: 16px;
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+        overflow: hidden;
+    }
+    
+    .auth-header {
+        text-align: center;
+        padding: 2.5rem 2rem 1.5rem;
+    }
+    
+    .auth-header h3 {
+        color: var(--dark-color);
+        font-family: var(--font-family-playfair);
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+    }
+    
+    .auth-header p {
+        color: var(--gray-color);
+        font-size: 0.95rem;
+    }
+
+    /* Allauth Form Targeting */
+    .auth-form-container p {
+        margin-bottom: 1.5rem;
+    }
+    
+    .auth-form-container label {
+        color: var(--text-color);
+        font-weight: 500;
+        font-size: 0.85rem;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        margin-bottom: 0.5rem;
+        display: block;
+    }
+    
+    .auth-form-container input[type="text"],
+    .auth-form-container input[type="password"],
+    .auth-form-container input[type="email"] {
+        background-color: var(--dark-bg);
+        border: 1px solid rgba(255,255,255,0.1);
+        color: var(--text-color);
+        padding: 0.9rem 1rem;
+        border-radius: 8px;
+        width: 100%;
+        transition: var(--transition);
+        display: block;
+    }
+    
+    .auth-form-container input:focus {
+        background-color: rgba(0,0,0,0.8);
+        border-color: var(--primary-color);
+        outline: none;
+        box-shadow: 0 0 0 0.25rem rgba(184, 115, 51, 0.25);
+    }
+    
+    .errorlist {
+        color: #ff6b6b;
+        list-style-type: none;
+        padding-left: 0;
+        font-size: 0.85rem;
+        margin-top: 0.5rem;
+        margin-bottom: 0;
+    }
+
+    .helptext {
+        display: block;
+        color: var(--gray-color);
+        font-size: 0.8rem;
+        margin-top: 0.4rem;
+        line-height: 1.4;
+    }
+
+    /* Social Login Button */
+    .btn-social {
+        background-color: transparent;
+        border: 1px solid rgba(255,255,255,0.2);
+        color: var(--text-color);
+        border-radius: 8px;
+        transition: var(--transition);
+        font-weight: 500;
+        letter-spacing: 0.5px;
+    }
+
+    .btn-social:hover {
+        background-color: rgba(255,255,255,0.05);
+        color: #fff;
+        border-color: var(--primary-color);
+    }
+    
+    .auth-footer {
+        padding: 1.5rem 2rem 2.5rem;
+        text-align: center;
+        border-top: 1px solid rgba(255,255,255,0.05);
+    }
+    
+    .auth-footer p {
+        color: var(--gray-color);
+        margin: 0;
+    }
+    
+    .auth-footer a {
+        color: var(--primary-color);
+        text-decoration: none;
+        font-weight: 600;
+        transition: var(--transition);
+    }
+    
+    .auth-footer a:hover {
+        color: var(--dark-color);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container auth-wrapper">
+    <div class="row justify-content-center w-100">
+        <div class="col-md-8 col-lg-6">
+            <div class="auth-card">
+                <div class="auth-header">
+                    <div class="mb-3">
+                        <div class="d-inline-flex align-items-center justify-content-center rounded-circle" style="width: 60px; height: 60px; background-color: rgba(184, 115, 51, 0.1); border: 1px solid rgba(184, 115, 51, 0.3);">
+                            <i class="fas fa-id-card fa-2x" style="color: var(--primary-color);"></i>
+                        </div>
+                    </div>
+                    <h3>Membership Application</h3>
+                    <p>Create your executive profile to unlock fleet access</p>
+                </div>
+                
+                <div class="card-body px-4 px-md-5 pb-4">
+                    {% if form.errors %}
+                        <div class="alert alert-danger" style="background-color: rgba(255, 107, 107, 0.1); border: 1px solid rgba(255, 107, 107, 0.2); color: #ff6b6b; border-radius: 8px;">
+                            <i class="fas fa-exclamation-triangle me-2"></i> Please correct the errors below to continue.
+                        </div>
+                    {% endif %}
+
+                    <div class="d-grid mb-4">
+                        <a href="{% provider_login_url 'google' %}" class="btn btn-social py-3 d-flex align-items-center justify-content-center">
+                            <i class="fab fa-google me-2" style="color: #ea4335; font-size: 1.2rem;"></i> Sign up with Google
+                        </a>
+                    </div>
+
+                    <div class="d-flex align-items-center mb-4">
+                        <hr class="flex-grow-1" style="border-color: rgba(255,255,255,0.1);">
+                        <span class="mx-3" style="color: var(--gray-color); font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px;">Or register with email</span>
+                        <hr class="flex-grow-1" style="border-color: rgba(255,255,255,0.1);">
+                    </div>
+                    
+                    <form class="auth-form-container" id="signup_form" method="post" action="{% url 'account_signup' %}">
+                        {% csrf_token %}
+                        
+                        {{ form.as_p }}
+                        
+                        {% if redirect_field_value %}
+                            <input type="hidden" name="{{ redirect_field_name }}" value="{{ redirect_field_value }}" />
+                        {% endif %}
+                        
+                        <div class="d-grid mt-5">
+                            <button type="submit" class="btn btn-primary btn-lg py-3 fw-bold" style="letter-spacing: 1px;">
+                                ESTABLISH ACCOUNT <i class="fas fa-arrow-right ms-2"></i>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+                
+                <div class="auth-footer">
+                    <p>Already a member? <a href="{{ login_url }}">Sign In Here</a></p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

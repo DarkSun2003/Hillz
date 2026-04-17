@@ -2,28 +2,28 @@
 {% load static %}
 {% load custom_filters %}
 
-{% block title %}Finalize Purchase - {% if site_info %}{{ site_info.company_name }}{% else %}Hillz Exquisite{% endif %}{% endblock %}
+{% block title %}Finalize Acquisition - {% if site_info %}{{ site_info.company_name }}{% else %}Hillz Exquisite{% endif %}{% endblock %}
 
 {% block extra_css %}
 <style>
     .purchase-container {
         max-width: 900px;
-        margin: 0 auto;
-        padding: 2rem 0;
+        margin: 40px auto;
+        padding: 0 15px;
     }
     
     .purchase-card {
-        border: none;
-        border-radius: 15px;
-        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        background-color: var(--secondary-color);
+        border: 1px solid rgba(255,255,255,0.05);
+        border-radius: 16px;
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
         overflow: hidden;
     }
     
     .purchase-card .card-header {
-        background: linear-gradient(45deg, #d4af37, #f5d76e);
-        color: #212529;
-        border: none;
-        padding: 1.5rem;
+        background-color: rgba(0,0,0,0.2);
+        border-bottom: 1px solid rgba(255,255,255,0.05);
+        padding: 2rem;
         text-align: center;
     }
     
@@ -31,264 +31,176 @@
         margin: 0;
         font-weight: 700;
         font-size: 1.8rem;
+        color: var(--dark-color);
+        font-family: var(--font-family-playfair);
     }
     
     .car-details {
-        background-color: #f8f9fa;
-        border-radius: 10px;
-        padding: 1.5rem;
+        background-color: var(--dark-bg);
+        border-radius: 12px;
+        padding: 2rem;
         margin-bottom: 2rem;
+        border: 1px solid rgba(255,255,255,0.02);
+        border-left: 4px solid var(--primary-color);
     }
     
     .car-details h5 {
-        color: #d4af37;
+        color: var(--dark-color);
         font-weight: 600;
-        margin-bottom: 1rem;
+        margin-bottom: 1.5rem;
         padding-bottom: 0.5rem;
-        border-bottom: 2px solid #e9ecef;
+        border-bottom: 1px solid rgba(255,255,255,0.05);
+        font-family: var(--font-family-playfair);
     }
     
     .detail-row {
         display: flex;
         justify-content: space-between;
-        padding: 0.5rem 0;
-        border-bottom: 1px solid #e9ecef;
+        padding: 0.75rem 0;
+        border-bottom: 1px solid rgba(255,255,255,0.05);
+        color: var(--text-color);
     }
     
     .detail-row:last-child {
         border-bottom: none;
-        font-weight: 600;
-        font-size: 1.1rem;
-        color: #d4af37;
+        font-weight: 700;
+        font-size: 1.2rem;
+        color: var(--primary-color);
+        margin-top: 1rem;
+        padding-top: 1.5rem;
+        border-top: 1px solid rgba(184, 115, 51, 0.2);
     }
     
-    .form-group {
-        margin-bottom: 1.5rem;
-    }
+    .form-group { margin-bottom: 1.5rem; }
+    .form-group label { font-weight: 500; margin-bottom: 0.5rem; color: var(--text-color); }
     
-    .form-group label {
-        font-weight: 600;
-        margin-bottom: 0.5rem;
-        color: #495057;
-    }
-    
-    .form-control {
+    .form-control, .form-select {
+        background-color: var(--dark-bg);
+        border: 1px solid rgba(255,255,255,0.1);
+        color: var(--text-color);
         border-radius: 8px;
-        border: 1px solid #ced4da;
-        padding: 0.75rem 1rem;
-        transition: all 0.3s ease;
-    }
-    
-    .form-control:focus {
-        border-color: #d4af37;
-        box-shadow: 0 0 0 0.25rem rgba(212, 175, 55, 0.25);
-    }
-    
-    .btn-primary {
-        background: linear-gradient(45deg, #d4af37, #f5d76e);
-        border: none;
-        border-radius: 50px;
-        padding: 0.75rem 2rem;
-        font-weight: 600;
-        color: #212529;
-        transition: all 0.3s ease;
-        display: block;
+        padding: 0.9rem 1rem;
+        transition: var(--transition);
         width: 100%;
     }
     
-    .btn-primary:hover {
-        background: linear-gradient(45deg, #b8941f, #d4af37);
-        transform: translateY(-2px);
-        box-shadow: 0 5px 15px rgba(212, 175, 55, 0.3);
-        color: #212529;
-    }
-    
-    .btn-secondary {
-        background-color: #6c757d;
-        border: none;
-        border-radius: 50px;
-        padding: 0.75rem 2rem;
-        font-weight: 600;
-        transition: all 0.3s ease;
-    }
-    
-    .btn-secondary:hover {
-        background-color: #5a6268;
-        transform: translateY(-2px);
-    }
-    
-    .alert {
-        border-radius: 10px;
-        border: none;
+    .form-control:focus, .form-select:focus {
+        background-color: rgba(0,0,0,0.8);
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 0.25rem rgba(184, 115, 51, 0.25);
+        color: var(--text-color);
     }
     
     .car-image {
         width: 100%;
-        height: 200px;
+        height: 250px;
         object-fit: cover;
-        border-radius: 10px;
-        margin-bottom: 1rem;
-    }
-    
-    .section-title {
-        position: relative;
+        border-radius: 12px;
         margin-bottom: 1.5rem;
-        padding-bottom: 0.75rem;
-    }
-    
-    .section-title::after {
-        content: '';
-        position: absolute;
-        bottom: 0;
-        left: 0;
-        width: 50px;
-        height: 3px;
-        background: linear-gradient(45deg, #d4af37, #f5d76e);
-    }
-    
-    .loading-spinner {
-        display: none;
-        width: 1.5rem;
-        height: 1.5rem;
-        border: 0.2em solid rgba(0, 0, 0, 0.1);
-        border-radius: 50%;
-        border-top-color: #d4af37;
-        animation: spin 1s ease-in-out infinite;
+        border: 1px solid rgba(255,255,255,0.05);
     }
     
     .whatsapp-notice {
         background-color: rgba(37, 211, 102, 0.1);
         border: 1px solid rgba(37, 211, 102, 0.3);
-        border-radius: 10px;
-        padding: 1rem;
-        margin-bottom: 1.5rem;
+        border-radius: 12px;
+        padding: 1.5rem;
+        margin-bottom: 2rem;
         display: flex;
         align-items: center;
     }
     
-    .whatsapp-notice i {
-        font-size: 1.5rem;
-        color: #25d366;
-        margin-right: 1rem;
-    }
+    .whatsapp-notice i { font-size: 2rem; color: #25d366; margin-right: 1.5rem; }
+    .whatsapp-notice div { color: var(--text-color); font-size: 0.95rem; }
     
-    .whatsapp-notice p {
-        margin-bottom: 0;
-        color: #495057;
+    .btn-submit {
+        background-color: var(--primary-color);
+        color: var(--dark-bg);
+        border: none;
+        padding: 14px;
+        border-radius: 50px;
+        font-weight: 700;
+        transition: var(--transition);
     }
-    
-    .error-list {
-        list-style-type: none;
-        padding-left: 0;
-    }
-    
-    .error-list li {
-        margin-bottom: 0.5rem;
-        padding: 0.5rem;
-        background-color: #f8d7da;
-        border-radius: 5px;
-        color: #721c24;
-    }
-    
-    @keyframes spin {
-        to { transform: rotate(360deg); }
-    }
-    
-    @media (max-width: 768px) {
-        .purchase-container {
-            padding: 1rem 0;
-        }
-        
-        .detail-row {
-            flex-direction: column;
-        }
-        
-        .detail-row div:last-child {
-            margin-top: 0.25rem;
-        }
+
+    .btn-submit:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+        background-color: #a0632a;
+        color: var(--dark-bg);
     }
 </style>
 {% endblock %}
 
 {% block content %}
-<div class="purchase-container">
+<div class="container purchase-container">
     <div class="card purchase-card">
         <div class="card-header">
-            <h4>Finalize Your Purchase</h4>
+            <h4>Finalize Your Acquisition</h4>
         </div>
-        <div class="card-body p-4">
+        <div class="card-body p-4 p-md-5">
             {% if messages %}
                 {% for message in messages %}
-                    <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
-                        <div class="d-flex align-items-center">
-                            <i class="fas {% if message.tags == 'success' %}fa-check-circle{% elif message.tags == 'error' %}fa-exclamation-circle{% elif message.tags == 'warning' %}fa-exclamation-triangle{% else %}fa-info-circle{% endif %} me-2"></i>
-                            <div>{{ message }}</div>
-                        </div>
-                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    <div class="alert alert-{{ message.tags }} alert-dismissible fade show" style="background-color: rgba(184, 115, 51, 0.1); border: 1px solid var(--primary-color); color: var(--primary-color);">
+                        {{ message }}
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert"></button>
                     </div>
                 {% endfor %}
             {% endif %}
             
             {% if form.errors %}
-                <div class="alert alert-danger">
-                    <h5>Please correct the following errors:</h5>
-                    <ul class="error-list">
-                        {% for field in form %}
-                            {% for error in field.errors %}
-                                <li>{{ field.label }}: {{ error }}</li>
-                            {% endfor %}
-                        {% endfor %}
-                        {% for error in form.non_field_errors %}
-                            <li>{{ error }}</li>
-                        {% endfor %}
+                <div class="alert alert-danger" style="background-color: rgba(255, 107, 107, 0.1); border: 1px solid rgba(255, 107, 107, 0.2); color: #ff6b6b; border-radius: 8px;">
+                    <ul class="mb-0 ps-3">
+                        {% for field in form %}{% for error in field.errors %}<li>{{ field.label }}: {{ error }}</li>{% endfor %}{% endfor %}
+                        {% for error in form.non_field_errors %}<li>{{ error }}</li>{% endfor %}
                     </ul>
                 </div>
             {% endif %}
             
             {% if car %}
                 <div class="car-details">
-                    <h5 class="section-title">Car Details</h5>
+                    <h5>Vehicle Invoice Overview</h5>
                     
                     {% if car.image %}
                         <img src="{{ car.image.url }}" alt="{{ car.make }} {{ car.model }}" class="car-image">
                     {% else %}
-                        <img src="{% static 'images/placeholder-car.jpg' %}" alt="Car Image" class="car-image">
+                        <img src="https://images.unsplash.com/photo-1552519507-da3b142c6e3d?ixlib=rb-4.0.3" alt="Car Image" class="car-image">
                     {% endif %}
                     
-                    <div class="row">
+                    <div class="row g-4">
                         <div class="col-md-6">
                             <div class="detail-row">
-                                <div>Car:</div>
-                                <div>{{ car.year }} {{ car.make }} {{ car.model }}</div>
+                                <div><span style="color: var(--gray-color);">Vehicle:</span></div>
+                                <div style="font-weight: 500;">{{ car.year }} {{ car.make }} {{ car.model }}</div>
                             </div>
                             <div class="detail-row">
-                                <div>VIN:</div>
-                                <div>{{ car.vin|default:"N/A" }}</div>
+                                <div><span style="color: var(--gray-color);">VIN:</span></div>
+                                <div style="font-family: monospace;">{{ car.vin|default:"Pending Allocation" }}</div>
                             </div>
                             <div class="detail-row">
-                                <div>Mileage:</div>
-                                <div>{{ car.mileage|default:"N/A"|floatformat:0 }} miles</div>
+                                <div><span style="color: var(--gray-color);">Mileage:</span></div>
+                                <div>{{ car.mileage|default:"N/A"|floatformat:0 }} mi</div>
                             </div>
                         </div>
                         <div class="col-md-6">
                             <div class="detail-row">
-                                <div>Price:</div>
+                                <div><span style="color: var(--gray-color);">Market Value:</span></div>
                                 <div>₦{{ car.get_sale_price|floatformat:2 }}</div>
                             </div>
                             <div class="detail-row">
-                                <div>Taxes (5%):</div>
+                                <div><span style="color: var(--gray-color);">Taxes (5%):</span></div>
                                 <div>₦{{ car.get_sale_price|multiply:0.05|floatformat:2 }}</div>
                             </div>
                             <div class="detail-row">
-                                <div>Fees (2%):</div>
+                                <div><span style="color: var(--gray-color);">Admin Fees (2%):</span></div>
                                 <div>₦{{ car.get_sale_price|multiply:0.02|floatformat:2 }}</div>
                             </div>
                         </div>
                     </div>
-                    <div class="row mt-3">
-                        <div class="col-md-12">
-                            <div class="detail-row">
-                                <div>Estimated Total:</div>
+                    <div class="row mt-2">
+                        <div class="col-12">
+                            <div class="detail-row" style="font-family: var(--font-family-playfair); font-size: 1.4rem;">
+                                <div>Total Investment:</div>
                                 <div>₦{{ car.get_sale_price|multiply:1.07|floatformat:2 }}</div>
                             </div>
                         </div>
@@ -298,14 +210,12 @@
                 <div class="whatsapp-notice">
                     <i class="fab fa-whatsapp"></i>
                     <div>
-                        <strong>Important:</strong> After submitting this form, your purchase will be saved and you'll be redirected to WhatsApp to complete your purchase payment.
+                        <strong>Notice:</strong> Submitting this request secures your allocation in our database. You will be instantly redirected to WhatsApp to finalize payment terms with an executive representative.
                     </div>
                 </div>
                 
                 <form method="post" id="purchaseForm" action="{% url 'car_rental:customer_purchase' car.id %}">
                     {% csrf_token %}
-                    
-                    {{ form.non_field_errors }}
                     
                     <input type="hidden" name="customer" value="{{ request.user.customer_account.id }}">
                     <input type="hidden" name="car" value="{{ car.id }}">
@@ -320,60 +230,44 @@
                     <input type="hidden" name="total_amount" value="{{ car.get_sale_price|multiply:1.07|floatformat:2 }}">
                     
                     <div class="form-group">
-                        <label for="{{ form.delivery_address.id_for_label }}" class="section-title">Delivery Address</label>
+                        <label for="{{ form.delivery_address.id_for_label }}">Delivery Address</label>
                         {{ form.delivery_address }}
-                        {% if form.delivery_address.errors %}
-                            <div class="text-danger">{{ form.delivery_address.errors }}</div>
-                        {% endif %}
-                        <small class="form-text text-muted">Please provide a complete address for vehicle delivery.</small>
                     </div>
                     
-                    <div class="form-group">
-                        <label for="{{ form.delivery_datetime.id_for_label }}" class="section-title">Preferred Delivery Date</label>
-                        {{ form.delivery_datetime }}
-                        {% if form.delivery_datetime.errors %}
-                            <div class="text-danger">{{ form.delivery_datetime.errors }}</div>
-                        {% endif %}
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="{{ form.delivery_notes.id_for_label }}" class="section-title">Additional Notes (Optional)</label>
-                        {{ form.delivery_notes }}
-                        {% if form.delivery_notes.errors %}
-                            <div class="text-danger">{{ form.delivery_notes.errors }}</div>
-                        {% endif %}
+                    <div class="row g-3">
+                        <div class="col-md-6 form-group">
+                            <label for="{{ form.delivery_datetime.id_for_label }}">Preferred Delivery Date</label>
+                            {{ form.delivery_datetime }}
+                        </div>
+                        <div class="col-md-6 form-group">
+                            <label for="{{ form.delivery_notes.id_for_label }}">Additional Concierge Notes (Optional)</label>
+                            {{ form.delivery_notes }}
+                        </div>
                     </div>
                     
                     <div class="form-group mt-4">
                         <div class="form-check">
-                            <input class="form-check-input" type="checkbox" id="termsAgree" required>
-                            <label class="form-check-label" for="termsAgree">
-                                I agree to the <a href="{% url 'car_rental:terms_of_service' %}" target="_blank">Terms of Service</a> and <a href="{% url 'car_rental:privacy_policy' %}" target="_blank">Privacy Policy</a>
+                            <input class="form-check-input" type="checkbox" id="termsAgree" required style="background-color: var(--dark-bg); border-color: rgba(255,255,255,0.2); accent-color: var(--primary-color);">
+                            <label class="form-check-label" for="termsAgree" style="color: var(--gray-color);">
+                                I agree to the <a href="{% url 'car_rental:terms_of_service' %}" style="color: var(--primary-color);">Terms of Service</a> and <a href="{% url 'car_rental:privacy_policy' %}" style="color: var(--primary-color);">Privacy Policy</a>
                             </label>
                         </div>
                     </div>
                     
-                    <div class="form-group mt-4">
-                        <button type="submit" class="btn btn-primary" id="submitBtn">
-                            <i class="fas fa-save me-2"></i>
-                            <span id="btnText">Submit Purchase Request</span>
-                            <div class="loading-spinner ms-2" id="btnSpinner"></div>
+                    <div class="d-flex gap-3 mt-5">
+                        <a href="{% url 'car_rental:car_detail' car.pk %}" class="btn px-5 rounded-pill" style="border: 1px solid var(--gray-color); color: var(--text-color);">Cancel</a>
+                        <button type="submit" class="btn btn-submit flex-grow-1" id="submitBtn">
+                            <span id="btnText">Secure Vehicle & Proceed to Payment <i class="fas fa-arrow-right ms-2"></i></span>
                         </button>
                     </div>
                 </form>
             {% else %}
-                <div class="alert alert-danger">
-                    <div class="d-flex align-items-center">
-                        <i class="fas fa-exclamation-triangle me-3 fa-2x"></i>
-                        <div>
-                            <h5 class="alert-heading">Car Information Not Found</h5>
-                            <p class="mb-0">We couldn't find the car information. Please go back and select a car again.</p>
-                        </div>
-                    </div>
-                </div>
-                <div class="text-center mt-4">
-                    <a href="{% url 'car_rental:sale_cars' %}" class="btn btn-secondary">
-                        <i class="fas fa-arrow-left me-2"></i>Back to Cars for Sale
+                <div class="alert alert-danger text-center" style="background-color: rgba(255, 107, 107, 0.1); border: 1px solid rgba(255, 107, 107, 0.2); color: #ff6b6b; border-radius: 12px; padding: 3rem 2rem;">
+                    <i class="fas fa-exclamation-triangle fa-3x mb-3"></i>
+                    <h4>Allocation Not Found</h4>
+                    <p>We couldn't locate the specified vehicle data. It may have already been sold.</p>
+                    <a href="{% url 'car_rental:sale_cars' %}" class="btn mt-3 px-4" style="background-color: var(--dark-bg); color: var(--text-color); border: 1px solid rgba(255,255,255,0.1); border-radius: 50px;">
+                        <i class="fas fa-arrow-left me-2"></i> Back to Inventory
                     </a>
                 </div>
             {% endif %}
@@ -385,11 +279,9 @@
 {% block extra_js %}
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        // Set minimum date for delivery to today
         const deliveryDateInput = document.getElementById('{{ form.delivery_datetime.id_for_label }}');
         if (deliveryDateInput) {
             const today = new Date();
-            // Local date for datetime-local input
             const yyyy = today.getFullYear();
             const mm = String(today.getMonth() + 1).padStart(2, '0');
             const dd = String(today.getDate()).padStart(2, '0');
@@ -400,16 +292,13 @@
             deliveryDateInput.setAttribute('min', minDateTime);
         }
         
-        // Form submission loading state
         const form = document.querySelector('#purchaseForm');
         if (form) {
             form.addEventListener('submit', function(event) {
                 const submitButton = document.getElementById('submitBtn');
                 const btnText = document.getElementById('btnText');
-                const btnSpinner = document.getElementById('btnSpinner');
                 
-                btnText.textContent = 'Processing...';
-                btnSpinner.style.display = 'inline-block';
+                btnText.innerHTML = 'Processing Transaction... <i class="fas fa-circle-notch fa-spin ms-2"></i>';
                 submitButton.disabled = true;
             });
         }

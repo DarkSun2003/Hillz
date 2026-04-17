@@ -1,78 +1,154 @@
 {% extends 'base.html' %}
 
-{% block title %}Delete Account - {{ site_info.company_name }}{% endblock %}
+{% block title %}Account Archive - {% if site_info %}{{ site_info.company_name }}{% else %}Hillz Exquisite{% endif %}{% endblock %}
+
+{% block extra_css %}
+<style>
+    .danger-card {
+        background-color: var(--secondary-color);
+        border: 1px solid rgba(255, 107, 107, 0.3);
+        border-radius: 16px;
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+        overflow: hidden;
+    }
+
+    .danger-header {
+        background-color: rgba(255, 107, 107, 0.1);
+        border-bottom: 1px solid rgba(255, 107, 107, 0.2);
+        padding: 2rem;
+        text-align: center;
+    }
+
+    .danger-header h4 {
+        color: #ff6b6b;
+        font-family: var(--font-family-playfair);
+        margin: 0;
+        font-weight: 700;
+    }
+
+    .block-alert {
+        background-color: rgba(255, 107, 107, 0.05);
+        border: 1px solid rgba(255, 107, 107, 0.2);
+        border-radius: 12px;
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+    }
+
+    .block-alert h5 {
+        color: #ff6b6b;
+        font-weight: 600;
+        margin-bottom: 1rem;
+    }
+
+    .block-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+
+    .block-list li {
+        position: relative;
+        padding-left: 2rem;
+        margin-bottom: 0.75rem;
+        color: var(--text-color);
+    }
+
+    .block-list li::before {
+        content: '\f071';
+        font-family: 'Font Awesome 6 Free';
+        font-weight: 900;
+        position: absolute;
+        left: 0;
+        color: #ff6b6b;
+    }
+
+    .form-control {
+        background-color: var(--dark-bg);
+        border: 1px solid rgba(255,255,255,0.1);
+        color: var(--text-color);
+        padding: 1rem;
+    }
+
+    .form-control:focus {
+        background-color: rgba(0,0,0,0.8);
+        border-color: #ff6b6b;
+        box-shadow: 0 0 0 0.25rem rgba(255, 107, 107, 0.25);
+        color: var(--text-color);
+    }
+
+    .btn-danger-custom {
+        background-color: transparent;
+        color: #ff6b6b;
+        border: 1px solid #ff6b6b;
+        transition: var(--transition);
+    }
+
+    .btn-danger-custom:hover {
+        background-color: #ff6b6b;
+        color: var(--dark-bg);
+    }
+</style>
+{% endblock %}
 
 {% block content %}
-<div class="container my-5">
+<div class="container my-5 py-4">
     <div class="row justify-content-center">
-        <div class="col-lg-6 col-md-8">
-            <div class="card shadow">
-                <div class="card-header bg-danger text-white text-center">
-                    <h4 class="mb-0"><i class="fas fa-exclamation-triangle me-2"></i>Delete Account</h4>
+        <div class="col-lg-7 col-md-9">
+            <div class="danger-card">
+                <div class="danger-header">
+                    <div class="mb-3">
+                        <i class="fas fa-exclamation-triangle fa-3x" style="color: #ff6b6b;"></i>
+                    </div>
+                    <h4>Archive Account</h4>
                 </div>
                 
-                <div class="card-body p-4">
-                    <div class="text-center mb-4">
-                        <h3>Hello, {{ user.get_full_name|default:user.username }}.</h3>
+                <div class="card-body p-4 p-md-5">
+                    <div class="text-center mb-5">
+                        <h3 style="color: var(--dark-color); font-family: var(--font-family-playfair);">Hello, {{ user.get_full_name|default:user.username }}.</h3>
+                        <p style="color: var(--gray-color);">You are about to initiate the archival of your client profile.</p>
                     </div>
 
                     {% if not can_delete %}
-                        <div class="alert alert-danger" role="alert">
-                            <h5 class="alert-heading"><i class="fas fa-lock me-2"></i> Account Deletion Blocked</h5>
-                            <p>You cannot delete your account at this time because you currently have active transactions with us. Please resolve the following before leaving:</p>
-                            <hr>
-                            <ul class="mb-0">
+                        <div class="block-alert">
+                            <h5><i class="fas fa-lock me-2"></i> Archival Blocked</h5>
+                            <p style="color: var(--gray-color);">Your account cannot be archived at this time due to active ongoing transactions. Please resolve the following:</p>
+                            <hr style="border-color: rgba(255, 107, 107, 0.2);">
+                            <ul class="block-list">
                                 {% if active_rentals %}
-                                    <li><strong>Active Rentals:</strong> You have vehicles currently rented or pending. Please return the vehicles or cancel the pending request.</li>
+                                    <li><strong>Active Rentals:</strong> You have vehicles currently rented or pending. Please return the vehicles or cancel the request.</li>
                                 {% endif %}
                                 {% if active_purchases %}
-                                    <li><strong>Pending Purchases:</strong> You have a vehicle purchase that has not yet been delivered.</li>
+                                    <li><strong>Active Purchases:</strong> You have vehicle acquisitions in progress. Please wait for delivery or cancel the order.</li>
                                 {% endif %}
                                 {% if active_services %}
-                                    <li><strong>Ongoing Services:</strong> You have an active diagnostic, repair, or consultation booking.</li>
+                                    <li><strong>Active Services:</strong> You have pending service appointments. Please wait for completion or cancel the booking.</li>
                                 {% endif %}
                             </ul>
                         </div>
                         
                         <div class="d-grid mt-4">
-                            <a href="{% url 'car_rental:profile' %}" class="btn btn-primary">
-                                <i class="fas fa-arrow-left me-2"></i>Return to Profile
+                            <a href="{% url 'car_rental:profile' %}" class="btn btn-outline-secondary py-3" style="color: var(--text-color); border-color: rgba(255,255,255,0.2);">
+                                <i class="fas fa-arrow-left me-2"></i> Return to Dashboard
                             </a>
                         </div>
-
                     {% else %}
-                        <div class="text-center mb-4">
-                            <p class="text-muted">
-                                We're sorry to see you go. Before you proceed, please be aware that this action is <strong>permanent and irreversible</strong>.
-                            </p>
+                        <div class="alert mb-4" style="background-color: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.05); color: var(--text-color);">
+                            <strong style="color: var(--primary-color);">Warning:</strong> This action is permanent. Archiving your account will permanently sever your access to past invoices, rental history, and service logs.
                         </div>
 
-                        <div class="alert alert-warning" role="alert">
-                            <h5 class="alert-heading">By deleting your account, the following will be permanently removed:</h5>
-                            <ul class="mb-0">
-                                <li>Your profile information (name, email, phone, address)</li>
-                                <li>Your profile picture</li>
-                                <li>Your ability to log in and manage your history</li>
-                            </ul>
-                        </div>
-
-                        <form method="post" onsubmit="return confirm('Are you absolutely sure you want to permanently delete your account? This cannot be undone.');">
+                        <form method="post" id="deleteForm">
                             {% csrf_token %}
                             <div class="mb-4">
-                                <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" name="confirm_delete" value="yes" id="confirmDeleteCheck" required>
-                                    <label class="form-check-label fw-bold text-danger" for="confirmDeleteCheck">
-                                        I understand that my account will be permanently deleted and cannot be recovered.
-                                    </label>
-                                </div>
+                                <label for="confirm_delete" class="form-label" style="color: var(--gray-color); font-size: 0.9rem;">To confirm, please type <strong>yes</strong> in the box below:</label>
+                                <input type="text" name="confirm_delete" id="confirm_delete" class="form-control text-center" required autocomplete="off" placeholder="Type 'yes' to confirm">
                             </div>
-                            
-                            <div class="d-grid gap-3 d-md-flex justify-content-md-center">
-                                <button type="submit" class="btn btn-danger">
-                                    <i class="fas fa-trash-alt me-2"></i>Yes, Delete My Account
+
+                            <div class="d-grid gap-3 mt-5">
+                                <button type="submit" class="btn btn-danger-custom btn-lg py-3">
+                                    <i class="fas fa-trash-alt me-2"></i> Permanently Archive Account
                                 </button>
-                                <a href="{% url 'car_rental:profile' %}" class="btn btn-secondary">
-                                    <i class="fas fa-arrow-left me-2"></i>Cancel, Keep My Account
+                                <a href="{% url 'car_rental:profile' %}" class="btn py-3" style="background-color: var(--dark-bg); color: var(--text-color); border: 1px solid rgba(255,255,255,0.1);">
+                                    <i class="fas fa-arrow-left me-2"></i> Cancel, Return to Dashboard
                                 </a>
                             </div>
                         </form>
@@ -84,35 +160,19 @@
 </div>
 {% endblock %}
 
-{% block extra_css %}
-<style>
-    .card-header h4 {
-        font-family: var(--font-family-playfair);
-    }
-    .alert-warning {
-        background-color: rgba(255, 193, 7, 0.1);
-        border-color: rgba(255, 193, 7, 0.2);
-        color: #856404;
-    }
-    .alert-warning h5 {
-        color: #856404;
-    }
-</style>
-{% endblock %}
-
 {% block extra_js %}
 <script>
-    // This script is a fallback for the onsubmit confirmation.
-    // The form's onsubmit attribute is the primary protection.
     document.addEventListener('DOMContentLoaded', function() {
-        const form = document.querySelector('form');
+        const form = document.getElementById('deleteForm');
         if (form) {
             form.addEventListener('submit', function(event) {
-                // Double-check the confirmation value
-                const confirmationInput = form.querySelector('input[name="confirm_delete"]');
-                if (confirmationInput && confirmationInput.value !== 'yes') {
+                const confirmationInput = document.getElementById('confirm_delete');
+                if (confirmationInput && confirmationInput.value.toLowerCase().trim() !== 'yes') {
                     event.preventDefault();
-                    alert('You must check the confirmation box to proceed.');
+                    alert("Please type 'yes' exactly as shown to confirm account archival.");
+                    confirmationInput.focus();
+                } else if (!confirm("FINAL WARNING: Are you absolutely sure you want to archive your account? This cannot be undone.")) {
+                    event.preventDefault();
                 }
             });
         }
