@@ -2,13 +2,11 @@ from django.contrib import admin
 from django.utils.html import format_html
 from django.urls import reverse
 from django.http import JsonResponse
-from django.db.models import Count, Sum, Avg
 from django.utils import timezone
 from .models import (
     Car, SiteInfo, UserProfile, Customer, Rental, Purchase,
     ServiceBooking
 )
-from cloudinary import CloudinaryResource
 
 @admin.register(Car)
 class CarAdmin(admin.ModelAdmin):
@@ -27,7 +25,6 @@ class CarAdmin(admin.ModelAdmin):
             'fields': ('default_price', 'for_rent', 'rent_price', 'for_sale', 'sale_price')
         }),
     )
-    readonly_fields = ('slug',)
     
     def thumbnail(self, obj):
         if obj.image:
@@ -41,8 +38,8 @@ class CarAdmin(admin.ModelAdmin):
     
     def get_readonly_fields(self, request, obj=None):
         if obj:  # editing an existing object
-            return self.readonly_fields + ('slug',)
-        return self.readonly_fields
+            return ('slug',)
+        return ()  # Allows you to edit/create the slug when adding a brand new car
 
 @admin.register(Customer)
 class CustomerAdmin(admin.ModelAdmin):
@@ -67,7 +64,7 @@ class CustomerAdmin(admin.ModelAdmin):
         return format_html('<a href="{}">{} Purchases</a>', url, count)
     
     def service_count(self, obj):
-        count = len(obj.get_service_history())
+        count = obj.get_service_history().count()  # Optimized to use database count directly
         return format_html('{} Services', count)
     
     def get_queryset(self, request):
@@ -133,7 +130,7 @@ class PurchaseAdmin(admin.ModelAdmin):
     list_filter = ('status', 'payment_status', 'purchase_datetime')
     search_fields = ('customer__name', 'car__make', 'car__model', 'car__vin')
     date_hierarchy = 'purchase_datetime'
-    readonly_fields = ('total_amount',) # Replaced net_amount with total_amount
+    readonly_fields = ('total_amount',) 
     
     fieldsets = (
         ('Purchase Information', {
@@ -157,7 +154,6 @@ class PurchaseAdmin(admin.ModelAdmin):
     )
     
     def get_queryset(self, request):
-        # Removed 'trade_in' from select_related since it no longer exists
         return super().get_queryset(request).select_related('customer', 'car', 'employee')
 
 
